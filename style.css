@@ -37,32 +37,29 @@
     background-color: #f2f2f2;
 }
 
-/* CSS styles for the menu */
-#menu {
-    position: initial;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 200px; /* Width of the sidebar */
-    background-color: #8a0e6f; /* Dark blue background */
-    padding: 20px; /* Add padding */
-    display: none; /* Hide the sidebar by default */
+/* CSS styles for the button container */
+
+/* CSS styles for the button container */
+.button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px; /* Adjust the margin as needed */
 }
 
 /* Styles for the custom buttons */
-#menu .custom-btn {
-    background-color: #2c3e50; /* Dark blue background */
-    color: #ffffff; /* White text color */
+.button-container .custom-btn {
+    background-color: blueviolet; /* Background color for the buttons */
+    color: aliceblue; /* Text color */
     border: none; /* Remove border */
     padding: 10px 20px; /* Add padding */
-    border-radius: 5px; /* Add border radius */
+    border-radius: 10px; /* Rounded corners */
     cursor: pointer; /* Change cursor on hover */
     margin-bottom: 10px; /* Add margin between buttons */
-    font-family: 'Times New Roman', Times, serif;
-    font-size: 20px;
-    width: 150px;
+    font-family: 'Times New Roman', Times, serif; /* Font family */
+    font-size: 20px; /* Font size */
 }
 
-#menu .custom-btn:hover {
-    background-color: #1a252f; /* Darken the background color on hover */
+.button-container .custom-btn:hover {
+    background-color: purple; /* Darken the background color on hover */
 }
