@@ -22,6 +22,13 @@ function inicializarGrafo() {
   grafo.on('click', eliminarAristaSeleccionada);
 }
 
+var options = {
+  physics: {
+    enabled: false
+  }
+};
+
+
 // Función para manejar el clic en un nodo
 function clicEnNodo(propiedades) {
   const { nodes } = propiedades;
@@ -246,3 +253,50 @@ function cargarGrafo() {
   };
   reader.readAsText(file);
 }
+
+// Función Jhonson para calcular los valores Xi y Yi de los nodos del grafo
+function Jhonson(sumasColumnas, sumasFilas) {
+  const nodos = nodosDataSet.get({ fields: ['id', 'label'] });
+  let resultadosHTML = ''; // Variable para almacenar el HTML de los resultados
+
+  // Calcular valores Xi de izquierda a derecha
+  let valoresXi = new Array(nodos.length).fill(0);
+  for (let i = 0; i < nodos.length; i++) {
+    const conexiones = aristasDataSet.get({ filter: edge => edge.from === nodos[i].id });
+    conexiones.forEach(conexion => {
+      const valorArista = parseInt(conexion.label || 0);
+      const nodoDestino = nodos.find(nodo => nodo.id === conexion.to);
+      const valorXi = valoresXi[i] + valorArista;
+      if (valorXi > valoresXi[nodoDestino.id - 1]) {
+        valoresXi[nodoDestino.id - 1] = valorXi;
+      }
+    });
+  }
+  
+  // Calcular valores Yi de derecha a izquierda
+let valoresYi = new Array(nodos.length).fill(Number.POSITIVE_INFINITY); // Inicializar valores Yi con infinito positivo
+valoresYi[nodos.length - 1] = valoresXi[nodos.length - 1]; // Valor Yi del nodo final es igual a su Xi
+for (let i = nodos.length - 1; i >= 0; i--) {
+  const conexiones = aristasDataSet.get({ filter: edge => edge.to === nodos[i].id });
+  conexiones.forEach(conexion => {
+    const valorArista = parseInt(conexion.label || 0);
+    const nodoOrigen = nodos.find(nodo => nodo.id === conexion.from);
+    const valorYi = valoresYi[i] - valorArista; // Restar el valor del arista al valor Yi actual
+    if (valorYi < valoresYi[nodoOrigen.id - 1]) {
+      valoresYi[nodoOrigen.id - 1] = valorYi;
+    }
+  });
+}
+
+
+  // Mostrar los resultados en el elemento con id "matriz"
+  for (let i = 0; i < nodos.length; i++) {
+    resultadosHTML += `Valor Xi para ${nodos[i].label}: ${valoresXi[i]}<br>`;
+  }
+  for (let i = 0; i < nodos.length; i++) {
+    resultadosHTML += `Valor Yi para ${nodos[i].label}: ${valoresYi[i]}<br>`;
+  }
+
+  document.getElementById('matriz').innerHTML += resultadosHTML;
+}
+
