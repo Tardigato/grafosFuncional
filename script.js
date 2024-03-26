@@ -274,20 +274,22 @@ function Jhonson(sumasColumnas, sumasFilas) {
   }
   
   // Calcular valores Yi de derecha a izquierda
-let valoresYi = new Array(nodos.length).fill(Number.POSITIVE_INFINITY); // Inicializar valores Yi con infinito positivo
-valoresYi[nodos.length - 1] = valoresXi[nodos.length - 1]; // Valor Yi del nodo final es igual a su Xi
-for (let i = nodos.length - 1; i >= 0; i--) {
-  const conexiones = aristasDataSet.get({ filter: edge => edge.to === nodos[i].id });
-  conexiones.forEach(conexion => {
-    const valorArista = parseInt(conexion.label || 0);
-    const nodoOrigen = nodos.find(nodo => nodo.id === conexion.from);
-    const valorYi = valoresYi[i] - valorArista; // Restar el valor del arista al valor Yi actual
-    if (valorYi < valoresYi[nodoOrigen.id - 1]) {
-      valoresYi[nodoOrigen.id - 1] = valorYi;
-    }
-  });
-}
+  let valoresYi = new Array(nodos.length).fill(Number.POSITIVE_INFINITY); // Inicializar valores Yi con infinito positivo
+  valoresYi[nodos.length - 1] = valoresXi[nodos.length - 1]; // Valor Yi del nodo final es igual a su Xi
+  for (let i = nodos.length - 1; i >= 0; i--) {
+    const conexiones = aristasDataSet.get({ filter: edge => edge.to === nodos[i].id });
+    conexiones.forEach(conexion => {
+      const valorArista = parseInt(conexion.label || 0);
+      const nodoOrigen = nodos.find(nodo => nodo.id === conexion.from);
+      const valorYi = valoresYi[i] - valorArista; // Restar el valor del arista al valor Yi actual
+      if (valorYi < valoresYi[nodoOrigen.id - 1]) {
+        valoresYi[nodoOrigen.id - 1] = valorYi;
+      }
+    });
+  }
 
+  // Llamar a la función para calcular las holguras
+  holgura(nodos, valoresXi, valoresYi);
 
   // Mostrar los resultados en el elemento con id "matriz"
   for (let i = 0; i < nodos.length; i++) {
@@ -296,7 +298,27 @@ for (let i = nodos.length - 1; i >= 0; i--) {
   for (let i = 0; i < nodos.length; i++) {
     resultadosHTML += `Valor Yi para ${nodos[i].label}: ${valoresYi[i]}<br>`;
   }
-
   document.getElementById('matriz').innerHTML += resultadosHTML;
+ 
 }
+
+// Función para calcular las holguras entre cada par de nodos
+function holgura(nodos, valoresXi, valoresYi) {
+  const aristas = aristasDataSet.get({ fields: ['from', 'to', 'label'] });
+  let holgurasHTML = ''; 
+  
+  
+  aristas.forEach(arista => {
+    const nodoOrigen = nodos.find(nodo => nodo.id === arista.from);
+    const nodoDestino = nodos.find(nodo => nodo.id === arista.to);
+    const valorXiOrigen = valoresXi[nodoOrigen.id - 1];
+    const valorYiDestino = valoresYi[nodoDestino.id - 1];
+    const valorArista = parseInt(arista.label || 0);
+    const holgura = valorYiDestino - valorXiOrigen - valorArista;
+    holgurasHTML += `Holgura entre ${nodoOrigen.label} y ${nodoDestino.label}: ${holgura}<br>`;
+  });
+
+  document.getElementById('matriz').innerHTML += holgurasHTML;
+}
+
 
