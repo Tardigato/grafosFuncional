@@ -186,27 +186,27 @@ function generarMatriz() {
 function mostrarMatriz(nodos, matriz, sumasFilas, sumasColumnas) {
   const contenedorMatriz = document.getElementById('matriz');
   let html = '<h2>Matriz de Adyacencia</h2>';
-  html += '<table>';
+  html += '<table style="padding: 10px;border: 2px solid black;">';
   // Encabezados de columna
-  html += '<tr><th></th>';
+  html += '<tr><th style="padding: 10px;border: 2px solid black;background-color: green;"></th>';
   nodos.forEach((nodo, index) => {
-    html += `<th>${nodo.label}</th>`;
+    html += `<th style="padding: 10px;border: 2px solid black;background-color: green;">${nodo.label}</th>`;
   });
-  html += '<th>Suma por Fila</th>'; // Encabezado para la sumatoria por filas
+  html += '<th style="padding: 10px;border: 2px solid black;background-color: green;">Suma por Fila</th>'; // Encabezado para la sumatoria por filas
   html += '</tr>';
   // Contenido de la matriz
   matriz.forEach((fila, index) => {
-    html += `<tr><th>${nodos[index].label}</th>`;
+    html += `<tr><th style="padding: 10px;border: 2px solid black;background-color: red;">${nodos[index].label}</th>`;
     fila.forEach(valor => {
-      html += `<td>${valor}</td>`;
+      html += `<td style="padding: 10px;border: 2px solid black;">${valor}</td>`;
     });
-    html += `<td>${sumasFilas[index]}</td>`; // Mostrar la sumatoria por fila
+    html += `<td style="padding: 10px;border: 2px solid black;">${sumasFilas[index]}</td>`; // Mostrar la sumatoria por fila
     html += '</tr>';
   });
   // Agregar la fila de sumatorias por columnas al final de la tabla
-  html += '<tr><th>Suma por Columna</th>';
+  html += '<tr><th style="padding: 10px;border: 2px solid black;background-color: red;">Suma por Columna</th>';
   sumasColumnas.forEach(suma => {
-    html += `<td>${suma}</td>`;
+    html += `<td style="padding: 10px;border: 2px solid black;">${suma}</td>`;
   });
   html += '<td></td></tr>'; // Celda vacía para alinear con el encabezado de sumatorias por filas
   html += '</table>';
