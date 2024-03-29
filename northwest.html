@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,10 +33,34 @@
       // Tu código JavaScript aquí
     });
   </script>
+
+  <style>
+    /* Custom styles for positioning buttons under the header */
+    .side-buttons {
+      position: fixed;
+      top: 12%;
+      left: 0;
+      transform: translateY(0%);
+      z-index: 1000; /* Ensure buttons stay above other content */
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .side-buttons .btn {
+      width: 100%; /* Set the width of buttons */
+    }
+
+    #cont {
+      margin-top: 10px; /* Adjust margin to accommodate header */
+      margin-left: 220px; /* Adjust margin to accommodate buttons */
+    }
+  </style>
 </head>
+
 <body style="background-color: rgb(32, 43, 70);">
 
-<header style="background-image: url('background.jpg');">
+<header style="background-image: url('background.jpg.jpeg');">
   <h1 style="color: aliceblue; font-family: 'Times New Roman', serif;margin-left: 20px; font-size: 90px;">Bienvenido ¿Listo para realizar grafos?</h1>
   <table style="padding: 5px;">
     <tr>
@@ -43,14 +68,10 @@
       <td style="color: aliceblue; font-family: 'Times New Roman', serif;padding-left: 20px;font: size 20px;"><p style="font-size: 40px; font-family:'Times New Roman', Times, serif">   Si tienes dudas puedes recurrir a nuestra seccion de ayuda</p></td>
     </tr>
   </table>
-</header>
-
-<!-- Button container for navigation -->
-<div class="button-container" style="text-align: center; margin-top:20px;">
-  <!-- Página de Inicio button -->
+  <div class="side-buttons">
+      <!-- Página de Inicio button -->
   <button onclick="regresarAIndex()" class="custom-btn" style="background-color: blueviolet; color: aliceblue; border: 2px solid black; padding: 20px; border-radius: 10px; cursor: pointer; margin: 5px; font-family: 'Times New Roman', Times, serif; font-size: 35px;">Página de Inicio</button>
-
-  <!-- Cambiar Nombre button -->
+    <!-- Cambiar Nombre button -->
   <button onclick="cambiarNombre()" class="custom-btn" style="margin: 5px; background-color: orange; color: white; border: 2px solid black; padding: 20px; border-radius: 10px; cursor: pointer; font-family: 'Times New Roman', Times, serif; font-size: 35px;">Cambiar Nombre</button>
 
   <!-- Eliminar Nodo button -->
@@ -60,7 +81,7 @@
   <button onclick="guardarGrafo()" class="custom-btn" style="margin: 5px; background-color: blue; color: white; border: 2px solid black; padding: 20px; border-radius: 10px; cursor: pointer; font-family: 'Times New Roman', Times, serif; font-size: 35px;">Guardar Grafo</button>
 
   <!-- Input para cargar el grafo -->
-  <input type="file" id="inputArchivo" accept=".json" class="custom-btn" style="margin: 5px; font-family: 'Times New Roman', Times, serif; font-size: 35px; padding: 20px; border: 2px solid black;">
+  <input type="file" id="inputArchivo" accept=".json" class="custom-btn" style="margin: 5px; font-family: 'Times New Roman', Times, serif; font-size: 35px; padding: 20px; border: 2px solid black;color:aliceblue;background-color:rgb(120, 176, 210);">
 
   <!-- Cargar Grafo button -->
   <button onclick="cargarGrafo()" class="custom-btn" style="margin: 5px; background-color: gray; color: white; border: 2px solid black; padding: 20px; border-radius: 10px; cursor: pointer; font-family: 'Times New Roman', Times, serif; font-size: 35px;">Cargar Grafo</button>
@@ -73,13 +94,18 @@
 
   <!-- Agregar Nodo de Demanda button -->
   <button onclick="agregarNodo('demanda')" class="custom-btn" style="margin: 5px; background-color: red; color: white; border: 2px solid black; padding: 20px; border-radius: 10px; cursor: pointer; font-family: 'Times New Roman', Times, serif; font-size: 35px;">Agregar Nodo de Demanda</button>
+  </div>
+  
+</header>
 
-</div>
+<!-- Button container for navigation -->
+
 
 <!-- Contenedor para el lienzo y la matriz -->
 <center>
+  <h1 style="color: aliceblue; font-family: 'Times New Roman', serif;margin-left: 20px; font-size: 90px;background-color: rgb(112, 68, 157);width:70%;margin: left 12px;">Algoritmo Northwest</h1>
   <div id="cont">
-    <div id="lienzo" style="width: 2750px; height: 1000px;background-color:rgb(251, 251, 248);margin: left 20px;border-radius:50px;"></div>
+    <div id="lienzo" style="width: 75%; height: 1000px;background-color:rgb(251, 251, 248);margin: left 2%;border-radius:50px;"></div>
     <div id="matriz" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
   </div>
 </center>
@@ -87,4 +113,5 @@
 <script src="northwestjava.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
 </body>
+
 </html>
