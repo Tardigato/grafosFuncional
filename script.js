@@ -1,704 +1,302 @@
-class Nodo {
-    constructor(id, nombre, x, y) {
-        this.id = id;
-        this.nombre = nombre;
-        this.x = x;
-        this.y = y;
-    }
+let grafo;
+let nodosDataSet;
+let aristasDataSet;
+let seleccionado;
+let modoEliminarArista = false;
+// Variable para controlar el modo de la aplicación
+let modoAgregarNodo = false;
+
+
+// Función para inicializar el grafo
+function inicializarGrafo() {
+  const lienzo = document.getElementById('lienzo');
+  nodosDataSet = new vis.DataSet();
+  aristasDataSet = new vis.DataSet();
+  const data = { nodes: nodosDataSet, edges: aristasDataSet };
+  const opciones = {};
+  grafo = new vis.Network(lienzo, data, opciones);
+
+  // Eventos del grafo
+  grafo.on('click', clicEnNodo);
+  grafo.on('doubleClick', dobleClicEnArista);
+  grafo.on('click', eliminarAristaSeleccionada);
 }
 
-class Arista {
-    constructor(nodoInicio, nodoFin, peso, tipo) {
-        this.nodoInicio = nodoInicio;
-        this.nodoFin = nodoFin;
-        this.peso = peso;
-        this.tipo = tipo;
-    }
-}
+var options = {
+  physics: {
+    enabled: false
+  }
+};
 
 
-let nodeIdCounter = 1;
-let nodos = [];
-let aristas = [];
-let primerNodoParaArista = null;
-let stopNodeCreation = false;  // Flag to control node creation
-let crearNodoClicked = false;  // Initialize the flag
-
-const lienzo = document.getElementById('lienzo');
-const crearNodoButton = document.getElementById('crearNodoButton');
-
-crearNodoButton.addEventListener('click', () => {
-    crearNodoClicked = !crearNodoClicked; // Toggle the flag
-    if (crearNodoClicked) {
-        //alert('Creating nodes is enabled.');
-    }
-});
-
-lienzo.addEventListener('click', (event) => {
-    if (crearNodoClicked) {
-        const newNode = createNode(event);
-        if (newNode) {
-            lienzo.appendChild(newNode);
-            crearNodoClicked = false;  // Reset the flag after creating a node
-        }
+// Función para manejar el clic en un nodo
+function clicEnNodo(propiedades) {
+  const { nodes } = propiedades;
+  if (nodes.length > 0) {
+    if (seleccionado === undefined) {
+      seleccionado = nodes[0];
     } else {
-        const clickedNode = event.target.closest('.nodo');
-        if (clickedNode) {
-            crearAristaEntreNodos(clickedNode);
-        } else {
-            // Show verification message for clicking on the canvas without creating a node
-            const canvasRect = lienzo.getBoundingClientRect();
-            const x = event.clientX - canvasRect.left;
-            const y = event.clientY - canvasRect.top;
-            alert(`Click en (${x}, ${y}) en el lienzo.`);
-        }
+      if (seleccionado !== nodes[0]) {
+        // Se agrega una nueva arista
+        aristasDataSet.add({ from: seleccionado, to: nodes[0], arrows: 'to' });
+        seleccionado = undefined;
+      } else {
+        // Conexión manual del nodo consigo mismo
+        aristasDataSet.add({ from: seleccionado, to: seleccionado, arrows: 'to' });
+        seleccionado = undefined;
+      }
     }
+  }
+}
+
+// Función para manejar el doble clic en una arista
+function dobleClicEnArista(propiedades) {
+  const { edges } = propiedades;
+  if (edges.length > 0) {
+    // Se pide al usuario que ingrese un valor para la arista
+    const valor = prompt('Ingrese el valor para la conexión:', '');
+    if (valor !== null) {
+      // Se actualiza la arista con el valor ingresado
+      aristasDataSet.update({ id: edges[0], label: valor });
+    }
+  }
+}
+
+// Función para manejar el clic en una arista y eliminarla si estamos en modo de eliminación
+function eliminarAristaSeleccionada(propiedades) {
+  if (modoEliminarArista) {
+    const aristaId = propiedades.edges[0];
+    if (aristaId !== undefined) {
+      eliminarArista(aristaId);
+      modoEliminarArista = false; // Desactivar el modo de eliminación después de eliminar la arista
+    }
+  }
+}
+
+// Función para activar el modo de eliminación de arista
+function activarModoEliminarArista() {
+  modoEliminarArista = true;
+  alert('Haz clic en la arista que deseas eliminar.');
+}
+
+// Función para eliminar una arista dado su ID
+function eliminarArista(aristaId) {
+  aristasDataSet.remove({ id: aristaId });
+}
+
+// Agregar un evento de teclado al documento para detectar la eliminación de aristas
+document.addEventListener('keydown', function(event) {
+  // Verificar si la tecla presionada es la tecla "Delete" o "Backspace"
+  if (event.key === 'Delete' || event.key === 'Backspace') {
+    // Verificar si hay una arista seleccionada
+    const seleccion = grafo.getSelection();
+    if (seleccion.edges.length > 0) {
+      // Eliminar la arista seleccionada
+      eliminarArista(seleccion.edges[0]);
+    }
+  }
 });
 
+// Función para agregar un nodo al grafo en la posición donde se hizo clic
+function agregarNodo() {
+  // Activamos el modo de agregar nodo
+  modoAgregarNodo = true;
 
-lienzo.addEventListener('dblclick', (event) => {
-    const clickedNode = event.target.closest('.nodo');
-    if (clickedNode) {
-        renameNode(clickedNode);
+  // Desactivamos los eventos de clic en el grafo mientras agregamos nodos
+  grafo.off('click');
+
+  // Agregamos un evento de clic al lienzo para capturar las coordenadas del clic
+  grafo.on('click', function(event) {
+    // Verificamos si estamos en el modo de agregar nodo
+    if (modoAgregarNodo) {
+      const position = event.pointer.canvas; // Obtiene las coordenadas del clic
+      const nuevoId = nodosDataSet.length + 1; // Genera un nuevo ID único para el nodo
+      nodosDataSet.add({ id: nuevoId, label: 'Nodo ' + nuevoId, x: position.x, y: position.y }); // Agrega el nodo en la posición del clic
+      // Removemos el evento después de agregar el nodo para evitar agregar nodos adicionales con clics posteriores
+      grafo.off('click');
+      // Reactivamos los eventos de clic en el grafo
+      grafo.on('click', clicEnNodo);
+      modoAgregarNodo = false; // Desactivamos el modo de agregar nodo
     }
-});
-
-document.getElementById('stopNodeCreationButton').addEventListener('click', () => {
-    stopNodeCreation = !stopNodeCreation;
-    alert(`Node creation is ${stopNodeCreation ? 'stopped' : 'enabled'}.`);
-});
-
-function createNode(event) {
-    const canvasRect = lienzo.getBoundingClientRect();
-    const x = event.clientX - canvasRect.left;
-    const y = event.clientY - canvasRect.top;
-
-    const existingNode = nodos.find(node => Math.abs(node.x - x) < 20 && Math.abs(node.y - y) < 20);
-
-    if (existingNode) {
-        alert('Ya existe un nodo en estas coordenadas.');
-        return null;
-    }
-
-    const node = document.createElement('div');
-    const nodeId = nodeIdCounter++;
-    const nombre = nodeId;  // Use the ID as the default name
-
-    node.id = `nodo-${nodeId}`;
-    node.classList.add('nodo');
-    node.style.position = 'absolute';
-    node.style.left = `${x - 20}px`;
-    node.style.top = `${y - 20}px`;  // Ajusta el origen del nodo al centro
-    node.style.width = '40px';
-    node.style.height = '40px';
-    node.style.backgroundColor = '#47ff94';
-    node.style.color = '#000000';
-    node.style.borderRadius = '50%';
-    node.style.border = '2px solid #000000';
-    node.style.display = 'flex';
-    node.style.alignItems = 'center';
-    node.style.justifyContent = 'center';
-    node.style.cursor = 'pointer';
-    node.style.zIndex = '1';
-
-    const nodeIdElement = document.createElement('div');
-    nodeIdElement.classList.add('nodo-id');
-    nodeIdElement.innerText = nodeId;
-    node.appendChild(nodeIdElement);
-
-    const newNode = new Nodo(nodeId, nombre, x, y);  // Fix the order of arguments
-    nodos.push(newNode);  // Add the new node to the nodos array
-
-    // Actualizar el contenedor de información de nodos
-    actualizarInfoNodos(newNode);
-    node.dataset.node = JSON.stringify(newNode);
-
-    return node;
+  });
 }
 
 
-
-// Agrega esta función para actualizar el contenedor de información del nodo
-function actualizarInfoNodos(nodo) {
-    const infoNodos = document.getElementById('infoNodos');
-
-    const infoNodoElement = document.createElement('div');
-    infoNodoElement.innerText = `Nodo ${nodo.nombre} con centro en (${nodo.x}, ${nodo.y})`;
-
-    infoNodos.appendChild(infoNodoElement);
+// Función para cambiar el nombre de un nodo seleccionado
+function cambiarNombre() {
+  if (seleccionado !== undefined) {
+    const nuevoNombre = prompt('Ingrese el nuevo nombre para el nodo:', seleccionado.label);
+    if (nuevoNombre !== null) {
+      nodosDataSet.update({ id: seleccionado, label: nuevoNombre });
+    }
+    seleccionado = undefined; // Esta línea establece que no hay ningún nodo seleccionado después de cambiar el nombre
+  } else {
+    alert('Por favor, seleccione un nodo primero.');
+  }
 }
 
-
-
-function renameNode(nodeElement) {
-    const nodeIdElement = nodeElement.querySelector('.nodo-id');
-    const nodeId = nodeIdElement.innerText;
-
-    const newNode = JSON.parse(nodeElement.dataset.node);
-    const newName = prompt('Ingrese el nuevo nombre para el nodo:', newNode.nombre);
-    const newId = prompt('Ingrese el nuevo ID para el nodo:', newNode.id);
-
-    if (newName !== null && newId !== null) {
-        newNode.nombre = newName;
-        newNode.id = newId;
-        nodeIdElement.innerText = newId;
-        nodeElement.dataset.node = JSON.stringify(newNode);
-    }
-}
-
-function changeNodeId(nodeId, newId) {
-    const nodeToChange = nodos.find(node => node.id === nodeId);
-
-    if (nodeToChange) {
-        nodeToChange.id = newId;
-
-        const nodeElement = document.getElementById(`nodo-${nodeId}`);
-        if (nodeElement) {
-            nodeElement.setAttribute('id', `nodo-${newId}`);
-            nodeElement.innerText = newId;
-            nodeElement.dataset.node = JSON.stringify(nodeToChange);
-        } else {
-            alert('No se encontró el nodo en el HTML con el ID especificado.');
-        }
-    } else {
-        alert('No se encontró el nodo con el ID especificado.');
-    }
-}
-
-function dibujarArista(nodoInicio, nodoFin, peso, isDirectional) {
-    const angle = Math.atan2(nodoFin.y - nodoInicio.y, nodoFin.x - nodoInicio.x);
-    const length = Math.sqrt(Math.pow(nodoFin.x - nodoInicio.x, 2) + Math.pow(nodoFin.y - nodoInicio.y, 2));
-    const centerX = (nodoInicio.x + nodoFin.x) / 2;
-    const centerY = (nodoInicio.y + nodoFin.y) / 2;
-
-    const line = document.createElement('div');
-    line.classList.add('line');
-
-    // Set z-index of lines lower than nodes
-    line.style.zIndex = '0';
-
-    // Calculate the position to prevent displacement
-    const positionX = nodoInicio.x;
-    const positionY = nodoInicio.y;
-
-    line.style.position = 'absolute';
-    line.style.left = `${positionX}px`;
-    line.style.top = `${positionY}px`;
-    line.style.width = `${length}px`;
-    line.style.transform = `rotate(${angle}rad)`;
-    line.style.transformOrigin = '0 50%';
-
-    // Add arrow class conditionally
-    if (isDirectional) {
-        line.classList.add('arrow');
-
-        const arrowheadPositionX = nodoInicio.x + Math.cos(angle) * (length - 40); // Adjusted by 40 pixels 
-        const arrowheadPositionY = nodoInicio.y + Math.sin(angle) * (length - 40); // Adjusted by 40 pixels
-
-        // Add arrowhead at the calculated position
-        const arrowhead = document.createElement('div');
-        arrowhead.classList.add('arrowhead');
-        arrowhead.style.position = 'absolute';
-        arrowhead.style.left = `${arrowheadPositionX}px`;
-        arrowhead.style.top = `${arrowheadPositionY}px`;
-        arrowhead.style.transform = `rotate(${angle}rad)`;
-        lienzo.appendChild(arrowhead);
-    }
-
-    lienzo.appendChild(line);
-
-    line.addEventListener('dblclick', () => {
-        const newWeight = prompt('Ingrese el nuevo peso para la arista (puede ser decimal):', peso);
-        if (newWeight !== null && !isNaN(parseFloat(newWeight))) {
-            text.textContent = newWeight;
-        } else {
-            alert('El peso ingresado no es válido. El peso no se ha actualizado.');
-        }
+// Función para eliminar el nodo seleccionado
+function eliminarNodo() {
+  if (seleccionado !== undefined) {
+    nodosDataSet.remove({ id: seleccionado });
+    // Eliminar aristas relacionadas al nodo seleccionado
+    const aristas = aristasDataSet.get({ filter: function (item) { return item.from === seleccionado || item.to === seleccionado; } });
+    aristas.forEach(function (arista) {
+      aristasDataSet.remove({ id: arista.id });
     });
-
-    const text = document.createElement('div');
-    text.classList.add('arista-label');
-    text.style.position = 'absolute';
-
-    // Calculate the position of the text (weight) to be in the center of the line
-    text.style.top = `${centerY}px`;
-    text.style.left = `${centerX}px`;
-    text.style.transform = 'translate(-50%, -50%)';
-    text.textContent = peso;
-
-    // Set the z-index of text lower than nodes
-    text.style.zIndex = '1';
-
-    lienzo.appendChild(text);
+  } else {
+    alert('Por favor, seleccione un nodo primero.');
+  }
 }
 
 
-
-function crearAristaEntreNodos(nodoDestino) {
-    if (!primerNodoParaArista) {
-        primerNodoParaArista = nodoDestino;
-    } else {
-        const segundoNodoParaArista = nodoDestino;
-        const peso = prompt('Ingrese el peso de la arista (puede ser decimal):');
-        if (peso !== null && !isNaN(parseFloat(peso))) {
-            // Preguntar al usuario si la arista debe ser "direccionada" o "no direccionada"
-            const esDireccionada = confirm('¿La arista debe ser direccionada?');
-
-            const tipoArista = esDireccionada ? 'direccionado' : 'no direccionado';
-
-            const nuevaArista = new Arista(primerNodoParaArista, segundoNodoParaArista, parseFloat(peso), tipoArista);
-            aristas.push(nuevaArista);
-            dibujarArista(primerNodoParaArista, segundoNodoParaArista, peso, tipoArista);
-            primerNodoParaArista = null;
-
-            // Imprimir la información en la consola
-            console.log('Nodo Inicio:', nuevaArista.nodoInicio);
-            console.log('Nodo Fin:', nuevaArista.nodoFin);
-            console.log('Peso:', nuevaArista.peso);
-            console.log('Tipo:', nuevaArista.tipo);
-        } else {
-            alert('El peso ingresado no es válido. La arista no se ha creado.');
-        }
-    }
-}
-
-
-
-
-
-document.getElementById('connectNodesButton').addEventListener('click', connectNodesButton);
-
-document.getElementById('renameNodeButton').addEventListener('click', renameNodeButton);
-
-document.getElementById('deleteNodeButton').addEventListener('click', deleteNodeButton);
-
-function connectNodesButton() {
-    try {
-        const startNodeId = prompt('Ingrese el ID del nodo de inicio:');
-        const endNodeId = prompt('Ingrese el ID del nodo de destino:');
-
-        console.log('Attempting to connect nodes with IDs:', startNodeId, 'and', endNodeId);
-
-        if (!startNodeId || !endNodeId) {
-            throw new Error('Se deben proporcionar ID de inicio y destino.');
-        }
-
-        const startNode = nodos.find(node => String(node.id) === startNodeId);
-        const endNode = nodos.find(node => String(node.id) === endNodeId);
-
-        console.log('Start node:', startNode);
-        console.log('End node:', endNode);
-
-        if (startNode && endNode) {
-            const isDirectional = confirm('¿La conexión debe ser direccional?');
-            const weight = prompt('Ingrese el peso de la arista (puede ser decimal):');
-
-            if (weight !== null && !isNaN(parseFloat(weight))) {
-                const newEdge = new Arista(startNode, endNode, parseFloat(weight));
-                aristas.push(newEdge);
-
-                dibujarArista(startNode, endNode, weight, isDirectional);
-            } else {
-                alert('El peso ingresado no es válido. La arista no se ha creado.');
-            }
-        } else {
-            alert('No se encontró alguno de los nodos con los ID especificados.');
-        }
-    } catch (error) {
-        console.error('Error connecting nodes:', error.message);
-        alert('Error al conectar nodos. Consulta la consola para obtener más información.');
-    }
-}
-
-
-
-function renameNodeButton() {
-    const nodeId = prompt('Ingrese el ID del nodo que desea renombrar:');
-    const nodeToRename = nodos.find(node => String(node.id) === nodeId);
-
-    if (nodeToRename) {
-        const newName = prompt('Ingrese el nuevo nombre para el nodo:', nodeToRename.nombre);
-        const newId = prompt('Ingrese el nuevo ID para el nodo:', nodeToRename.id);
-
-        if (newName !== null && newId !== null) {
-            nodeToRename.nombre = newName;
-            nodeToRename.id = newId;
-
-            const nodeElement = document.getElementById(`nodo-${nodeId}`);
-            if (nodeElement) {
-                const newNode = createNode(parseFloat(nodeElement.style.left), parseFloat(nodeElement.style.top));
-                newNode.id = `nodo-${newId}`;
-                newNode.style.left = nodeElement.style.left;
-                newNode.style.top = nodeElement.style.top;
-                newNode.querySelector('.nodo-id').innerText = newId;
-                newNode.dataset.node = JSON.stringify(nodeToRename);
-                lienzo.replaceChild(newNode, nodeElement);
-            } else {
-                alert('No se encontró el nodo en el HTML con el ID especificado.');
-            }
-        }
-    } else {
-        alert('No se encontró el nodo con el ID especificado.');
-    }
-}
-
-function deleteNodeButton() {
-    const nodeId = prompt('Ingrese el ID del nodo que desea eliminar:');
-    const nodeIndex = nodos.findIndex(node => String(node.id) === nodeId);
-
-    if (nodeIndex !== -1) {
-        const nodeToRemove = nodos[nodeIndex];
-
-        nodos.splice(nodeIndex, 1);
-
-        const updatedNodeId = String(nodeToRemove.id);
-
-        const nodeElement = document.getElementById(`nodo-${updatedNodeId}`);
-        if (nodeElement) {
-            lienzo.removeChild(nodeElement);
-
-            aristas = aristas.filter(arista => arista.nodoInicio !== nodeToRemove && arista.nodoFin !== nodeToRemove);
-        } else {
-            alert('No se encontró el nodo en el HTML con el ID especificado.');
-        }
-    } else {
-        alert('No se encontró el nodo con el ID especificado.');
-    }
-}
-
-// Asociar funciones a los botones
-document.getElementById('guardarGrafo').addEventListener('click', guardarGrafo);
-document.getElementById('cargarGrafo').addEventListener('click', cargarGrafo);
-document.getElementById('limpiarGrafo').addEventListener('click', limpiarGrafo);
-document.getElementById('generarMatrizButton').addEventListener('click', generarMatrizButton);
-
-
-function guardarGrafo() {
-    const grafoHTML = document.getElementById('lienzo');
-
-    // Convertir el contenido HTML a una imagen usando html2canvas
-    html2canvas(grafoHTML).then(canvas => {
-        // Obtener la URL de los datos de la imagen
-        const imageData = canvas.toDataURL('image/jpeg');
-
-        // Crear un enlace temporal (a) para descargar la imagen
-        const downloadLink = document.createElement('a');
-        downloadLink.href = imageData;
-        downloadLink.download = 'grafo.jpg';
-
-        // Agregar el enlace al cuerpo del documento y hacer clic en él para iniciar la descarga
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-        const grafo = {
-            nodos: nodos,
-            aristas: aristas
-        };
-    
-        localStorage.setItem('grafo', JSON.stringify(grafo));
-        alert('Grafo guardado exitosamente como imagen (JPG) y en el localStorage.')
-    });
-}
-
-// Función para cargar el grafo desde el localStorage
-function cargarGrafo() {
-    const grafoGuardado = localStorage.getItem('grafo');
-
-    if (grafoGuardado) {
-        const grafo = JSON.parse(grafoGuardado);
-
-        // Limpiar el lienzo antes de cargar el nuevo grafo
-        limpiarLienzo();
-
-        // Crear nodos
-        grafo.nodos.forEach(nodo => {
-            const node = document.createElement('div');
-            node.id = `nodo-${nodo.id}`;
-            node.classList.add('nodo');
-            node.style.position = 'absolute';
-            node.style.left = `${nodo.x - 20}px`;
-            node.style.top = `${nodo.y - 20}px`;
-            node.style.width = '40px';
-            node.style.height = '40px';
-            node.style.backgroundColor = '#47ff94';
-            node.style.color = '#000000';
-            node.style.borderRadius = '50%';
-            node.style.border = '2px solid #000000';
-            node.style.display = 'flex';
-            node.style.alignItems = 'center';
-            node.style.justifyContent = 'center';
-            node.style.cursor = 'pointer';
-            node.style.zIndex = '1';
-
-            const nodeIdElement = document.createElement('div');
-            nodeIdElement.classList.add('nodo-id');
-            nodeIdElement.innerText = nodo.id;
-            node.appendChild(nodeIdElement);
-
-            node.dataset.node = JSON.stringify(nodo);
-
-            node.addEventListener('dblclick', (event) => {
-                renameNode(node);
-            });
-
-            lienzo.appendChild(node);
-            nodos.push(nodo);
-        });
-
-        // Crear aristas
-        grafo.aristas.forEach(arista => {
-            const startNode = nodos.find(node => node.id === arista.nodoInicio.id);
-            const endNode = nodos.find(node => node.id === arista.nodoFin.id);
-            dibujarArista(startNode, endNode, arista.peso);
-            aristas.push(arista);
-        });
-
-        alert('Grafo cargado exitosamente.');
-    } else {
-        alert('No se encontró un grafo guardado.');
-    }
-}
-
-// Función para limpiar el lienzo sin afectar el almacenamiento local
-function limpiarLienzo() {
-    lienzo.innerHTML = '';
-    nodos = [];
-    aristas = [];
-}
-
-document.getElementById('generarMatrizButton').addEventListener('click', generarMatrizButton);
-
-
-
-//-----------------------------------------------------------------------------------------
-
-function generarMatrizButton() {
-    const matrizContainer = document.getElementById('matrizContainer');
-
-    if (!matrizContainer) {
-        console.error('Matriz container not found.');
-        return;
-    }
-
-    alert('Generating matrix...');
-
-    const nodos = obtenerNodos();
-    const aristas = obtenerAristas();
-
-    if (nodos.length === 0 || aristas.length === 0) {
-        alert('No hay nodos o aristas. Imposible generar la matriz.');
-        return;
-    }
-
-    //alert('Got nodes and edges. Generating matrix...');
-
-    const matriz = generarMatriz(nodos, aristas);
-
-    if (matriz) {
-        // Display the matrix details in the alerts
-        alert('Matriz generada corectamente.\n\nNodos: ' + JSON.stringify(nodos) + '\n\nAristas: ' + JSON.stringify(aristas) + '\n\nMatriz: ' + JSON.stringify(matriz.matriz));
-        mostrarMatrizEnHTML(matriz.matriz, matriz.nodos, matrizContainer);
-    } else {
-        alert('Error al generar la matriz. Asegúrate de tener nodos y aristas.');
-    }
-}
-
-
-
-
-// Agregar la función que recibe nodos y aristas como parámetros
-// Function to generate the adjacency matrix
-// ... (Previous code)
-
+// Función para generar la matriz de adyacencia y calcular las sumatorias por filas y por columnas
 function generarMatriz() {
-    const nodosTexto = nodos.map(nodo => nodo.id).join('\t');
-
-    console.log(nodosTexto);
-
-    // Crear un elemento div para mostrar la información de todos los nodos juntos
-    const infoNodoElement = document.createElement('div');
-    infoNodoElement.innerText = `  ${nodosTexto}   `;
-    infoNodos.appendChild(infoNodoElement);
-
-    // Crear la matriz de adyacencia llena de ceros
-    const matriz = Array.from({ length: nodos.length }, () => Array.from({ length: nodos.length }, () => 0));
-
-    // Actualizar la matriz con los pesos de las aristas
-    aristas.forEach(arista => {
-        const i = nodos.findIndex(nodo => nodo.id === arista.nodoInicio.id);
-        const j = nodos.findIndex(nodo => nodo.id === arista.nodoFin.id);
-        matriz[i][j] = arista.peso;
+  const nodos = nodosDataSet.get({ fields: ['id', 'label'] });
+  const matriz = [];
+  const sumasFilas = [];
+  const sumasColumnas = new Array(nodos.length).fill(0); // Inicializar el array de sumatorias por columnas con ceros
+  
+  nodos.forEach((nodo, rowIndex) => {
+    const fila = [];
+    let sumaFila = 0; // Inicializar la sumatoria por fila para este nodo
+    nodos.forEach((otroNodo, columnIndex) => {
+      const conexion = aristasDataSet.get({
+        filter: edge => (edge.from === nodo.id && edge.to === otroNodo.id)
+      });
+      if (conexion.length > 0) {
+        // Asignar valor numérico a la conexión
+        const valor = parseInt(conexion[0].label || 1);
+        fila.push(valor);
+        sumaFila += valor; // Sumar al total de la fila
+        sumasColumnas[columnIndex] += valor; // Sumar al total de la columna
+      } else {
+        fila.push(0); // Sin conexión
+      }
     });
+    matriz.push(fila);
+    sumasFilas.push(sumaFila);
+  });
 
-    // Imprimir la matriz en la consola
-    console.log(' '.repeat(8) + `[${nodosTexto}]`);
-    nodos.forEach((nodo, i) => {
-        const fila = [`[${nodo.id}]`];
-        nodos.forEach((nodo, j) => {
-            fila.push(matriz[i][j]);
-        });
-        console.log(`${' '.repeat(8)}${fila.join('    ')}`);
-    });
-
-    // Mostrar la matriz como alerta
-    const alertMatriz = [' '.repeat(8) + `[${nodosTexto}]`];
-    nodos.forEach((nodo, i) => {
-        const fila = [`[${nodo.id}]`];
-        nodos.forEach((nodo, j) => {
-            fila.push(matriz[i][j]);
-        });
-        alertMatriz.push(`${' '.repeat(8)}${fila.join('    ')}`);
-    });
-    alert(alertMatriz.join('\n'));
+  mostrarMatriz(nodos, matriz, sumasFilas, sumasColumnas);
 }
 
 
+// Función para mostrar la matriz de adyacencia y las sumatorias por filas y por columnas en el DOM 
+function mostrarMatriz(nodos, matriz, sumasFilas, sumasColumnas) {
+  const contenedorMatriz = document.getElementById('matriz');
+  let html = '<h2>Matriz de Adyacencia</h2>';
+  html += '<table>';
+  // Encabezados de columna
+  html += '<tr><th></th>';
+  nodos.forEach((nodo, index) => {
+    html += `<th>${nodo.label}</th>`;
+  });
+  html += '<th>Suma por Fila</th>'; // Encabezado para la sumatoria por filas
+  html += '</tr>';
+  // Contenido de la matriz
+  matriz.forEach((fila, index) => {
+    html += `<tr><th>${nodos[index].label}</th>`;
+    fila.forEach(valor => {
+      html += `<td>${valor}</td>`;
+    });
+    html += `<td>${sumasFilas[index]}</td>`; // Mostrar la sumatoria por fila
+    html += '</tr>';
+  });
+  // Agregar la fila de sumatorias por columnas al final de la tabla
+  html += '<tr><th>Suma por Columna</th>';
+  sumasColumnas.forEach(suma => {
+    html += `<td>${suma}</td>`;
+  });
+  html += '<td></td></tr>'; // Celda vacía para alinear con el encabezado de sumatorias por filas
+  html += '</table>';
+  contenedorMatriz.innerHTML = html;
+}
 
 
+// Inicializar el grafo cuando se carga la página
+document.addEventListener('DOMContentLoaded', () => {
+  inicializarGrafo();
+});
 
-// ... (Previous code)
+// Función para guardar el grafo con un nombre proporcionado por el usuario
+function guardarGrafo() {
+  const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar el grafo:', 'grafo');
+  if (nombreArchivo !== null) {
+    const grafoJSON = JSON.stringify({ nodos: nodosDataSet.get(), aristas: aristasDataSet.get() });
+    const blob = new Blob([grafoJSON], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nombreArchivo + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+}
 
-function mostrarMatrizEnHTML(matriz, nodos, matrizContainerId) {
-    const matrizContainer = document.getElementById(matrizContainerId);
+// Función para cargar un grafo desde un archivo JSON seleccionado por el usuario
+function cargarGrafo() {
+  const inputArchivo = document.getElementById('inputArchivo');
+  const file = inputArchivo.files[0];
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    const contenido = event.target.result;
+    const datos = JSON.parse(contenido);
+    // Limpiar los conjuntos de datos actuales
+    nodosDataSet.clear();
+    aristasDataSet.clear();
+    // Agregar los nodos y aristas del archivo JSON al grafo
+    nodosDataSet.add(datos.nodos);
+    aristasDataSet.add(datos.aristas);
+  };
+  reader.readAsText(file);
+}
 
-    if (!matrizContainer) {
-        console.error('Matriz container not found.');
-        return;
+// Función Jhonson para calcular los valores Xi y Yi de los nodos del grafo
+function Jhonson(sumasColumnas, sumasFilas) {
+  const nodos = nodosDataSet.get({ fields: ['id', 'label'] });
+  let resultadosHTML = ''; // Variable para almacenar el HTML de los resultados
+
+  // Calcular valores Xi de izquierda a derecha
+  let valoresXi = new Array(nodos.length).fill(0);
+  for (let i = 0; i < nodos.length; i++) {
+    const conexiones = aristasDataSet.get({ filter: edge => edge.from === nodos[i].id });
+    conexiones.forEach(conexion => {
+      const valorArista = parseInt(conexion.label || 0);
+      const nodoDestino = nodos.find(nodo => nodo.id === conexion.to);
+      const valorXi = valoresXi[i] + valorArista;
+      if (valorXi > valoresXi[nodoDestino.id - 1]) {
+        valoresXi[nodoDestino.id - 1] = valorXi;
+      }
+    });
+  }
+  
+  // Calcular valores Yi de derecha a izquierda
+let valoresYi = new Array(nodos.length).fill(Number.POSITIVE_INFINITY); // Inicializar valores Yi con infinito positivo
+valoresYi[nodos.length - 1] = valoresXi[nodos.length - 1]; // Valor Yi del nodo final es igual a su Xi
+for (let i = nodos.length - 1; i >= 0; i--) {
+  const conexiones = aristasDataSet.get({ filter: edge => edge.to === nodos[i].id });
+  conexiones.forEach(conexion => {
+    const valorArista = parseInt(conexion.label || 0);
+    const nodoOrigen = nodos.find(nodo => nodo.id === conexion.from);
+    const valorYi = valoresYi[i] - valorArista; // Restar el valor del arista al valor Yi actual
+    if (valorYi < valoresYi[nodoOrigen.id - 1]) {
+      valoresYi[nodoOrigen.id - 1] = valorYi;
     }
-
-    // Clear the container before displaying the new matrix
-    matrizContainer.innerHTML = '';
-
-    // Create the HTML content for the matrix
-    let htmlContent = '<table class="matriz-adyacencia">';
-    htmlContent += '<tr><th></th>';
-
-    nodos.forEach(nombre => {
-        htmlContent += `<th>${nombre}</th>`;
-    });
-
-    htmlContent += '</tr>';
-
-    for (let i = 0; i < nodos.length; i++) {
-        htmlContent += `<tr><th>${nodos[i]}</th>`;
-
-        for (let j = 0; j < nodos.length; j++) {
-            htmlContent += `<td>${matriz[i][j].toString()}</td>`;
-        }
-
-        htmlContent += '</tr>';
-    }
-
-    htmlContent += '</table>';
-
-    // Set the HTML content in the <p> element
-    matrizContainer.innerHTML = htmlContent;
-}
-
-// ... (Previous code)
-
-
-// Example usage:
-const matriz = generarMatriz(nodos, aristas);
-
-if (matriz) {
-    alert('Matrix generated successfully.');
-    mostrarMatrizEnHTML(matriz.matriz, matriz.nodos, 'matrizContainer'); 
-} else {
-    alert('Error generating the matrix. Make sure you have nodes and edges.');
+  });
 }
 
 
+  // Mostrar los resultados en el elemento con id "matriz"
+  for (let i = 0; i < nodos.length; i++) {
+    resultadosHTML += `Valor Xi para ${nodos[i].label}: ${valoresXi[i]}<br>`;
+  }
+  for (let i = 0; i < nodos.length; i++) {
+    resultadosHTML += `Valor Yi para ${nodos[i].label}: ${valoresYi[i]}<br>`;
+  }
 
-
-//-----------------------------------------------------------------------------------------------------------------------------------
-
-
-function obtenerNodos() {
-    const nodos = [];
-    const nodosElements = document.querySelectorAll('.nodo');
-    
-    nodosElements.forEach(element => {
-        const nodeData = element.dataset.node; // Assuming 'node' is a valid data attribute
-        if (nodeData) {
-            try {
-                const parsedNode = JSON.parse(nodeData);
-                nodos.push({ nombre: parsedNode.nombre });
-            } catch (error) {
-                console.error('Error parsing node data:', error);
-            }
-        } else {
-            console.log('Element with class "nodo" and missing data-node attribute:', element);
-        }
-    });
-
-    console.log('All elements with class "nodo":', nodosElements);
-
-    //alert('Nodos obtenidos: ' + JSON.stringify(nodos));
-
-    return nodos;
+  document.getElementById('matriz').innerHTML += resultadosHTML;
 }
-
-
-
-
-
-
-function obtenerAristas() {
-    const aristasElements = document.querySelectorAll('.line');
-    const aristas = [];
-
-    aristasElements.forEach(aristaElement => {
-        const startNodeElement = aristaElement.parentElement.querySelector('.nodo');
-        const endNodeElement = obtenerNodoDestino(aristaElement);
-
-        if (endNodeElement) {
-            const startNodeId = startNodeElement.querySelector('.nodo-id').innerText;
-            const endNodeId = endNodeElement.querySelector('.nodo-id').innerText;
-
-            const peso = parseFloat(aristaElement.nextElementSibling.textContent);
-            aristas.push({ nodoInicio: { nombre: startNodeId }, nodoFin: { nombre: endNodeId }, peso: peso });
-        } else {
-            alert('No se encontró el nodo de destino.');
-        }
-    });
-
-    //alert('Aristas obtenidas: ' + JSON.stringify(aristas));
-
-    return aristas;
-}
-
-function obtenerNodoDestino(aristaElement) {
-    const rect = aristaElement.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-
-    let distanciaNodoMasCercano = Number.MAX_SAFE_INTEGER;
-    let nodoMasCercano = null;
-
-    // Iterate over all nodes to find the closest one
-    document.querySelectorAll('.nodo').forEach(currentNode => {
-        const currentRect = currentNode.getBoundingClientRect();
-        const currentCenterX = currentRect.left + currentRect.width / 2;
-        const currentCenterY = currentRect.top + currentRect.height / 2;
-
-        const distanceToCurrent = Math.hypot(centerX - currentCenterX, centerY - currentCenterY);
-
-        if (distanceToCurrent < distanciaNodoMasCercano) {
-            distanciaNodoMasCercano = distanceToCurrent;
-            nodoMasCercano = currentNode;
-        }
-    });
-
-    return nodoMasCercano;
-}
-
-
-
-
-
-
-
-
-
 
