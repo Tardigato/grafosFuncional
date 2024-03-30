@@ -8,8 +8,6 @@ header {
     padding: 40px;
 }
 
-
-
 footer {
     position: fixed;
     bottom: 0;
@@ -27,8 +25,8 @@ body {
     background-repeat: no-repeat;
     padding-top: 160px; /* Adjust according to the height of the header */
     padding-bottom: 40px; /* Adjust according to the height of the footer */
+    width: 100%;
 }
-
 
 .title-container {
     background-image: url('background.jpg');
@@ -80,8 +78,6 @@ main {
     cursor: pointer;
 }
 
-
-
 h1 {
     font-family: 'Times New Roman', Times, serif;
     font-style: oblique;
@@ -106,7 +102,7 @@ h1 {
     top: 0;
     left: 0;
     bottom: 0;
-    width: 200px;
+    width: 2000px;
     background-color: #34495e;
     padding: 20px;
     display: none;
@@ -139,6 +135,29 @@ h1 {
 p {
     text-align: left;
     font-size: 40px;
-    margin-top: 40px;
-    margin-left: 2%;
+    
 }
+
+.container {
+    background-color: #34495e;
+    width: 500px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: auto;
+}
+
+.column {
+    width: calc(25% - 80px); /* Adjust the width of each column */
+    margin: 20px; /* Adjust margin between columns */
+    padding: 30px;
+    box-sizing: border-box;
+    background-color: #34495e;
+    color: white;
+    max-width: 100%;
+    height: auto;
+    text-align: center;
+}
+ h3{
+    background-color: #3498db;
+ }
