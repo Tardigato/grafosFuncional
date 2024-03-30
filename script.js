@@ -186,27 +186,27 @@ function generarMatriz() {
 function mostrarMatriz(nodos, matriz, sumasFilas, sumasColumnas) {
   const contenedorMatriz = document.getElementById('matriz');
   let html = '<h2>Matriz de Adyacencia</h2>';
-  html += '<table>';
+  html += '<table style="padding: 10px;border: 2px solid black;">';
   // Encabezados de columna
-  html += '<tr><th></th>';
+  html += '<tr><th style="padding: 10px;border: 2px solid black;background-color: green;"></th>';
   nodos.forEach((nodo, index) => {
-    html += `<th>${nodo.label}</th>`;
+    html += `<th style="padding: 10px;border: 2px solid black;background-color: green;">${nodo.label}</th>`;
   });
-  html += '<th>Suma por Fila</th>'; // Encabezado para la sumatoria por filas
+  html += '<th style="padding: 10px;border: 2px solid black;background-color: green;">Suma por Fila</th>'; // Encabezado para la sumatoria por filas
   html += '</tr>';
   // Contenido de la matriz
   matriz.forEach((fila, index) => {
-    html += `<tr><th>${nodos[index].label}</th>`;
+    html += `<tr><th style="padding: 10px;border: 2px solid black;background-color: red;">${nodos[index].label}</th>`;
     fila.forEach(valor => {
-      html += `<td>${valor}</td>`;
+      html += `<td style="padding: 10px;border: 2px solid black;">${valor}</td>`;
     });
-    html += `<td>${sumasFilas[index]}</td>`; // Mostrar la sumatoria por fila
+    html += `<td style="padding: 10px;border: 2px solid black;">${sumasFilas[index]}</td>`; // Mostrar la sumatoria por fila
     html += '</tr>';
   });
   // Agregar la fila de sumatorias por columnas al final de la tabla
-  html += '<tr><th>Suma por Columna</th>';
+  html += '<tr><th style="padding: 10px;border: 2px solid black;background-color: red;">Suma por Columna</th>';
   sumasColumnas.forEach(suma => {
-    html += `<td>${suma}</td>`;
+    html += `<td style="padding: 10px;border: 2px solid black;">${suma}</td>`;
   });
   html += '<td></td></tr>'; // Celda vacía para alinear con el encabezado de sumatorias por filas
   html += '</table>';
@@ -257,7 +257,7 @@ function cargarGrafo() {
 // Función Jhonson para calcular los valores Xi y Yi de los nodos del grafo
 function Jhonson(sumasColumnas, sumasFilas) {
   const nodos = nodosDataSet.get({ fields: ['id', 'label'] });
-  let resultadosHTML = ''; // Variable para almacenar el HTML de los resultados
+  let tablaXiYiHTML = '<table border="1">'; // Variable para almacenar el HTML de la tabla de valores Xi y Yi
 
   // Calcular valores Xi de izquierda a derecha
   let valoresXi = new Array(nodos.length).fill(0);
@@ -288,37 +288,54 @@ function Jhonson(sumasColumnas, sumasFilas) {
     });
   }
 
+  // Mostrar los resultados de Xi y Yi en la tabla combinada
+  tablaXiYiHTML += `<tr><th>Nodos</th><th>Xi</th><th>Yi</th></tr>`;
+  for (let i = 0; i < nodos.length; i++) {
+    tablaXiYiHTML += `<tr><td>${nodos[i].label}</td><td>${valoresXi[i]}</td><td>${valoresYi[i]}</td></tr>`;
+  }
+  tablaXiYiHTML += '</table>';
+  document.getElementById('tablaXiYi').innerHTML = tablaXiYiHTML;
+ 
   // Llamar a la función para calcular las holguras
   holgura(nodos, valoresXi, valoresYi);
-
-  // Mostrar los resultados en el elemento con id "matriz"
-  for (let i = 0; i < nodos.length; i++) {
-    resultadosHTML += `Valor Xi para ${nodos[i].label}: ${valoresXi[i]}<br>`;
-  }
-  for (let i = 0; i < nodos.length; i++) {
-    resultadosHTML += `Valor Yi para ${nodos[i].label}: ${valoresYi[i]}<br>`;
-  }
-  document.getElementById('matriz').innerHTML += resultadosHTML;
- 
 }
-
 // Función para calcular las holguras entre cada par de nodos
 function holgura(nodos, valoresXi, valoresYi) {
   const aristas = aristasDataSet.get({ fields: ['from', 'to', 'label'] });
-  let holgurasHTML = ''; 
-  
-  
-  aristas.forEach(arista => {
-    const nodoOrigen = nodos.find(nodo => nodo.id === arista.from);
-    const nodoDestino = nodos.find(nodo => nodo.id === arista.to);
-    const valorXiOrigen = valoresXi[nodoOrigen.id - 1];
-    const valorYiDestino = valoresYi[nodoDestino.id - 1];
-    const valorArista = parseInt(arista.label || 0);
-    const holgura = valorYiDestino - valorXiOrigen - valorArista;
-    holgurasHTML += `Holgura entre ${nodoOrigen.label} y ${nodoDestino.label}: ${holgura}<br>`;
+  let holgurasLista = []; // Variable para almacenar la lista de holguras
+
+  // Calcular las holguras y almacenarlas en la lista de holguras
+  for (let i = 0; i < nodos.length; i++) {
+    let nodoHolguras = {};
+    nodoHolguras.label = nodos[i].label;
+    nodoHolguras.holguras = [];
+
+    for (let j = 0; j < aristas.length; j++) {
+      const arista = aristas[j];
+      if (arista.from === nodos[i].id) {
+        const nodoDestino = nodos.find(nodo => nodo.id === arista.to);
+        const valorXiOrigen = valoresXi[nodos[i].id - 1];
+        const valorYiDestino = valoresYi[nodoDestino.id - 1];
+        const valorArista = parseInt(arista.label || 0);
+        const holgura = valorYiDestino - valorXiOrigen - valorArista;
+        nodoHolguras.holguras.push({ destino: nodoDestino.label, valor: holgura });
+      }
+    }
+
+    holgurasLista.push(nodoHolguras);
+  }
+
+  // Mostrar la lista de holguras en el elemento con id "listaHolguras"
+  let listaHolgurasHTML = '<ul>';
+  holgurasLista.forEach(nodo => {
+    listaHolgurasHTML += `<li>${nodo.label}: `;
+    nodo.holguras.forEach(holgura => {
+      listaHolgurasHTML += `${holgura.destino} = ${holgura.valor}, `;
+    });
+    listaHolgurasHTML = listaHolgurasHTML.slice(0, -2); // Eliminar la última coma y espacio
+    listaHolgurasHTML += `</li>`;
   });
+  listaHolgurasHTML += '</ul>';
 
-  document.getElementById('matriz').innerHTML += holgurasHTML;
+  document.getElementById('listaHolguras').innerHTML = listaHolgurasHTML;
 }
-
-
