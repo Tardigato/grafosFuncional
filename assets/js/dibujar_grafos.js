@@ -302,14 +302,10 @@ function Jhonson(sumasColumnas, sumasFilas) {
 // Función para calcular las holguras entre cada par de nodos
 function holgura(nodos, valoresXi, valoresYi) {
   const aristas = aristasDataSet.get({ fields: ['from', 'to', 'label'] });
-  let holgurasLista = []; // Variable para almacenar la lista de holguras
+  let listaHolgurasHTML = ''; // Variable para almacenar el HTML de la lista de holguras
 
-  // Calcular las holguras y almacenarlas en la lista de holguras
+  // Calcular las holguras y almacenarlas en el HTML de la lista de holguras
   for (let i = 0; i < nodos.length; i++) {
-    let nodoHolguras = {};
-    nodoHolguras.label = nodos[i].label;
-    nodoHolguras.holguras = [];
-
     for (let j = 0; j < aristas.length; j++) {
       const arista = aristas[j];
       if (arista.from === nodos[i].id) {
@@ -318,24 +314,15 @@ function holgura(nodos, valoresXi, valoresYi) {
         const valorYiDestino = valoresYi[nodoDestino.id - 1];
         const valorArista = parseInt(arista.label || 0);
         const holgura = valorYiDestino - valorXiOrigen - valorArista;
-        nodoHolguras.holguras.push({ destino: nodoDestino.label, valor: holgura });
+        let color = 'black'; // Color predeterminado para la holgura
+        if (holgura === 0) {
+          color = 'green'; 
+        }
+        listaHolgurasHTML += `<li style="color: ${color};">${nodos[i].label} con ${nodoDestino.label} holgura = ${holgura}</li>`;
       }
     }
-
-    holgurasLista.push(nodoHolguras);
   }
 
   // Mostrar la lista de holguras en el elemento con id "listaHolguras"
-  let listaHolgurasHTML = '<ul>';
-  holgurasLista.forEach(nodo => {
-    listaHolgurasHTML += `<li>${nodo.label}: `;
-    nodo.holguras.forEach(holgura => {
-      listaHolgurasHTML += `${holgura.destino} = ${holgura.valor}, `;
-    });
-    listaHolgurasHTML = listaHolgurasHTML.slice(0, -2); // Eliminar la última coma y espacio
-    listaHolgurasHTML += `</li>`;
-  });
-  listaHolgurasHTML += '</ul>';
-
-  document.getElementById('listaHolguras').innerHTML = listaHolgurasHTML;
+  document.getElementById('listaHolguras').innerHTML = `<ul>${listaHolgurasHTML}</ul>`;
 }
