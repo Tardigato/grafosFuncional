@@ -257,7 +257,7 @@ function cargarGrafo() {
 // Función Jhonson para calcular los valores Xi y Yi de los nodos del grafo
 function Jhonson(sumasColumnas, sumasFilas) {
   const nodos = nodosDataSet.get({ fields: ['id', 'label'] });
-  let resultadosHTML = ''; // Variable para almacenar el HTML de los resultados
+  let tablaXiYiHTML = '<table border="1">'; // Variable para almacenar el HTML de la tabla de valores Xi y Yi
 
   // Calcular valores Xi de izquierda a derecha
   let valoresXi = new Array(nodos.length).fill(0);
@@ -274,29 +274,68 @@ function Jhonson(sumasColumnas, sumasFilas) {
   }
   
   // Calcular valores Yi de derecha a izquierda
-let valoresYi = new Array(nodos.length).fill(Number.POSITIVE_INFINITY); // Inicializar valores Yi con infinito positivo
-valoresYi[nodos.length - 1] = valoresXi[nodos.length - 1]; // Valor Yi del nodo final es igual a su Xi
-for (let i = nodos.length - 1; i >= 0; i--) {
-  const conexiones = aristasDataSet.get({ filter: edge => edge.to === nodos[i].id });
-  conexiones.forEach(conexion => {
-    const valorArista = parseInt(conexion.label || 0);
-    const nodoOrigen = nodos.find(nodo => nodo.id === conexion.from);
-    const valorYi = valoresYi[i] - valorArista; // Restar el valor del arista al valor Yi actual
-    if (valorYi < valoresYi[nodoOrigen.id - 1]) {
-      valoresYi[nodoOrigen.id - 1] = valorYi;
+  let valoresYi = new Array(nodos.length).fill(Number.POSITIVE_INFINITY); // Inicializar valores Yi con infinito positivo
+  valoresYi[nodos.length - 1] = valoresXi[nodos.length - 1]; // Valor Yi del nodo final es igual a su Xi
+  for (let i = nodos.length - 1; i >= 0; i--) {
+    const conexiones = aristasDataSet.get({ filter: edge => edge.to === nodos[i].id });
+    conexiones.forEach(conexion => {
+      const valorArista = parseInt(conexion.label || 0);
+      const nodoOrigen = nodos.find(nodo => nodo.id === conexion.from);
+      const valorYi = valoresYi[i] - valorArista; // Restar el valor del arista al valor Yi actual
+      if (valorYi < valoresYi[nodoOrigen.id - 1]) {
+        valoresYi[nodoOrigen.id - 1] = valorYi;
+      }
+    });
+  }
+
+  // Mostrar los resultados de Xi y Yi en la tabla combinada
+  tablaXiYiHTML += `<tr><th>Nodos</th><th>Xi</th><th>Yi</th></tr>`;
+  for (let i = 0; i < nodos.length; i++) {
+    tablaXiYiHTML += `<tr><td>${nodos[i].label}</td><td>${valoresXi[i]}</td><td>${valoresYi[i]}</td></tr>`;
+  }
+  tablaXiYiHTML += '</table>';
+  document.getElementById('tablaXiYi').innerHTML = tablaXiYiHTML;
+ 
+  // Llamar a la función para calcular las holguras
+  holgura(nodos, valoresXi, valoresYi);
+}
+// Función para calcular las holguras entre cada par de nodos
+function holgura(nodos, valoresXi, valoresYi) {
+  const aristas = aristasDataSet.get({ fields: ['from', 'to', 'label'] });
+  let holgurasLista = []; // Variable para almacenar la lista de holguras
+
+  // Calcular las holguras y almacenarlas en la lista de holguras
+  for (let i = 0; i < nodos.length; i++) {
+    let nodoHolguras = {};
+    nodoHolguras.label = nodos[i].label;
+    nodoHolguras.holguras = [];
+
+    for (let j = 0; j < aristas.length; j++) {
+      const arista = aristas[j];
+      if (arista.from === nodos[i].id) {
+        const nodoDestino = nodos.find(nodo => nodo.id === arista.to);
+        const valorXiOrigen = valoresXi[nodos[i].id - 1];
+        const valorYiDestino = valoresYi[nodoDestino.id - 1];
+        const valorArista = parseInt(arista.label || 0);
+        const holgura = valorYiDestino - valorXiOrigen - valorArista;
+        nodoHolguras.holguras.push({ destino: nodoDestino.label, valor: holgura });
+      }
     }
+
+    holgurasLista.push(nodoHolguras);
+  }
+
+  // Mostrar la lista de holguras en el elemento con id "listaHolguras"
+  let listaHolgurasHTML = '<ul>';
+  holgurasLista.forEach(nodo => {
+    listaHolgurasHTML += `<li>${nodo.label}: `;
+    nodo.holguras.forEach(holgura => {
+      listaHolgurasHTML += `${holgura.destino} = ${holgura.valor}, `;
+    });
+    listaHolgurasHTML = listaHolgurasHTML.slice(0, -2); // Eliminar la última coma y espacio
+    listaHolgurasHTML += `</li>`;
   });
+  listaHolgurasHTML += '</ul>';
+
+  document.getElementById('listaHolguras').innerHTML = listaHolgurasHTML;
 }
-
-
-  // Mostrar los resultados en el elemento con id "matriz"
-  for (let i = 0; i < nodos.length; i++) {
-    resultadosHTML += `Valor Xi para ${nodos[i].label}: ${valoresXi[i]}<br>`;
-  }
-  for (let i = 0; i < nodos.length; i++) {
-    resultadosHTML += `Valor Yi para ${nodos[i].label}: ${valoresYi[i]}<br>`;
-  }
-
-  document.getElementById('matriz').innerHTML += resultadosHTML;
-}
-
