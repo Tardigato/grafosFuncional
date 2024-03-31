@@ -287,6 +287,7 @@ function Jhonson(sumasColumnas, sumasFilas) {
       }
     });
   }
+  tablaXiYiHTML += '<h3>Tabla de valores</h3>';
 
   // Mostrar los resultados de Xi y Yi en la tabla combinada
   tablaXiYiHTML += `<tr><th>Nodos</th><th>Xi</th><th>Yi</th></tr>`;
@@ -322,7 +323,8 @@ function holgura(nodos, valoresXi, valoresYi) {
       }
     }
   }
+  let listaHolgurasConTituloHTML = `<h3>Holgura / Ruta Crítica</h3><ul>${listaHolgurasHTML}</ul>`;
 
   // Mostrar la lista de holguras en el elemento con id "listaHolguras"
-  document.getElementById('listaHolguras').innerHTML = `<ul>${listaHolgurasHTML}</ul>`;
+  document.getElementById('listaHolguras').innerHTML = listaHolgurasConTituloHTML;
 }
