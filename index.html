@@ -28,7 +28,7 @@
 			<li><a href="generic.html">Generic</a></li>
 			-->
 			<li><a href="dibujar_grafos.html">Dibujar grafos</a></li>
-			<li><a href="contactos.html">Algoritmo Jonhson</a></li>
+			<li><a href="dibujar_grafos.html">Algoritmo Jonhson</a></li>
 			<li><a href="contactos.html">Algoritmo de Asignación</a></li>
 			<li><a href="northwest.html">Algoritmo Northwest</a></li>
 			<li><a href="contactos.html">Contactos</a></li>
@@ -50,44 +50,96 @@
 	<section class="wrapper">
 		<div class="inner">
 			<header class="special">
-				<div>
-					<h2>¿Qué son los grafos?</h2>
-					<iframe width="560" height="315" src="https://www.youtube.com/embed/vnNFiNVy9KM" frameborder="0" allowfullscreen></iframe>
-					<h3 class="text">
-						Los grafos son un conjunto de objetos llamados vértices o nodos unidos por enlaces que llamamos aristas o arcos, que 
-						permiten representar relaciones binarias entre elementos de un conjunto. Esta estructura, que se compone de aristas y 
-						vértices, es esencial en áreas como matemáticas y ciencias de la computación. Se aplican en una variedad de disciplinas, 
-						desde informática y logística hasta biología y química, para modelar y comprender relaciones entre datos complejos.
-					</h3>
-					<img src="images/partes_grafo.jpg" alt="Imagen 1" class="img-fluid mb-3">
-				</div>
-				<div>
-					<p>Dentro de los grafos se pueden visualizar:</p>
-					<ul>
-						<li>Los grafos dirigidos: cuentan con los elementos clásicos de un grafo simple, pero con la particularidad de que sus aristas que conectan los nodos tienen una direccionalidad clara.</li>
-						<li>Los grafos no dirigidos: la única diferencia entre estos grafos y los anteriores es que estos grafos no cuentan con una direccionalidad clara.</li>
-					</ul>
-					<img src="images/tipos_grafo.jpg" alt="Imagen 2" class="img-fluid mb-3">
-				</div>
-				<div>
-					<h2>Propiedades de los Grafos</h2>
-					<ul>
-						<li>Adyacencia: dos aristas son adyacentes si tienen un vértice en común, y dos vértices son adyacentes si una arista los une.</li>
-						<li>Incidencia: una arista es incidente a un vértice si esta lo une a otro.</li>
-						<li>Ponderación: corresponde a una función que a cada arista le asocia un valor (costo, peso, longitud, etc.), para aumentar la expresividad del modelo. Esto se usa mucho para problemas de optimización, como el del vendedor viajero o del camino más corto.</li>
-						<li>Etiquetado: distinción que se hace a los vértices y/o aristas mediante una marca que los hace unívocamente distinguibles del resto.</li>
-					</ul>
-				</div>
-				<div>
-					<h2>Representación de los Grafos</h2>
-					<p style="padding-bottom: 40px;">Los grafos se pueden representar mediante matrices de adyacencia, que son matrices cuadradas donde las filas y las columnas hacen referencia a los vértices para almacenar en cada casilla la longitud entre cada par de vértices del grafo.</p>
-				</div>
-				</div>
-				<div class="column">
-					<div>
-						<h2>¿Qué es la matriz de Adyacencia?</h2>
+				<h2>¿Qué son los grafos?</h2>
+				<div class="row">
+					<div class="col-6 col-12-medium">
+						<span class="image fit"><img height="100" width="100" src="images/partes_grafo.jpg" alt=""></span>				
+					</div>
+					<div class="col-6 col-12-medium">
+						<h3 class="text">
+							Los grafos son una estructura matemática esencial que consiste en un conjunto de nodos o vértices conectados por enlaces llamados 
+							aristas o arcos. Estas aristas permiten representar relaciones binarias entre los elementos del conjunto. La versatilidad de los 
+							grafos los convierte en una herramienta fundamental en áreas como matemáticas y ciencias de la computación.
+							<br>
+							Se aplican en una amplia variedad de disciplinas, desde informática y logística hasta biología y química, para modelar y comprender 
+							relaciones entre datos complejos. Su capacidad para representar conexiones entre entidades lo convierte en un modelo poderoso para 
+							analizar redes, optimizar procesos y resolver problemas en múltiples campos.
+						</h3>
 					</div>
 				</div>
+			</header>
+
+		</div>
+	</section>
+
+	<!-- CTA -->
+	<section id="cta" class="wrapper">
+		<div class="inner">
+			<div class="row">
+				<div class="col-6 col-12-medium">
+					<div class = "video-container">
+						<iframe width="560" height="315" src="https://www.youtube.com/embed/vnNFiNVy9KM?si=v-gWRtnbtSsUDkDw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+					</div>
+				</div>
+				<div class="col-6 col-12-medium">
+					<div class = "video-container">
+						<iframe width="560" height="315" src="https://www.youtube.com/embed/mZMJJV6jDec?si=AqVow_3IhwwOVedp" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="wrapper">
+		<div class="inner">
+			<header>
+				<h2>Tipos de grafos</h2>
+
+				<div class="row">
+					<div class="col-6 col-12-medium">
+						<span class="image fit"><img height="100" width="100" src="images/tipos_grafo.jpg" alt=""></span>				
+					</div>
+					<div class="col-6 col-12-medium">
+						<h3 class="text">
+							<li><u>Grafos dirigidos:</u> cuentan con los elementos clásicos de un grafo simple, pero con la particularidad de que sus aristas 
+								que conectan los nodos tienen una direccionalidad clara.</li>
+							<li><u>Grafos no dirigidos:</u> la única diferencia entre estos grafos y los anteriores es que estos grafos no cuentan con una 
+								direccionalidad clara.</li>
+							Ejemplos: Un grafo no dirigido puede representar una red social, donde los vértices son personas y las aristas indican amistades. 
+							Por otro lado, un grafo dirigido podría representar un mapa de carreteras, donde los vértices son ciudades y las aristas son 
+							carreteras que van de una ciudad a otra.	
+						</h3>	
+					</div>
+				</div>	
+				
+				<h2>Otras formas de representar un grafo</h2>
+				<h3 class="text">
+					Además de comprender la estructura básica de un grafo a través de nodos y aristas, existen métodos específicos para representar y almacenar 
+					la información de un grafo de manera eficiente. Dos de los enfoques más comunes son mediante la matriz de adyacencia y la lista de adyacencia.
+				</h3>
+
+				<h2>¿Qué es la matriz de adyacencia?</h2>
+				<h3 class="text">
+					La matriz de adyacencia es una representación tabular de un grafo donde cada fila y columna corresponde a un vértice del grafo. En esta matriz, 
+					el valor almacenado en la posición (i, j) indica si existe una arista entre los vértices i y j, y puede contener información adicional como el 
+					peso de la arista.
+					<br>
+					Esta representación es especialmente útil para grafos densos, donde la mayoría de los pares de vértices están conectados, ya que permite un acceso 
+					rápido a la información sobre las conexiones entre los nodos.
+				</h3>
+
+				<h2>¿Qué es la lista de adyacencia?</h2>
+				<h3 class="text">
+					La lista de adyacencia es una estructura de datos que almacena de manera compacta la información de las aristas de un grafo. Consiste en una lista 
+					de nodos, donde cada nodo tiene asociada una lista de los vértices adyacentes a él.
+					<br>
+					Esta representación es más eficiente en términos de espacio de almacenamiento para grafos dispersos, donde solo un pequeño subconjunto de todos los 
+					posibles pares de vértices están conectados por aristas.
+				</h3>
+
+
+
+
 				<div class="column">
 					<div>
 						<h2>¿Qué es el algorimto de asignacion?</h2>
@@ -142,14 +194,6 @@
 					</div>
 				</section>
 			</div>
-		</div>
-	</section>
-	
-	<!-- CTA -->
-	<section id="cta" class="wrapper">
-		<div class="inner">
-			<h2>Curabitur ullamcorper ultricies</h2>
-			<p>Nunc lacinia ante nunc ac lobortis. Interdum adipiscing gravida odio porttitor sem non mi integer non faucibus ornare mi ut ante amet placerat aliquet. Volutpat eu sed ante lacinia sapien lorem accumsan varius montes viverra nibh in adipiscing. Lorem ipsum dolor vestibulum ante ipsum primis in faucibus vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing sed feugiat eu faucibus. Integer ac sed amet praesent. Nunc lacinia ante nunc ac gravida.</p>
 		</div>
 	</section>
 	
