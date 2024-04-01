@@ -128,6 +128,16 @@
 					rápido a la información sobre las conexiones entre los nodos.
 				</h3>
 
+				<div class="row">
+					<div class="col-6 col-12-medium">
+						<span class="image fit"><img height="100" width="100" src="images/matriz_adyacencia1.jpg" alt=""></span>				
+					</div>
+					<div class="col-6 col-12-medium">
+						<span class="image fit"><img height="100" width="100" src="images/matriz_de_adyacencia.jpg" alt=""></span>
+					</div>
+				</div>	
+
+
 				<h2>¿Qué es la lista de adyacencia?</h2>
 				<h3 class="text">
 					La lista de adyacencia es una estructura de datos que almacena de manera compacta la información de las aristas de un grafo. Consiste en una lista 
@@ -136,10 +146,45 @@
 					Esta representación es más eficiente en términos de espacio de almacenamiento para grafos dispersos, donde solo un pequeño subconjunto de todos los 
 					posibles pares de vértices están conectados por aristas.
 				</h3>
-
-	
-
+				<div class="row">
+					<div class="col-6 col-12-medium">
+						<span class="image fit"><img height="100" width="100" src="images/lista_ady1.jpg" alt=""></span>				
+					</div>
+					<div class="col-6 col-12-medium">
+						<span class="image fit"><img height="100" width="100" src="images/lista_ady2.png" alt=""></span>
+					</div>
+				</div>
 			</header>
+		</div>
+	</section>
+
+	<!-- CTA MATRIZ Y LISTA ADYACENCIA-->
+	<section id="cta" class="wrapper">
+		<div class="inner">
+			<div class="row">
+				<div class="col-4 col-14-medium">
+					<div class = "video-container">
+						<iframe width="560" height="315" src="https://www.youtube.com/embed/D7Gk4NOlB4c?si=MhZUOqDg3mQS-yPN" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+					</div>
+				</div>
+				<div class="col-4 col-12-medium">
+					<div class = "video-container">
+						<iframe width="560" height="315" src="https://www.youtube.com/embed/KHyGn4cRjN4?si=Wi6mNltwPdj-72tO" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+					</div>
+				</div>
+				<div class="col-4 col-12-medium">
+					<div class = "video-container">
+						<iframe width="560" height="315" src="https://www.youtube.com/embed/4R7chuhzq7k?si=2VOQJ16NMLFkn6V2" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+	</section>
+
+	<section class="wrapper">
+		<div class="inner">
+			<h2>Algoritmos con grafos</h2>
 			<div class="highlights">
 				<section>
 					<div class="content">
@@ -147,22 +192,29 @@
 							<span class="image fit"><img height="100" width="100" src="images/john.jpg" alt=""></span>
 							<h3>¿Qué es el algoritmo de Johnson?</h3>
 						</header>
-						<p style="padding-bottom: 40px;">Los grafos se pueden representar mediante matrices de adyacencia, que son matrices cuadradas donde las filas y las columnas hacen referencia a los vértices para almacenar en cada casilla la longitud entre cada par de vértices del grafo.</p>
-					
+						<p style="padding-bottom: 30px;">
+							El algoritmo de Johnson es una poderosa herramienta utilizada en teoría de grafos para encontrar el camino más corto entre todos los pares de 
+							nodos en un grafo dirigido, incluso si existen aristas de peso negativo. Esto es especialmente útil en situaciones donde se requiere determinar 
+							la ruta óptima en un sistema de transporte, como redes de carreteras o rutas de vuelo, donde pueden existir costos negativos debido a condiciones 
+							como corrientes de tráfico favorables o vientos de cola. El algoritmo de Johnson combina la eficiencia del algoritmo de Bellman-Ford para detectar 
+							ciclos negativos y el rendimiento del algoritmo de Dijkstra para encontrar los caminos más cortos, lo que lo convierte en una herramienta versátil 
+							para problemas de optimización en una amplia gama de aplicaciones.
+						</p>
 					</div>
 				</section>
 				<section>
 					<div class="content">
 						<header>
 							<span class="image fit"><img height="100" width="100" src="images/asig.jpg" alt=""></span>
-							<h3>¿Qué es el algorimto de asignacion?</h3>
+							<h3>¿Qué es el algoritmo de asignación?</h3>
 						</header>
-						<ul>
-							<li>Adyacencia: dos aristas son adyacentes si tienen un vértice en común, y dos vértices son adyacentes si una arista los une.</li>
-							<li>Incidencia: una arista es incidente a un vértice si esta lo une a otro.</li>
-							<li>Ponderación: corresponde a una función que a cada arista le asocia un valor (costo, peso, longitud, etc.), para aumentar la expresividad del modelo. Esto se usa mucho para problemas de optimización, como el del vendedor viajero o del camino más corto.</li>
-							<li>Etiquetado: distinción que se hace a los vértices y/o aristas mediante una marca que los hace unívocamente distinguibles del resto.</li>
-						</ul>
+						<p style="padding-bottom: 30px;">
+							El algoritmo de asignación es una técnica fundamental en optimización combinatoria utilizada para resolver problemas de asignación óptima, 
+							como el emparejamiento de trabajadores con trabajos o recursos con tareas, con el objetivo de minimizar el costo total o maximizar la eficiencia. 
+							Este algoritmo es especialmente útil en campos como la gestión de proyectos, la asignación de recursos en la industria y la logística, donde es necesario 
+							asignar de manera óptima recursos limitados a tareas específicas. El algoritmo de asignación se basa en técnicas de programación lineal y se puede implementar 
+							de varias formas, como el método húngaro o el método de la matriz de costos, dependiendo de las características específicas del problema.
+						</p>
 					</div>
 				</section>
 				
@@ -172,7 +224,14 @@
 							<span class="image fit"><img height="100" width="100" src="images/nw.jpg" alt=""></span>
 							<h3>¿Qué es el algoritmo de Northwest?</h3>
 						</header>
-						<p style="padding-bottom: 40px;">Los grafos se pueden representar mediante matrices de adyacencia, que son matrices cuadradas donde las filas y las columnas hacen referencia a los vértices para almacenar en cada casilla la longitud entre cada par de vértices del grafo.</p>
+						<p style="padding-bottom: 30px;">
+							El algoritmo Northwest es una técnica utilizada para resolver problemas de transporte en logística y gestión de inventarios, donde se necesita determinar la cantidad 
+							óptima de productos o mercancías a transportar desde múltiples puntos de origen a múltiples destinos, minimizando el costo total de transporte. Este algoritmo se basa 
+							en un enfoque de suministro y demanda, donde se asigna una cantidad inicial de productos a los destinos en función de la oferta y la demanda de cada uno, y luego se 
+							ajusta iterativamente para optimizar el flujo de productos y minimizar los costos de transporte. El algoritmo Northwest es especialmente útil en situaciones donde se 
+							deben optimizar los recursos limitados y se deben cumplir múltiples restricciones, como en la distribución de bienes de consumo, la logística de cadena de suministro y 
+							la planificación de rutas de transporte.
+						</p>
 					</div>
 				</section>
 			</div>
