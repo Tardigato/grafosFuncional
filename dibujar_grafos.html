@@ -1,17 +1,19 @@
-<!DOCTYPE html>
-<html lang="es">
 
+<!DOCTYPE HTML>
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-  <title>Grafos: Análisis de Algoritmos MAT-361</title>
-  <link rel="stylesheet" type="text/css" href="styles.css">
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+    <title>Grafos</title>
+    <meta charset="utf-8">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/contactos.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.min.js"></script>
 
-  <script>
+    <script>
       function regresarAIndex() {
           window.location.href = 'index.html';
       }
@@ -19,88 +21,135 @@
         window.location.href = 'paginahelp.html';
     };
   </script>
+    
+    <style>
+        /* Custom styles for positioning buttons under the header */
+        .side-buttons {
+            position: absolute; /* Change from fixed to absolute */
+            top: 12%; /* Adjust as needed */
+            left: 0;
+            transform: translateY(0%);
+            z-index: 1000; /* Ensure buttons stay above other content */
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* Increase or decrease gap between buttons */
+            
+            margin-top: -4%;
+            margin-right: 10px;
+            background-color: #b3cae0;
+            padding-top: 1%;
+            border-radius: 10px;
+        }
+        
+        .side-buttons .custom-btn {
+            width: 80%; /* Set a fixed width for buttons */
+            margin-bottom: 10px; /* Adjust margin between buttons */
+            font-size: 70%; /* Adjust font size */
+            border: 2px solid black;
+            
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Times New Roman', Times, serif;
+            color: white;
+            margin-left: 10px;
+            
+        }
 
-  <style>
-    /* Custom styles for positioning buttons under the header */
-    .side-buttons {
-      position: fixed;
-      top: 12%;
-      left: 0;
-      transform: translateY(0%);
-      z-index: 1000; /* Ensure buttons stay above other content */
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-
-    .side-buttons .btn {
-      width: 100%; /* Set the width of buttons */
-    }
-
-    #cont {
-      margin-top: 10px; /* Adjust margin to accommodate header */
-      margin-left: 220px; /* Adjust margin to accommodate buttons */
-    }
-  </style>
+        .side-buttons .custom-btn:hover {
+            background-color: purple; /* Change button color on hover */
+        }
+    </style>
 </head>
+<body style="background-color: #34495e;">
+    <!-- Header -->
+    <header id="header">
+        <a class="logo" href="index.html">GraphifyMe</a>
+        <nav>
+            <a href="#menu">Menu</a>
+        </nav>
+    </header>
+    <!-- Nav -->
+    <nav id="menu">
+        <ul class="links">
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="dibujar_grafos.html">Dibujar grafos</a></li>
+            <li><a href="dibujar_grafos.html">Algoritmo Jonhson</a></li>
+            <li><a href="contactos.html">Algoritmo de Asignación</a></li>
+            <li><a href="nw.html">Algoritmo Northwest</a></li>
+            <li><a href="contactos.html">Contactos</a></li>
+        </ul>
+    </nav>
 
-<body style="background-color: rgb(32, 43, 70);">
+    <!-- Heading -->
+    <div id="heading">
+        <h1 style="display: inline;">Grafos</h1>
+        
+    </div>
+    
+    <div style="display: inline-flex; align-items: left;width:100%;background-color: rgb(43, 51, 98);color: white;padding-right:5%">
+            
+        <button id="ayudaBtn" onclick="ayudagraf()" class="btn btn-primary custom-btn" style="border-radius: 45%; font-size: 50px;background-color: rgb(87, 36, 111);color: white;padding-bottom:1%;margin:1%"><b>?</b></button>
+        <div style="color: aliceblue; font-family: 'Times New Roman', serif; padding-left: 20px; font-size: 40px;margin-right:5%;margin:1%">
+            <p style="font-size: 30px; font-family: 'Times New Roman', Times, serif;">Si tienes dudas puedes recurrir a nuestra seccion de ayuda</p>
+        </div>
+        
+    </div>
+    
+    <!-- CONTACTOS -->
+    <section class="wrapper">
+        <div class="side-buttons" style="color: white;">
+            <!-- Cambiar Nombre button -->
+            <button onclick="agregarNodo()" class="custom-btn" style="background-color: rgb(129, 34, 34);color: white;">Agregar Nodo</button>
+            <!-- Eliminar Nodo button -->
+            <button onclick="eliminarNodo()" class="custom-btn"style="background-color: rgb(199, 85, 23);color: white;">Eliminar Nodo</button>
+            <!-- Guardar Grafo button -->
+            <button onclick="cambiarNombre()" class="custom-btn"style="background-color: #c7a117;color: white;">Cambiar Nombre</button>
+            <!-- Input para cargar el grafo -->
+            <input type="file" id="inputArchivo" accept=".json" class="custom-btn" style="background-color: #5da13b;margin-top:5%;margin-bottom:5%;padding:5%;font-size:50%">
+            <!-- Cargar Grafo button -->
+            <button onclick="guardarGrafo()" class="custom-btn" style="background-color: hsl(205, 46%, 43%);color: white;">Guardar Grafo</button>
+            <!-- Algoritmo Northwest button -->
+            <button onclick="cargarGrafo()" class="custom-btn" style="background-color: rgb(30, 39, 140);color: white;padding-left:1%;padding-right:1%;">Cargar Grafo</button>
+            <!-- Agregar Nodo de Oferta button -->
+            <button onclick="generarMatriz()" class="custom-btn" style="background-color: rgb(97, 33, 161);color: white;padding-left:1%;padding-right:1%;">Matriz de Adyencia</button>
+            <!-- Agregar Nodo de Demanda button -->
+            <button onclick="Jhonson()" class="custom-btn" style="background-color: rgb(137, 36, 127);color: white;padding-left:1%;padding-right:1%;">Johnson</button>
 
-<header style="background-image: url('images/background.jpg');">
-  <h1 style="color: aliceblue; font-family: 'Times New Roman', serif;margin-left: 20px; font-size: 90px;">Bienvenido ¿Listo para realizar grafos?</h1>
-  <table style="padding: 5px;">
-    <tr>
-      <td><button id="ayudaBtn" onclick="ayudagraf()" class="btn btn-primary" style="border-radius:45%;margin:20px;padding-left:25px;padding-right:25px;color:aliceblue;background-color:rgb(8, 8, 98);font-size: 50px;"><b>?</b></button></td> 
-      <td style="color: aliceblue; font-family: 'Times New Roman', serif;padding-left: 20px;font: size 20px;"><p style="font-size: 40px; font-family:'Times New Roman', Times, serif">   Si tienes dudas puedes recurrir a nuestra seccion de ayuda</p></td>
-    </tr>
-  </table>
-  <div class="side-buttons">
-      <!-- Página de Inicio button -->
-  <button onclick="regresarAIndex()" class="custom-btn" style="background-color: blueviolet; color: aliceblue; border: 2px solid black; padding: 20px; border-radius: 10px; cursor: pointer; margin: 5px; font-family: 'Times New Roman', Times, serif; font-size: 35px;">Página de Inicio</button>
+            <!-- Minimo button 
+            <button onclick="calcularMinimumCost()" class="custom-btn" style="background-color: rgb(137, 36, 127);color: white;">Minimom</button>-->
+        </div>
+        
+        <!-- Contenedor para el lienzo y la matriz -->
+        <center>
+          
+          <div id="cont">
+            <div id="cont">
+            <div id="tablaXiYi" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+            <div id="tablaHolguras" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+            <div id="lienzo" style="width: 75%; height: 1000px;background-color:rgb(251, 251, 248);margin: left 2%;border-radius:50px;"></div>
+            <div id="matriz" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+            <div id="listaHolguras" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div> 
+          </div>
+        </center>
+        
+        <script src="assets/js/dibujar_grafos.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
+    </section>
 
-  <!-- Agregar Nodo button -->
-  <button onclick="agregarNodo()" class="custom-btn" style="margin: 5px; background-color: green; color: white; border: 2px solid black; padding: 20px; border-radius: 10px; cursor: pointer; font-family: 'Times New Roman', Times, serif; font-size: 35px;">Agregar Nodo</button>
+    <!-- Footer -->
+    <footer id="footer">
+        <h3>
+            Grafos: Análisis de Algoritmos MAT-361
+            <br>
+            © 2024
+        </h3>
+    </footer>
 
-  <!-- Cambiar Nombre button -->
-  <button onclick="cambiarNombre()" class="custom-btn" style="margin: 5px; background-color: orange; color: white; border: 2px solid black; padding: 20px; border-radius: 10px; cursor: pointer; font-family: 'Times New Roman', Times, serif; font-size: 35px;">Cambiar Nombre</button>
-
-  <!-- Eliminar Nodo button -->
-  <button onclick="eliminarNodo()" class="custom-btn" style="margin: 5px; background-color: red; color: white; border: 2px solid black; padding: 20px; border-radius: 10px; cursor: pointer; font-family: 'Times New Roman', Times, serif; font-size: 35px;">Eliminar Nodo</button>
-
-  <!-- Generar Matriz de Adyacencia button -->
-  <button onclick="generarMatriz()" class="custom-btn" style="margin: 5px; background-color: purple; color: white; border: 2px solid black; padding: 20px; border-radius: 10px; cursor: pointer; font-family: 'Times New Roman', Times, serif; font-size: 35px;">Generar Matriz de Adyacencia</button>
-
-  <!-- Guardar Grafo button -->
-  <button onclick="guardarGrafo()" class="custom-btn" style="margin: 5px; background-color: blue; color: white; border: 2px solid black; padding: 20px; border-radius: 10px; cursor: pointer; font-family: 'Times New Roman', Times, serif; font-size: 35px;">Guardar Grafo</button>
-
-  <!-- Input para cargar el grafo -->
-  <input type="file" id="inputArchivo" accept=".json" class="custom-btn" style="margin: 5px; font-family: 'Times New Roman', Times, serif; font-size: 35px; padding: 20px; border: 2px solid black;">
-
-  <!-- Cargar Grafo button -->
-  <button onclick="cargarGrafo()" class="custom-btn" style="margin: 5px; background-color: gray; color: white; border: 2px solid black; padding: 20px; border-radius: 10px; cursor: pointer; font-family: 'Times New Roman', Times, serif; font-size: 35px;">Cargar Grafo</button>
-<button onclick="Jhonson()" class="custom-btn" style="margin: 5px; background-color: yellow; color: white; border: 2px solid black; padding: 20px; border-radius: 10px; cursor: pointer; font-family: 'Times New Roman', Times, serif; font-size: 35px;">Jhonson </button>
-  </div>
-  
-</header>
-
-<!-- Button container for navigation -->
-
-
-<!-- Contenedor para el lienzo y la matriz -->
-<center>
-  <h1 style="color: aliceblue; font-family: 'Times New Roman', serif;margin-left: 20px; font-size: 90px;background-color: rgb(112, 68, 157);width:70%;margin: left 12px;">Grafos</h1>
-  <div id="cont">
-    <div id="cont">
-    <div id="tablaXiYi" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
-    <div id="tablaHolguras" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
-    <div id="lienzo" style="width: 75%; height: 1000px;background-color:rgb(251, 251, 248);margin: left 2%;border-radius:50px;"></div>
-    <div id="matriz" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
-    <div id="listaHolguras" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div> 
-  </div>
-</center>
-
-<script src="assets/js/dibujar_grafos.js" defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
+    <!-- Scripts -->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/browser.min.js"></script>
+    <script src="assets/js/breakpoints.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/main.js"></script>
 </body>
-
 </html>
