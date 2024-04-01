@@ -317,3 +317,287 @@ function generarMatriz(oferta, demanda, nwc, totalCost) {
 document.addEventListener('DOMContentLoaded', () => {
     inicializarGrafo();
 });
+
+// testing ------------------------
+function calcularMinimumCost () {
+    const nodos = nodosDataSet.get({ fields: ['id', 'label'] });
+    const aristas = aristasDataSet.get({ fields: ['from', 'to', 'label'] });
+
+    // Initialize arrays for supply, demand, and costs
+    let oferta = [];
+    let demanda = [];
+    let costos = []; // Initialize cost matrix
+
+    // Extract supply and demand from node labels
+    nodos.forEach(nodo => {
+        const valor = parseInt(nodo.label.split(' ')[1]);
+        if (nodo.label.startsWith('Oferta')) {
+            oferta.push(valor);
+        } else if (nodo.label.startsWith('Demanda')) {
+            demanda.push(valor);
+        }
+    });
+
+    // Populate cost matrix based on edge labels and node IDs
+    for (let i = 0; i < nodos.length; i++) {
+        costos[i] = [];
+        for (let j = 0; j < nodos.length; j++) {
+            costos[i][j] = 0; // Initialize each cell with zero
+        }
+    }
+
+    aristas.forEach(arista => {
+        const fromId = arista.from;
+        const toId = arista.to;
+        const valor = parseInt(arista.label) || 0;
+
+        // Find corresponding node indices in the cost matrix
+        const fromIndex = nodos.findIndex(node => node.id === fromId);
+        const toIndex = nodos.findIndex(node => node.id === toId);
+
+        if (fromIndex !== -1 && toIndex !== -1) {
+            // Update the cost matrix with the value
+            costos[fromIndex][toIndex] = valor;
+        } else {
+            console.error("No se encontraron los nodos correspondientes para la arista:", arista);
+        }
+    });
+
+    // Check if oferta and demanda arrays are not empty
+    if (oferta.length === 0 || demanda.length === 0) {
+        console.warn("La oferta o la demanda está vacía.");
+        return;
+    }
+
+    // Log the current state of oferta and demanda arrays
+    console.log("Oferta:", oferta);
+    console.log("Demanda:", demanda);
+
+    // Create copies of oferta and demanda arrays
+    let oferta2 = [...oferta];
+    let demanda2 = [...demanda];
+
+    // Allocate resources using the Vogel's Approximation Method (VAM)
+    let maxAllocation = allocateMaximizeAllocation(costos, oferta, demanda);
+
+    // Calculate total cost
+    let totalCost = 0;
+    for (let i = 0; i < oferta2.length; i++) {
+        for (let j = 0; j < demanda2.length; j++) {
+            totalCost += maxAllocation[i][j] * costos[i][j]; // Multiply the amount in the allocation matrix by the corresponding cost
+        }
+    }
+
+    // Log the results
+    generarMatriz2(oferta2, demanda2, maxAllocation, totalCost);
+    console.log("Maximized allocation matrix:", maxAllocation);
+    console.log("Total cost =", totalCost);
+    console.log("Supply (Oferta):", oferta);
+    console.log("Demand (Demanda):", demanda);
+    console.log("Cost matrix (Costos):", costos);
+}
+
+function allocateMaximizeAllocation(costos, oferta, demanda) {
+    const numRows = oferta.length;
+    const numCols = demanda.length;
+    let allocation = new Array(numRows).fill().map(() => new Array(numCols).fill(0)); // Initialize allocation matrix with zeros
+
+    while (true) {
+        let maxPenalty = 0;
+        let maxPenaltyRow = -1;
+        let maxPenaltyCol = -1;
+
+        // Calculate penalties for each row and column
+        const rowPenalties = [];
+        const colPenalties = [];
+        for (let i = 0; i < numRows; i++) {
+            let min1 = Infinity;
+            let min2 = Infinity;
+            for (let j = 0; j < numCols; j++) {
+                if (costos[i][j] < min1) {
+                    min2 = min1;
+                    min1 = costos[i][j];
+                } else if (costos[i][j] < min2) {
+                    min2 = costos[i][j];
+                }
+            }
+            rowPenalties[i] = min2 - min1;
+        }
+        for (let j = 0; j < numCols; j++) {
+            let min1 = Infinity;
+            let min2 = Infinity;
+            for (let i = 0; i < numRows; i++) {
+                if (costos[i][j] < min1) {
+                    min2 = min1;
+                    min1 = costos[i][j];
+                } else if (costos[i][j] < min2) {
+                    min2 = costos[i][j];
+                }
+            }
+            colPenalties[j] = min2 - min1;
+        }
+
+        // Find the cell with the maximum penalty
+        for (let i = 0; i < numRows; i++) {
+            for (let j = 0; j < numCols; j++) {
+                const penalty = rowPenalties[i] + colPenalties[j];
+                if (penalty > maxPenalty && oferta[i] > 0 && demanda[j] > 0) {
+                    maxPenalty = penalty;
+                    maxPenaltyRow = i;
+                    maxPenaltyCol = j;
+                }
+            }
+        }
+
+        if (maxPenalty === 0) {
+            break; // No feasible allocation found
+        }
+
+        // Allocate as much as possible based on the maximum penalty
+        const allocAmount = Math.min(oferta[maxPenaltyRow], demanda[maxPenaltyCol]);
+        allocation[maxPenaltyRow][maxPenaltyCol] = allocAmount;
+
+        // Adjust supply and demand
+        oferta[maxPenaltyRow] -= allocAmount;
+        demanda[maxPenaltyCol] -= allocAmount;
+    }
+
+    return allocation;
+}
+
+function calcularMaximoCosto() {
+    const nodos = nodosDataSet.get({ fields: ['id', 'label'] });
+    const aristas = aristasDataSet.get({ fields: ['from', 'to', 'label'] });
+
+    // Initialize arrays for supply, demand, and costs
+    let oferta = [];
+    let demanda = [];
+    let costos = []; // Initialize cost matrix
+
+    // Extract supply and demand from node labels
+    nodos.forEach(nodo => {
+        const valor = parseInt(nodo.label.split(' ')[1]);
+        if (nodo.label.startsWith('Oferta')) {
+            oferta.push(valor);
+        } else if (nodo.label.startsWith('Demanda')) {
+            demanda.push(valor);
+        }
+    });
+
+    // Populate cost matrix based on edge labels and node IDs
+    for (let i = 0; i < nodos.length; i++) {
+        costos[i] = [];
+        for (let j = 0; j < nodos.length; j++) {
+            costos[i][j] = 0; // Initialize each cell with zero
+        }
+    }
+
+    aristas.forEach(arista => {
+        const fromId = arista.from;
+        const toId = arista.to;
+        const valor = parseInt(arista.label) || 0;
+
+        // Find corresponding node indices in the cost matrix
+        const fromIndex = nodos.findIndex(node => node.id === fromId);
+        const toIndex = nodos.findIndex(node => node.id === toId);
+
+        if (fromIndex !== -1 && toIndex !== -1) {
+            // Update the cost matrix with the value
+            costos[fromIndex][toIndex] = valor;
+        } else {
+            console.error("No se encontraron los nodos correspondientes para la arista:", arista);
+        }
+    });
+
+    // Check if oferta and demanda arrays are not empty
+    if (oferta.length === 0 || demanda.length === 0) {
+        console.warn("La oferta o la demanda está vacía.");
+        return;
+    }
+
+    // Log the current state of oferta and demanda arrays
+    console.log("Oferta:", oferta);
+    console.log("Demanda:", demanda);
+
+    // Create copies of oferta and demanda arrays
+    let oferta2 = [...oferta];
+    let demanda2 = [...demanda];
+
+    // Allocate resources using the Vogel's Approximation Method (VAM)
+    let maxAllocation = allocateMaximizeAllocation(costos, oferta, demanda);
+
+    // Calculate total cost
+    let totalCost = 0;
+    for (let i = 0; i < oferta2.length; i++) {
+        for (let j = 0; j < demanda2.length; j++) {
+            totalCost += maxAllocation[i][j] * costos[i][j]; // Multiply the amount in the allocation matrix by the corresponding cost
+        }
+    }
+
+    // Log the results
+    console.log("Maximized allocation matrix:", maxAllocation);
+    console.log("Total cost =", totalCost);
+    console.log("Supply (Oferta):", oferta);
+    console.log("Demand (Demanda):", demanda);
+    console.log("Cost matrix (Costos):", costos);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function generarMatriz2(oferta, demanda, nwc, totalCost) {
+    const contenedorMatriz = document.getElementById('matriz');
+    let html = '<h2>Matriz de Asignaciones del Algoritmo Northwest</h2>';
+    html += '<table style="border-collapse: collapse;border: 2px solid black;">'; // Added style for border collapse
+    html += '<tr><th style="padding: 10px;border: 2px solid black;"></th>'; // Added padding to header cells
+    for (let i = 0; i < demanda.length; i++) {
+        html += `<th style="padding: 10px;border: 2px solid black;">${i + 1}</th>`; // Added padding to header cells
+    }
+    html += '<th style="padding: 10px;background-color: red;border: 2px solid black;">| Oferta</th>'; // Added padding to header cell
+    html += '</tr>';
+    for (let i = 0; i < oferta.length; i++) {
+        html += `<tr><th style="padding: 10px;border: 2px solid black;">${i + 1}</th>`; // Added padding to row header cell
+        for (let j = 0; j < demanda.length; j++) {
+            html += `<td style="padding: 10px;border: 2px solid black;">${nwc[i][j]}</td>`; // Added padding to data cells
+        }
+        html += `<td style="padding: 10px;border: 2px solid black;">${oferta[i]}</td>`; // Added padding to data cell
+        html += '</tr>';
+    }
+    html += '<tr><th style="padding: 10px;background-color: green;border: 2px solid black;">Demanda |</th>'; // Added padding to row header cell
+    for (let j = 0; j < demanda.length; j++) {
+        html += `<td style="padding: 10px;border: 2px solid black;">${demanda[j]}</td>`; // Added padding to data cells
+    }
+    //html += `<td>Total cost: ${totalCost}</td>`;
+    html += '</tr>';
+    html += '</table>';
+    contenedorMatriz.innerHTML = html;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    inicializarGrafo();
+});
