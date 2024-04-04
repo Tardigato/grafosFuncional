@@ -257,7 +257,6 @@ function cargarGrafo() {
 // Función Jhonson para calcular los valores Xi y Yi de los nodos del grafo
 function Jhonson(sumasColumnas, sumasFilas) {
   const nodos = nodosDataSet.get({ fields: ['id', 'label'] });
-  let tablaXiYiHTML = '<table border="1">'; // Variable para almacenar el HTML de la tabla de valores Xi y Yi
 
   // Calcular valores Xi de izquierda a derecha
   let valoresXi = new Array(nodos.length).fill(0);
@@ -287,23 +286,51 @@ function Jhonson(sumasColumnas, sumasFilas) {
       }
     });
   }
-  tablaXiYiHTML += '<h3>Tabla de valores</h3>';
 
-  // Mostrar los resultados de Xi y Yi en la tabla combinada
-  tablaXiYiHTML += `<tr><th>Nodos</th><th>Xi</th><th>Yi</th></tr>`;
-  for (let i = 0; i < nodos.length; i++) {
-    tablaXiYiHTML += `<tr><td>${nodos[i].label}</td><td>${valoresXi[i]}</td><td>${valoresYi[i]}</td></tr>`;
-  }
-  tablaXiYiHTML += '</table>';
-  document.getElementById('tablaXiYi').innerHTML = tablaXiYiHTML;
- 
+  // Actualizar el título y la etiqueta de cada nodo con los valores Xi y Yi
+  nodos.forEach((nodo, index) => {
+    const valorXi = valoresXi[index];
+    const valorYi = valoresYi[index];
+    const nuevaEtiqueta = `${nodo.label}\n ${valorXi} || ${valorYi}`;
+    nodosDataSet.update({ id: nodo.id, label: nuevaEtiqueta, title: nuevaEtiqueta });
+  });
+
   // Llamar a la función para calcular las holguras
   holgura(nodos, valoresXi, valoresYi);
 }
+
+
 // Función para calcular las holguras entre cada par de nodos
 function holgura(nodos, valoresXi, valoresYi) {
-  const aristas = aristasDataSet.get({ fields: ['from', 'to', 'label'] });
+  const aristas = aristasDataSet.get({ fields: ['id', 'from', 'to', 'label'] });
   let listaHolgurasHTML = ''; // Variable para almacenar el HTML de la lista de holguras
+
+  // Eliminar las aristas con holgura igual a 0 y cambiar su color
+  aristas.forEach(arista => {
+    const nodoOrigen = nodos.find(nodo => nodo.id === arista.from);
+    const nodoDestino = nodos.find(nodo => nodo.id === arista.to);
+    const valorXiOrigen = valoresXi[arista.from - 1];
+    const valorYiDestino = valoresYi[arista.to - 1];
+    const valorArista = parseInt(arista.label || 0);
+    const holgura = valorYiDestino - valorXiOrigen - valorArista;
+
+    if (holgura === 0) {
+      // Eliminar arista existente
+      aristasDataSet.remove(arista.id);
+
+      // Agregar nueva arista con color modificado
+      const nuevaArista = {
+        id: arista.id,
+        from: arista.from,
+        to: arista.to,
+        label: arista.label,
+        color: { color: '#00ff00', highlight: '#00ff00' },
+        width: 1
+      };
+      aristasDataSet.add(nuevaArista);
+
+    }
+  });
 
   // Calcular las holguras y almacenarlas en el HTML de la lista de holguras
   for (let i = 0; i < nodos.length; i++) {
@@ -316,18 +343,7 @@ function holgura(nodos, valoresXi, valoresYi) {
         const valorArista = parseInt(arista.label || 0);
         const holgura = valorYiDestino - valorXiOrigen - valorArista;
         let color = 'black'; // Color predeterminado para la holgura
-        nodosDataSet.forEach(nodo => {
-          nodo.color = { background: '#97C2FC' };
-          nodo.borderWidth = 1;
-          nodo.shadow = false;
-          nodosDataSet.update(nodo);
-      });
-    
-      aristasDataSet.forEach(arista => {
-          arista.color = { color: '#2B7CE9', highlight: '#2B7CE9' };
-          arista.width = 1;
-          aristasDataSet.update(arista);
-      });
+      
         if (holgura === 0) {
           color = 'green';
         }
