@@ -1,125 +1,257 @@
-<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE HTML>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grafos: Análisis de Algoritmos MAT-361</title>
-    <link rel="stylesheet" href="style_inicio.css">
-    <link rel="stylesheet" href="style_contactos.css">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+	<title>GraphifyMe by Pandemonium</title>
+	<meta charset="utf-8">
+	<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<meta name="description" content="">
+	<meta name="keywords" content="">
+	
+	<link rel="stylesheet" href="assets/css/main.css">
 </head>
-<body>
+<body class="is-preload">
 
-<header>
-    <div class="title-container">
-        <h1> GraphifyMe</h1>
-    </div>
-</header>
+	<!-- Header -->
+	<header id="header">
+		<a class="logo" href="index.html">GraphifyMe</a>
+		<nav>
+			<a href="#menu">Menu</a>
+		</nav>
+	</header>
+	<!-- Nav -->
+	<nav id="menu">
+		<ul class="links">
+			<li><a href="index.html">Inicio</a></li>
+			<!--
+			<li><a href="elements.html">Elements</a></li>
+			<li><a href="generic.html">Generic</a></li>
+			-->
+			<li><a href="dibujar_grafos.html">Dibujar grafos</a></li>
+			<li><a href="jhonson.html">Algoritmo Jonhson</a></li>
+			<li><a href="contactos.html">Algoritmo de Asignación</a></li>
+			<li><a href="nw.html">Algoritmo Northwest</a></li>
+			<li><a href="contactos.html">Contactos</a></li>
+		</ul>
+	</nav>
+	<!-- Banner -->
+	<section id="banner">
+		<div class="inner">
+			<h1>GraphifyMe</h1>
+			<p>¡Bienvenido! Esta es una página creada para aprender sobre grafos, algoritmos en los que se usan y más, <br>
+			por <a href="contactos.html">PANDEMONIUM</a>, un grupo de la clase de Análisis de Algoritmos.</p>
+		</div>
+		
+		<video autoplay loop muted playsinline src="images/estrellas_vid.mp4"></video>
+		
+	</section>
 
-<!-- Botones en el área principal -->
-<button id="toggleSidebarBtn" class="custom-btn" class="btn btn-primary">|||</button>
+	<!-- Highlights -->
+	<section class="wrapper">
+		<div class="inner">
+			<header class="special">
+				<h2>¿Qué son los grafos?</h2>
+				<div class="row">
+					<div class="col-6 col-12-medium">
+						<span class="image fit"><img height="100" width="100" src="images/partes_grafo.jpg" alt=""></span>				
+					</div>
+					<div class="col-6 col-12-medium">
+						<h3 class="text">
+							Los grafos son una estructura matemática esencial que consiste en un conjunto de nodos o vértices conectados por enlaces llamados 
+							aristas o arcos. Estas aristas permiten representar relaciones binarias entre los elementos del conjunto. La versatilidad de los 
+							grafos los convierte en una herramienta fundamental en áreas como matemáticas y ciencias de la computación.
+							<br>
+							Se aplican en una amplia variedad de disciplinas, desde informática y logística hasta biología y química, para modelar y comprender 
+							relaciones entre datos complejos. Su capacidad para representar conexiones entre entidades lo convierte en un modelo poderoso para 
+							analizar redes, optimizar procesos y resolver problemas en múltiples campos.
+						</h3>
+					</div>
+				</div>
+			</header>
 
-<!-- Sidebar con los botones -->
-<aside id="menu" class="navbar navbar-expand-lg navbar-light bg-light" style="display: none;">
-    <button id="dibujarGrafoBtn" class="custom-btn" >Dibujar Grafo</button>
-    <button id="mostrarModalBtn" class="custom-btn" class="btn btn-primary">Contactos</button>
-    <!-- Otros botones pueden ir aquí según sea necesario -->
-</aside>
-<p style="color: rgb(51, 67, 81);font-size: 25px;text-align:center;margin:50px"><b>Esta página web se encuentra creada para poder ayudarte con el entendimiento de los distintos algoritmos, dentro de los primeros algoritmos a que verás son los Graphos.</b></p>
-<div id="text" class="container">
-    
-        
-    <H3>¿Qué son los grafos?</H3>
-    
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/vnNFiNVy9KM" frameborder="0" allowfullscreen></iframe>
-   
-    <p>Los grafos son un conjunto de objetos llamados vértices o nodos unidos por enlaces que llamamos aristas o arcos, que permiten representar relaciones binarias entre elementos de un conjunto.</p>
-    <img src="Picture1.jpg" alt="Imagen 1" class="img-fluid mb-3">
-    <p>Dentro de los grafos se pueden visualizar:</p>
-    <ul>
-        <li>Los grafos dirigidos: cuentan con los elementos clásicos de un grafo simple, pero con la particularidad de que sus aristas que conectan los nodos tienen una direccionalidad clara.</li>
-        <li>Los grafos no dirigidos: la única diferencia entre estos grafos y los anteriores es que estos grafos no cuentan con una direccionalidad clara.</li>
-    </ul>
-    <img src="Picture2.jpg" alt="Imagen 2" class="img-fluid mb-3">
-    <h3>Propiedades de los Grafos</h3>
-    <ul>
-        <li>Adyacencia: dos aristas son adyacentes si tienen un vértice en común, y dos vértices son adyacentes si una arista los une.</li>
-        <li>Incidencia: una arista es incidente a un vértice si esta lo une a otro.</li>
-        <li>Ponderación: corresponde a una función que a cada arista le asocia un valor (costo, peso, longitud, etc.), para aumentar la expresividad del modelo. Esto se usa mucho para problemas de optimización, como el del vendedor viajero o del camino más corto.</li>
-        <li>Etiquetado: distinción que se hace a los vértices y/o aristas mediante una marca que los hace unívocamente distinguibles del resto.</li>
-    </ul>
-    <h3>Representación de los Grafos</h3>
-    <p style="padding-bottom: 40px;">Los grafos se pueden representar mediante matrices de adyacencia, que son matrices cuadradas donde las filas y las columnas hacen referencia a los vértices para almacenar en cada casilla la longitud entre cada par de vértices del grafo.</p>
-</div>
+		</div>
+	</section>
 
+	<!-- CTA -->
+	<section id="cta" class="wrapper">
+		<div class="inner">
+			<div class="row">
+				<div class="col-6 col-12-medium">
+					<div class = "video-container">
+						<iframe width="560" height="315" src="https://www.youtube.com/embed/vnNFiNVy9KM?si=v-gWRtnbtSsUDkDw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+					</div>
+				</div>
+				<div class="col-6 col-12-medium">
+					<div class = "video-container">
+						<iframe width="560" height="315" src="https://www.youtube.com/embed/mZMJJV6jDec?si=AqVow_3IhwwOVedp" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
 
+	<section class="wrapper">
+		<div class="inner">
+			<header>
+				<h2>Tipos de grafos</h2>
 
+				<div class="row">
+					<div class="col-6 col-12-medium">
+						<span class="image fit"><img height="100" width="100" src="images/tipos_grafo.jpg" alt=""></span>				
+					</div>
+					<div class="col-6 col-12-medium">
+						<h3 class="text">
+							<li><u>Grafos dirigidos:</u> cuentan con los elementos clásicos de un grafo simple, pero con la particularidad de que sus aristas 
+								que conectan los nodos tienen una direccionalidad clara.</li>
+							<li><u>Grafos no dirigidos:</u> la única diferencia entre estos grafos y los anteriores es que estos grafos no cuentan con una 
+								direccionalidad clara.</li>
+							Ejemplos: Un grafo no dirigido puede representar una red social, donde los vértices son personas y las aristas indican amistades. 
+							Por otro lado, un grafo dirigido podría representar un mapa de carreteras, donde los vértices son ciudades y las aristas son 
+							carreteras que van de una ciudad a otra.	
+						</h3>	
+					</div>
+				</div>	
+				
+				<h2>Otras formas de representar un grafo</h2>
+				<h3 class="text">
+					Además de comprender la estructura básica de un grafo a través de nodos y aristas, existen métodos específicos para representar y almacenar 
+					la información de un grafo de manera eficiente. Dos de los enfoques más comunes son mediante la matriz de adyacencia y la lista de adyacencia.
+				</h3>
 
+				<h2>¿Qué es la matriz de adyacencia?</h2>
+				<h3 class="text">
+					La matriz de adyacencia es una representación tabular de un grafo donde cada fila y columna corresponde a un vértice del grafo. En esta matriz, 
+					el valor almacenado en la posición (i, j) indica si existe una arista entre los vértices i y j, y puede contener información adicional como el 
+					peso de la arista.
+					<br>
+					Esta representación es especialmente útil para grafos densos, donde la mayoría de los pares de vértices están conectados, ya que permite un acceso 
+					rápido a la información sobre las conexiones entre los nodos.
+				</h3>
 
-<footer>
-    <!-- Botón de contactos -->
-    <p style="text-align: center;font: size 3px;">Grafos: Análisis de Algoritmos MAT-361<br> &copy; 2024 </p>
-</footer>
-
-<!-- Modal de contactos -->
-<div id="modalContactos" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" id="cerrarModalBtn">&times;</span>
-        <div id="contactosContainer" style="display: none;">
-            <!-- Contenido de contactos aquí -->
-            <h1 id="contactosTitle">Contactos</h1>
-            <!-- Tres contactos aquí -->
-            <div class="contacto-container">
-                <!-- Primer contacto -->
-                <div class="contacto">
-                    <strong>Nombre:</strong> Andrea Fernández Laffertt<br>
-                    <strong>Correo:</strong> andrea.fernandez.l@ucb.edu.bo<br>
-                    <strong>Nro. celular:</strong> 72045492
-                </div>
-            </div>
-            <div class="contacto-container">
-                <!-- Segundo contacto -->
-                <div class="contacto">
-                    <strong>Nombre:</strong> Ayana Siegle Clavijo<br>
-                    <strong>Correo:</strong> ayana.siegle@ucb.edu.bo<br>
-                    <strong>Nro. celular:</strong> 62273515
-                </div>
-            </div>
-            <div class="contacto-container">
-                <!-- Tercer contacto -->
-                <div class="contacto">
-                    <strong>Nombre:</strong> Gabriela Barrios Michel<br>
-                    <strong>Correo:</strong> gabriela.barrios@ucb.edu.bo<br>
-                    <strong>Nro. celular:</strong> 60698796
-                </div>
-            </div>
-            <!-- Botón de regresar -->
-            <button id="regresarBtn" style="display: none;">Regresar</button>
-        </div>
-    </div>
-</div>
-
-<script src="script_inicio.js"></script>
-
-<script>
-    // Función para mostrar u ocultar el sidebar de botones
-    document.getElementById('toggleSidebarBtn').addEventListener('click', function() {
-        var sidebar = document.getElementById('menu');
-        if (sidebar.style.display === 'none') {
-            sidebar.style.display = 'block';
-        } else {
-            sidebar.style.display = 'none';
-        }
-    });
-
-    // Código adicional para redirigir al hacer clic en el botón "Dibujar Grafo"
-    document.getElementById('dibujarGrafoBtn').addEventListener('click', function() {
-        window.location.href = 'file3.html';
-    });
-    
-</script>
+				<div class="row">
+					<div class="col-6 col-12-medium">
+						<span class="image fit"><img height="100" width="100" src="images/matriz_adyacencia1.jpg" alt=""></span>				
+					</div>
+					<div class="col-6 col-12-medium">
+						<span class="image fit"><img height="100" width="100" src="images/matriz_de_adyacencia.jpg" alt=""></span>
+					</div>
+				</div>	
 
 
+				<h2>¿Qué es la lista de adyacencia?</h2>
+				<h3 class="text">
+					La lista de adyacencia es una estructura de datos que almacena de manera compacta la información de las aristas de un grafo. Consiste en una lista 
+					de nodos, donde cada nodo tiene asociada una lista de los vértices adyacentes a él.
+					<br>
+					Esta representación es más eficiente en términos de espacio de almacenamiento para grafos dispersos, donde solo un pequeño subconjunto de todos los 
+					posibles pares de vértices están conectados por aristas.
+				</h3>
+				<div class="row">
+					<div class="col-6 col-12-medium">
+						<span class="image fit"><img height="100" width="100" src="images/lista_ady1.jpg" alt=""></span>				
+					</div>
+					<div class="col-6 col-12-medium">
+						<span class="image fit"><img height="100" width="100" src="images/lista_ady2.png" alt=""></span>
+					</div>
+				</div>
+			</header>
+		</div>
+	</section>
 
+	<!-- CTA MATRIZ Y LISTA ADYACENCIA-->
+	<section id="cta" class="wrapper">
+		<div class="inner">
+			<div class="row">
+				<div class="col-4 col-14-medium">
+					<div class = "video-container">
+						<iframe width="560" height="315" src="https://www.youtube.com/embed/D7Gk4NOlB4c?si=MhZUOqDg3mQS-yPN" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+					</div>
+				</div>
+				<div class="col-4 col-12-medium">
+					<div class = "video-container">
+						<iframe width="560" height="315" src="https://www.youtube.com/embed/KHyGn4cRjN4?si=Wi6mNltwPdj-72tO" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+					</div>
+				</div>
+				<div class="col-4 col-12-medium">
+					<div class = "video-container">
+						<iframe width="560" height="315" src="https://www.youtube.com/embed/4R7chuhzq7k?si=2VOQJ16NMLFkn6V2" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+	</section>
+
+	<section class="wrapper">
+		<div class="inner">
+			<h2>Algoritmos con grafos</h2>
+			<div class="highlights">
+				<section>
+					<div class="content">
+						<header>
+							<span class="image fit"><img height="100" width="100" src="images/john.jpg" alt=""></span>
+							<h3>¿Qué es el algoritmo de Johnson?</h3>
+						</header>
+						<p style="padding-bottom: 30px;">
+							El algoritmo de Johnson es una poderosa herramienta utilizada en teoría de grafos para encontrar el camino más corto entre todos los pares de 
+							nodos en un grafo dirigido, incluso si existen aristas de peso negativo. Esto es especialmente útil en situaciones donde se requiere determinar 
+							la ruta óptima en un sistema de transporte, como redes de carreteras o rutas de vuelo, donde pueden existir costos negativos debido a condiciones 
+							como corrientes de tráfico favorables o vientos de cola. El algoritmo de Johnson combina la eficiencia del algoritmo de Bellman-Ford para detectar 
+							ciclos negativos y el rendimiento del algoritmo de Dijkstra para encontrar los caminos más cortos, lo que lo convierte en una herramienta versátil 
+							para problemas de optimización en una amplia gama de aplicaciones.
+						</p>
+					</div>
+				</section>
+				<section>
+					<div class="content">
+						<header>
+							<span class="image fit"><img height="100" width="100" src="images/asig.jpg" alt=""></span>
+							<h3>¿Qué es el algoritmo de asignación?</h3>
+						</header>
+						<p style="padding-bottom: 30px;">
+							El algoritmo de asignación es una técnica fundamental en optimización combinatoria utilizada para resolver problemas de asignación óptima, 
+							como el emparejamiento de trabajadores con trabajos o recursos con tareas, con el objetivo de minimizar el costo total o maximizar la eficiencia. 
+							Este algoritmo es especialmente útil en campos como la gestión de proyectos, la asignación de recursos en la industria y la logística, donde es necesario 
+							asignar de manera óptima recursos limitados a tareas específicas. El algoritmo de asignación se basa en técnicas de programación lineal y se puede implementar 
+							de varias formas, como el método húngaro o el método de la matriz de costos, dependiendo de las características específicas del problema.
+						</p>
+					</div>
+				</section>
+				
+				<section>
+					<div class="content">
+						<header>
+							<span class="image fit"><img height="100" width="100" src="images/nw.jpg" alt=""></span>
+							<h3>¿Qué es el algoritmo de Northwest?</h3>
+						</header>
+						<p style="padding-bottom: 30px;">
+							El algoritmo Northwest es una técnica utilizada para resolver problemas de transporte en logística y gestión de inventarios, donde se necesita determinar la cantidad 
+							óptima de productos o mercancías a transportar desde múltiples puntos de origen a múltiples destinos, minimizando el costo total de transporte. Este algoritmo se basa 
+							en un enfoque de suministro y demanda, donde se asigna una cantidad inicial de productos a los destinos en función de la oferta y la demanda de cada uno, y luego se 
+							ajusta iterativamente para optimizar el flujo de productos y minimizar los costos de transporte. El algoritmo Northwest es especialmente útil en situaciones donde se 
+							deben optimizar los recursos limitados y se deben cumplir múltiples restricciones, como en la distribución de bienes de consumo, la logística de cadena de suministro y 
+							la planificación de rutas de transporte.
+						</p>
+					</div>
+				</section>
+			</div>
+		</div>
+	</section>
+	
+	<!-- Footer -->
+	<footer id="footer">
+		<h3>
+			Grafos: Análisis de Algoritmos MAT-361
+			<br>
+			© 2024
+		</h3>
+	</footer>
+
+	<!-- Scripts -->
+	<script src="assets/js/jquery.min.js"></script>
+	<script src="assets/js/browser.min.js"></script>
+	<script src="assets/js/breakpoints.min.js"></script>
+	<script src="assets/js/util.js"></script>
+	<script src="assets/js/main.js"></script>
 </body>
 </html>
