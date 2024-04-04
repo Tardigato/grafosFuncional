@@ -316,8 +316,20 @@ function holgura(nodos, valoresXi, valoresYi) {
         const valorArista = parseInt(arista.label || 0);
         const holgura = valorYiDestino - valorXiOrigen - valorArista;
         let color = 'black'; // Color predeterminado para la holgura
+        nodosDataSet.forEach(nodo => {
+          nodo.color = { background: '#97C2FC' };
+          nodo.borderWidth = 1;
+          nodo.shadow = false;
+          nodosDataSet.update(nodo);
+      });
+    
+      aristasDataSet.forEach(arista => {
+          arista.color = { color: '#2B7CE9', highlight: '#2B7CE9' };
+          arista.width = 1;
+          aristasDataSet.update(arista);
+      });
         if (holgura === 0) {
-          color = 'green'; 
+          color = 'green';
         }
         listaHolgurasHTML += `<li style="color: ${color};">${nodos[i].label} con ${nodoDestino.label} holgura = ${holgura}</li>`;
       }
