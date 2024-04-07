@@ -18,7 +18,39 @@ function inicializarGrafo() {
     const opciones = {
         physics: {
           enabled: false // Desactivando con false
-        }
+        },
+
+        edges: {
+            smooth: true, // Aristas curvas
+            arrows: {
+              to: {enabled: true, scaleFactor: 1}, // Flechas direccionales hacia el nodo destino
+            },
+            color: {
+              color:'#047979', // Color de la arista
+              highlight:'#047979', // Color al seleccionar
+            },
+            width: 2 // Anchura de las aristas
+        },
+
+        nodes: {
+            shape: 'circle', // Forma de los nodos
+            color: {
+              border: '#047979',
+              background: '#80DCDC',
+              highlight: {      //cuando se lo selecciona
+                border: '#2B7CE9',
+                background: '#D2E5FF'
+              }
+            },
+            size: 25, // Tamaño de los nodos
+            font: {
+              size: 14, // Tamaño de la fuente
+              color: '#047979' // Color de la fuente
+            },
+            borderWidth: 2 // Ancho del borde del nodo
+          }
+
+
       };
       
     // Crear una nueva instancia de Network con las opciones configuradas
@@ -215,6 +247,7 @@ function mostrarMatriz(nodos, matriz, sumasFilas, sumasColumnas) {
 }
 
 
+
 // Inicializar el grafo cuando se carga la página
 document.addEventListener('DOMContentLoaded', () => {
   inicializarGrafo();
@@ -271,3 +304,65 @@ function cambiarSeleccion(valor) {
   eleccion = valor;
   mostrarSeleccion(); // Llama a esta función para mostrar la selección actual
 }
+
+function asignacion(){
+  generarMatrizAsignacion();
+}
+
+// Función para generar la matriz de asignación eliminando filas y columnas con ceros
+function generarMatrizAsignacion() {
+  const nodos = nodosDataSet.get({ fields: ['id', 'label'] });
+  const matriz = [];
+  
+  nodos.forEach((nodo, rowIndex) => {
+    const fila = [];
+    nodos.forEach((otroNodo, columnIndex) => {
+      const conexion = aristasDataSet.get({
+        filter: edge => (edge.from === nodo.id && edge.to === otroNodo.id)
+      });
+      if (conexion.length > 0) {
+        // Asignar valor numérico a la conexión
+        const valor = parseInt(conexion[0].label || 1);
+        fila.push(valor);
+      } else {
+        fila.push(0); // Sin conexión
+      }
+    });
+    matriz.push(fila);
+  });
+
+  // Eliminar filas con todos los ceros
+  const matrizFiltrada = matriz.filter(fila => fila.some(elemento => elemento !== 0));
+  // Transponer la matriz para poder eliminar también columnas con todos los ceros
+  const matrizTranspuesta = matrizFiltrada[0].map((_, colIndex) => matrizFiltrada.map(fila => fila[colIndex]));
+  // Eliminar columnas con todos los ceros (que ahora son filas en la matriz transpuesta)
+  const matrizFinalTranspuesta = matrizTranspuesta.filter(fila => fila.some(elemento => elemento !== 0));
+  // Transponer nuevamente la matriz para obtener la matriz de asignación final
+  const matrizAsignacion = matrizFinalTranspuesta[0].map((_, colIndex) => matrizFinalTranspuesta.map(fila => fila[colIndex]));
+
+  mostrarMatrizAsignacion(matrizAsignacion);
+}
+
+// Función para mostrar la matriz de asignación en el DOM
+function mostrarMatrizAsignacion(matriz) {
+  const contenedorMatrizAsignacion = document.getElementById('matriz_asignacion');
+  let html = '<h2>Asignación</h2>';
+  html += '<table style="padding: 10px;border: 2px solid black;">';
+  // Encabezados de columna
+  html += '<tr><th style="padding: 10px;border: 2px solid black;background-color: white;"></th>';
+  matriz[0].forEach((_, index) => {
+    html += `<th style="padding: 10px;border: 2px solid black;background-color: DodgerBlue;">${index + 1}</th>`;
+  });
+  html += '</tr>';
+  // Contenido de la matriz
+  matriz.forEach((fila, index) => {
+    html += `<tr><th style="padding: 10px;border: 2px solid black;background-color: Tomato;">${index + 1}</th>`;
+    fila.forEach(valor => {
+      html += `<td style="padding: 10px;border: 2px solid black;">${valor}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</table>';
+  contenedorMatrizAsignacion.innerHTML = html;
+}
+
