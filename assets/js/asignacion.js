@@ -306,6 +306,7 @@ function cambiarSeleccion(valor) {
 
 function asignacion(){
   generarMatrizAsignacion();
+  algoritmoAsignacion();
 }
 
 function generarMatrizAsignacion() {
@@ -363,3 +364,93 @@ function mostrarMatrizAsignacion(nodosFilas, nodosColumnas, matriz) {
   html += '</table>';
   contenedorMatriz.innerHTML = html;
 }
+
+function algoritmoAsignacion() {
+  console.log("Ejecutando algoritmo de asignación");
+  // Generar la matriz de asignación
+  generarMatrizAsignacion();
+
+  // Obtener la matriz de asignación y sus dimensiones
+  const matrizAsignacion = obtenerMatrizAsignacion();
+  const filas = matrizAsignacion.length;
+  const columnas = matrizAsignacion[0].length;
+
+  // Paso 1: Maximizar (restar el mínimo de cada columna)
+  for (let j = 0; j < columnas; j++) {
+    let minimoColumna = Infinity;
+    for (let i = 0; i < filas; i++) {
+      minimoColumna = Math.min(minimoColumna, matrizAsignacion[i][j]);
+    }
+    for (let i = 0; i < filas; i++) {
+      matrizAsignacion[i][j] -= minimoColumna;
+    }
+  }
+
+  // Paso 2: Restar el mínimo de cada fila
+  for (let i = 0; i < filas; i++) {
+    let minimoFila = Math.min(...matrizAsignacion[i]);
+    for (let j = 0; j < columnas; j++) {
+      matrizAsignacion[i][j] -= minimoFila;
+    }
+  }
+
+  // Paso 3: Marcar los ceros óptimos
+  for (let i = 0; i < filas; i++) {
+    for (let j = 0; j < columnas; j++) {
+      if (matrizAsignacion[i][j] === 0 && esOptimo(matrizAsignacion, i, j)) {
+        console.log("Marcando óptimo en:", i, j);
+        marcarOptimo(i, j);
+      }      
+    }
+  }
+}
+
+// Función para obtener la matriz de asignación del DOM
+function obtenerMatrizAsignacion() {
+  const contenedorMatriz = document.getElementById('matriz_asignacion');
+  const filas = contenedorMatriz.getElementsByTagName('tr');
+  const matriz = [];
+  for (let i = 0; i < filas.length; i++) {
+    const celdas = filas[i].getElementsByTagName('td');
+    const fila = [];
+    for (let j = 0; j < celdas.length; j++) {
+      fila.push(parseInt(celdas[j].innerHTML));
+    }
+    matriz.push(fila);
+  }
+
+  console.log("Matriz de asignación obtenida:", matriz);
+  return matriz;
+}
+
+// Función para verificar si un cero en la matriz es óptimo
+function esOptimo(matriz, fila, columna) {
+  const filas = matriz.length;
+  const columnas = matriz[0].length;
+  for (let i = 0; i < filas; i++) {
+    if (i !== fila && matriz[i][columna] === 0) {
+      return false;
+    }
+  }
+  for (let j = 0; j < columnas; j++) {
+    if (j !== columna && matriz[fila][j] === 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
+// Función para marcar un valor como óptimo en la matriz de asignación del DOM
+function marcarOptimo(fila, columna) {
+  const contenedorMatriz = document.getElementById('matriz_asignacion');
+  console.log("Contenedor de la matriz:", contenedorMatriz);
+  const filas = contenedorMatriz.getElementsByTagName('tr');
+  console.log("Filas de la matriz:", filas);
+  const celdas = filas[fila + 1].getElementsByTagName('td'); // Se suma 1 para omitir la fila de encabezado
+  console.log("Celdas de la fila seleccionada:", celdas);
+  const celda = celdas[columna];
+  console.log("Celda seleccionada:", celda);
+  celda.style.backgroundColor = 'green'; // Se marca el valor óptimo con color verde
+}
+
+
