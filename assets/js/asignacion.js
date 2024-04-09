@@ -308,11 +308,11 @@ function asignacion(){
   generarMatrizAsignacion();
 }
 
-// Función para generar la matriz de asignación eliminando filas y columnas con ceros
 function generarMatrizAsignacion() {
   const nodos = nodosDataSet.get({ fields: ['id', 'label'] });
-  const matriz = [];
+  let matriz = [];
 
+  // Generar matriz inicial
   nodos.forEach(nodo => {
     const fila = [];
     nodos.forEach(otroNodo => {
@@ -324,29 +324,42 @@ function generarMatrizAsignacion() {
     matriz.push(fila);
   });
 
-  mostrarMatrizAsignacion(nodos, matriz);
+  // Identificar filas y columnas que no sean todas ceros
+  let filasValidas = matriz.map(fila => fila.some(valor => valor !== 0));
+  let columnasValidas = matriz[0].map((col, i) => matriz.some(fila => fila[i] !== 0));
+
+  // Filtrar las filas y columnas para mantener solo las que no son todas ceros
+  matriz = matriz.filter((fila, i) => filasValidas[i]).map(fila => fila.filter((col, i) => columnasValidas[i]));
+
+  // Filtrar nodos basados en filas y columnas validas
+  let nodosFiltradosFilas = nodos.filter((nodo, i) => filasValidas[i]); // Filtrar nodos para filas
+  let nodosFiltradosColumnas = nodos.filter((nodo, i) => columnasValidas[i]); // Filtrar nodos para columnas
+
+  mostrarMatrizAsignacion(nodosFiltradosFilas, nodosFiltradosColumnas, matriz);
 }
 
-// Función para mostrar la matriz de adyacencia y las sumatorias por filas y por columnas en el DOM 
-function mostrarMatrizAsignacion(nodos, matriz) {
+// Ajuste la función mostrarMatrizAsignacion para aceptar nodosFiltradosFilas y nodosFiltradosColumnas
+function mostrarMatrizAsignacion(nodosFilas, nodosColumnas, matriz) {
   const contenedorMatriz = document.getElementById('matriz_asignacion');
   let html = '<h2>Asignación</h2>';
-  html += '<table style="padding: 10px;border: 2px solid black;">';
+  html += '<table style="padding: 10px; border: 2px solid black;">';
+
   // Encabezados de columna
-  html += '<tr><th style="padding: 10px;border: 2px solid black;background-color: white; color: black;"></th>';
-  nodos.forEach(nodo => {
-    html += `<th style="padding: 10px;border: 2px solid black;background-color: DodgerBlue; color: black;">${nodo.label}</th>`;
+  html += '<tr><th style="padding: 10px; border: 2px solid black; background-color: white; color: black;"></th>';
+  nodosColumnas.forEach(nodo => {
+    html += `<th style="padding: 10px; border: 2px solid black; background-color: DodgerBlue; color: black;">${nodo.label}</th>`;
   });
   html += '</tr>';
+
   // Contenido de la matriz
   matriz.forEach((fila, index) => {
-    html += `<tr><th style="padding: 10px;border: 2px solid black;background-color: Tomato; color: black;">${nodos[index].label}</th>`;
+    html += `<tr><th style="padding: 10px; border: 2px solid black; background-color: Tomato; color: black;">${nodosFilas[index].label}</th>`;
     fila.forEach(valor => {
-      html += `<td style="padding: 10px;border: 2px solid black; background-color: white; color: black;">${valor}</td>`;
+      html += `<td style="padding: 10px; border: 2px solid black; background-color: white; color: black;">${valor}</td>`;
     });
     html += '</tr>';
   });
+
   html += '</table>';
   contenedorMatriz.innerHTML = html;
 }
-
