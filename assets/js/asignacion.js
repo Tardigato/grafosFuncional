@@ -221,31 +221,30 @@ function mostrarMatriz(nodos, matriz, sumasFilas, sumasColumnas) {
   let html = '<h2>Matriz de Adyacencia</h2>';
   html += '<table style="padding: 10px;border: 2px solid black;">';
   // Encabezados de columna
-  html += '<tr><th style="padding: 10px;border: 2px solid black;background-color: green;"></th>';
+  html += '<tr><th style="padding: 10px;border: 2px solid black;background-color: green; color: black;"></th>';
   nodos.forEach((nodo, index) => {
-    html += `<th style="padding: 10px;border: 2px solid black;background-color: green;">${nodo.label}</th>`;
+    html += `<th style="padding: 10px;border: 2px solid black;background-color: green; color: black;">${nodo.label}</th>`;
   });
-  html += '<th style="padding: 10px;border: 2px solid black;background-color: green;">Suma por Fila</th>'; // Encabezado para la sumatoria por filas
+  html += '<th style="padding: 10px;border: 2px solid black;background-color: green;color: black;">Suma por Fila</th>'; // Encabezado para la sumatoria por filas
   html += '</tr>';
   // Contenido de la matriz
   matriz.forEach((fila, index) => {
-    html += `<tr><th style="padding: 10px;border: 2px solid black;background-color: red;">${nodos[index].label}</th>`;
+    html += `<tr><th style="padding: 10px;border: 2px solid black;background-color: red; color: black;">${nodos[index].label}</th>`;
     fila.forEach(valor => {
-      html += `<td style="padding: 10px;border: 2px solid black;">${valor}</td>`;
+      html += `<td style="padding: 10px;border: 2px solid black; background-color: white; color: black;">${valor}</td>`;
     });
-    html += `<td style="padding: 10px;border: 2px solid black;">${sumasFilas[index]}</td>`; // Mostrar la sumatoria por fila
+    html += `<td style="padding: 10px;border: 2px solid black; background-color: white; color: black;">${sumasFilas[index]}</td>`; // Mostrar la sumatoria por fila
     html += '</tr>';
   });
   // Agregar la fila de sumatorias por columnas al final de la tabla
-  html += '<tr><th style="padding: 10px;border: 2px solid black;background-color: red;">Suma por Columna</th>';
+  html += '<tr><th style="padding: 10px;border: 2px solid black;background-color: red; color: black;">Suma por Columna</th>';
   sumasColumnas.forEach(suma => {
-    html += `<td style="padding: 10px;border: 2px solid black;">${suma}</td>`;
+    html += `<td style="padding: 10px;border: 2px solid black; background-color: white; color: black;">${suma}</td>`;
   });
   html += '<td></td></tr>'; // Celda vacía para alinear con el encabezado de sumatorias por filas
   html += '</table>';
   contenedorMatriz.innerHTML = html;
 }
-
 
 
 // Inicializar el grafo cuando se carga la página
@@ -313,56 +312,41 @@ function asignacion(){
 function generarMatrizAsignacion() {
   const nodos = nodosDataSet.get({ fields: ['id', 'label'] });
   const matriz = [];
-  
-  nodos.forEach((nodo, rowIndex) => {
+
+  nodos.forEach(nodo => {
     const fila = [];
-    nodos.forEach((otroNodo, columnIndex) => {
+    nodos.forEach(otroNodo => {
       const conexion = aristasDataSet.get({
-        filter: edge => (edge.from === nodo.id && edge.to === otroNodo.id)
+        filter: edge => edge.from === nodo.id && edge.to === otroNodo.id
       });
-      if (conexion.length > 0) {
-        // Asignar valor numérico a la conexión
-        const valor = parseInt(conexion[0].label || 1);
-        fila.push(valor);
-      } else {
-        fila.push(0); // Sin conexión
-      }
+      fila.push(conexion.length > 0 ? parseInt(conexion[0].label || 1) : 0);
     });
     matriz.push(fila);
   });
 
-  // Eliminar filas con todos los ceros
-  const matrizFiltrada = matriz.filter(fila => fila.some(elemento => elemento !== 0));
-  // Transponer la matriz para poder eliminar también columnas con todos los ceros
-  const matrizTranspuesta = matrizFiltrada[0].map((_, colIndex) => matrizFiltrada.map(fila => fila[colIndex]));
-  // Eliminar columnas con todos los ceros (que ahora son filas en la matriz transpuesta)
-  const matrizFinalTranspuesta = matrizTranspuesta.filter(fila => fila.some(elemento => elemento !== 0));
-  // Transponer nuevamente la matriz para obtener la matriz de asignación final
-  const matrizAsignacion = matrizFinalTranspuesta[0].map((_, colIndex) => matrizFinalTranspuesta.map(fila => fila[colIndex]));
-
-  mostrarMatrizAsignacion(matrizAsignacion);
+  mostrarMatrizAsignacion(nodos, matriz);
 }
 
-// Función para mostrar la matriz de asignación en el DOM
-function mostrarMatrizAsignacion(matriz) {
-  const contenedorMatrizAsignacion = document.getElementById('matriz_asignacion');
+// Función para mostrar la matriz de adyacencia y las sumatorias por filas y por columnas en el DOM 
+function mostrarMatrizAsignacion(nodos, matriz) {
+  const contenedorMatriz = document.getElementById('matriz_asignacion');
   let html = '<h2>Asignación</h2>';
   html += '<table style="padding: 10px;border: 2px solid black;">';
   // Encabezados de columna
-  html += '<tr><th style="padding: 10px;border: 2px solid black;background-color: white;"></th>';
-  matriz[0].forEach((_, index) => {
-    html += `<th style="padding: 10px;border: 2px solid black;background-color: DodgerBlue;">${index + 1}</th>`;
+  html += '<tr><th style="padding: 10px;border: 2px solid black;background-color: white; color: black;"></th>';
+  nodos.forEach(nodo => {
+    html += `<th style="padding: 10px;border: 2px solid black;background-color: DodgerBlue; color: black;">${nodo.label}</th>`;
   });
   html += '</tr>';
   // Contenido de la matriz
   matriz.forEach((fila, index) => {
-    html += `<tr><th style="padding: 10px;border: 2px solid black;background-color: Tomato;">${index + 1}</th>`;
+    html += `<tr><th style="padding: 10px;border: 2px solid black;background-color: Tomato; color: black;">${nodos[index].label}</th>`;
     fila.forEach(valor => {
-      html += `<td style="padding: 10px;border: 2px solid black;">${valor}</td>`;
+      html += `<td style="padding: 10px;border: 2px solid black; background-color: white; color: black;">${valor}</td>`;
     });
     html += '</tr>';
   });
   html += '</table>';
-  contenedorMatrizAsignacion.innerHTML = html;
+  contenedorMatriz.innerHTML = html;
 }
 
