@@ -289,14 +289,13 @@ function cargarGrafo() {
 
 
 ///DESDE AQUÍ TODO LO PROPIO DE ASIGNACIÓN, LO DE MÁS ANTES ES DE DIBUJAR GRAFOS
-
-eleccion = 1;
+eleccion = 0;
 
 function mostrarSeleccion() { //solo para ver si está o no seleccionado
-  if(eleccion == 1)
-    console.log("MÁXIMO");
+  if(eleccion == 0)
+    console.log("MINIMO");
   else
-    console.log("MÍNIMO");
+    console.log("MAXIMO");
 }
 
 function cambiarSeleccion(valor) {
@@ -304,9 +303,8 @@ function cambiarSeleccion(valor) {
   mostrarSeleccion(); // Llama a esta función para mostrar la selección actual
 }
 
-function asignacion(){
+function asignacion(){   //Esto se activa al presionar asignación
   generarMatrizAsignacion();
-  algoritmoAsignacion();
 }
 
 function generarMatrizAsignacion() {
@@ -336,8 +334,26 @@ function generarMatrizAsignacion() {
   let nodosFiltradosFilas = nodos.filter((nodo, i) => filasValidas[i]); // Filtrar nodos para filas
   let nodosFiltradosColumnas = nodos.filter((nodo, i) => columnasValidas[i]); // Filtrar nodos para columnas
 
-  mostrarMatrizAsignacion(nodosFiltradosFilas, nodosFiltradosColumnas, matriz);
+  mostrarMatrizAsignacion(nodosFiltradosFilas, nodosFiltradosColumnas, matriz); //esto para mostrar en la página
+
+
+  // Mostrar la matriz de asignación en la consola
+  let matriz_consola = matriz;
+  mostrarMatrizEnConsola(matriz_consola);
+  matriz_consola = restar_columnas(matriz_consola);
+  mostrarMatrizEnConsola(matriz_consola);
+  matriz_consola = restar_filas(matriz_consola);
+  mostrarMatrizEnConsola(matriz_consola);
 }
+
+// Función para mostrar la matriz de asignación en la consola
+function mostrarMatrizEnConsola(matriz) {
+  console.log("Matriz:");
+  matriz.forEach(fila => {
+    console.log(fila.join('\t'));
+  });
+}
+
 
 // Ajuste la función mostrarMatrizAsignacion para aceptar nodosFiltradosFilas y nodosFiltradosColumnas
 function mostrarMatrizAsignacion(nodosFilas, nodosColumnas, matriz) {
@@ -365,45 +381,6 @@ function mostrarMatrizAsignacion(nodosFilas, nodosColumnas, matriz) {
   contenedorMatriz.innerHTML = html;
 }
 
-function algoritmoAsignacion() {
-  console.log("Ejecutando algoritmo de asignación");
-  // Generar la matriz de asignación
-  generarMatrizAsignacion();
-
-  // Obtener la matriz de asignación y sus dimensiones
-  const matrizAsignacion = obtenerMatrizAsignacion();
-  const filas = matrizAsignacion.length;
-  const columnas = matrizAsignacion[0].length;
-
-  // Paso 1: Maximizar (restar el mínimo de cada columna)
-  for (let j = 0; j < columnas; j++) {
-    let minimoColumna = Infinity;
-    for (let i = 0; i < filas; i++) {
-      minimoColumna = Math.min(minimoColumna, matrizAsignacion[i][j]);
-    }
-    for (let i = 0; i < filas; i++) {
-      matrizAsignacion[i][j] -= minimoColumna;
-    }
-  }
-
-  // Paso 2: Restar el mínimo de cada fila
-  for (let i = 0; i < filas; i++) {
-    let minimoFila = Math.min(...matrizAsignacion[i]);
-    for (let j = 0; j < columnas; j++) {
-      matrizAsignacion[i][j] -= minimoFila;
-    }
-  }
-
-  // Paso 3: Marcar los ceros óptimos
-  for (let i = 0; i < filas; i++) {
-    for (let j = 0; j < columnas; j++) {
-      if (matrizAsignacion[i][j] === 0 && esOptimo(matrizAsignacion, i, j)) {
-        console.log("Marcando óptimo en:", i, j);
-        marcarOptimo(i, j);
-      }      
-    }
-  }
-}
 
 // Función para obtener la matriz de asignación del DOM
 function obtenerMatrizAsignacion() {
@@ -423,34 +400,47 @@ function obtenerMatrizAsignacion() {
   return matriz;
 }
 
-// Función para verificar si un cero en la matriz es óptimo
-function esOptimo(matriz, fila, columna) {
-  const filas = matriz.length;
-  const columnas = matriz[0].length;
-  for (let i = 0; i < filas; i++) {
-    if (i !== fila && matriz[i][columna] === 0) {
-      return false;
+function restar_columnas(matriz){ 
+  const numFilas = matriz.length;
+  const numColumnas = matriz[0].length;
+
+  for (let j = 0; j < numColumnas; j++) {
+    let extremoColumna = matriz[0][j]; // Inicializa con el primer valor de la columna
+    
+    for (let i = 1; i < numFilas; i++) {
+      if (eleccion == 0) { // MINIMO
+        if (matriz[i][j] < extremoColumna)  extremoColumna = matriz[i][j];
+      }else { // MAXIMO
+        if (matriz[i][j] > extremoColumna)  extremoColumna = matriz[i][j];
+      }
+    }
+
+    // Resta el extremo encontrado (mínimo o máximo) a toda la columna
+    for (let i = 0; i < numFilas; i++) {
+      matriz[i][j] -= extremoColumna;
     }
   }
-  for (let j = 0; j < columnas; j++) {
-    if (j !== columna && matriz[fila][j] === 0) {
-      return false;
+  return matriz;
+}
+
+function restar_filas(matriz){ 
+  const numFilas = matriz.length;
+  const numColumnas = matriz[0].length;
+
+  for (let i = 0; i < numFilas; i++) {
+    let extremoFila = matriz[i][0]; // Inicializa con el primer valor de la fila
+    
+    for (let j = 1; j < numColumnas; j++) {
+      if (eleccion == 0) { // MINIMO
+        if (matriz[i][j] < extremoFila)  extremoFila = matriz[i][j];
+      }else { // MAXIMO
+        if (matriz[i][j] > extremoFila)  extremoFila = matriz[i][j];
+      }
+    }
+    // Resta el extremo encontrado (mínimo o máximo) a toda la fila
+    for (let j = 0; j < numColumnas; j++) {
+      matriz[i][j] -= extremoFila;
     }
   }
-  return true;
+  return matriz;
 }
-
-// Función para marcar un valor como óptimo en la matriz de asignación del DOM
-function marcarOptimo(fila, columna) {
-  const contenedorMatriz = document.getElementById('matriz_asignacion');
-  console.log("Contenedor de la matriz:", contenedorMatriz);
-  const filas = contenedorMatriz.getElementsByTagName('tr');
-  console.log("Filas de la matriz:", filas);
-  const celdas = filas[fila + 1].getElementsByTagName('td'); // Se suma 1 para omitir la fila de encabezado
-  console.log("Celdas de la fila seleccionada:", celdas);
-  const celda = celdas[columna];
-  console.log("Celda seleccionada:", celda);
-  celda.style.backgroundColor = 'green'; // Se marca el valor óptimo con color verde
-}
-
-

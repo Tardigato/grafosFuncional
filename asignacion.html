@@ -103,15 +103,16 @@
             <button onclick="cargarGrafo()" class="custom-btn" style="background-color: rgb(30, 39, 140);color: white;padding-left:1%;padding-right:1%;">Cargar Grafo</button>
             <!-- Generar Matriz -->
             <button onclick="generarMatriz()" class="custom-btn" style="background-color: rgb(97, 33, 161);color: white;padding-left:1%;padding-right:1%;">Matriz de Adyencia</button>
-            <!-- Generar Matriz -->
+            
+            <section>
+                <input type="radio" id="minimo" name="radio" checked onclick="cambiarSeleccion(0)"><label for="minimo">MÍNIMO</label>    
+                <input type="radio" id="maximo" name="radio" onclick="cambiarSeleccion(1)"><label for="maximo">MÁXIMO</label>
+            </section>
+            <!-- ASIGNACION -->
             <button onclick="asignacion()" class="custom-btn" style="background-color: rgb(111, 18, 52);color: white;padding-left:1%;padding-right:1%;">Asignación</button>
             
             <!-- MÁXIMO O MÍNIMO -->
-            <section>
-                <input type="radio" id="maximo" name="radio" checked onclick="cambiarSeleccion(1)"><label for="maximo">MÁXIMO</label>    
-                <input type="radio" id="minimo" name="radio" onclick="cambiarSeleccion(0)"><label for="minimo">MÍNIMO</label>
-
-            </section>
+            
 
         </div>
         
