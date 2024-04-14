@@ -183,6 +183,14 @@ function cargarGrafo() {
 
 
 
+// Define global variables to store data
+let oferta = [];
+let demanda = [];
+let costos = [];
+let savedNWCMatriz = [];
+
+
+
 function calcularNorthwest() {
     const nodos = nodosDataSet.get({ fields: ['id', 'label'] });
     const aristas = aristasDataSet.get({ fields: ['from', 'to', 'label'] });
@@ -266,6 +274,12 @@ function calcularNorthwest() {
         if (demanda[j] === 0) j++;
     }
 
+    // Save the Northwest corner matrix to the global variable savedNWCMatriz
+    savedNWCMatriz = nwc;
+
+    // Log the Northwest corner matrix for debugging purposes
+    console.log("Matriz Northwest Corner (NWC):", savedNWCMatriz);
+
     // Calculate total cost
     let totalCost = 0;
     for (let i = 0; i < oferta2.length; i++) {
@@ -276,7 +290,6 @@ function calcularNorthwest() {
 
     // Log the results
     generarMatriz(oferta2, demanda2, nwc, totalCost);
-    console.log("Northwest corner matrix (NWC):", nwc);
     console.log("Total cost =", totalCost);
     console.log("Supply (Oferta):", oferta);
     console.log("Demand (Demanda):", demanda);
@@ -284,7 +297,66 @@ function calcularNorthwest() {
 }
 
 
-function generarMatriz(oferta, demanda, nwc, totalCost) {
+// Function to perform subsequent iterations using the saved matrix
+function iteracion() {
+    if (savedNWCMatriz.length === 0) {
+        console.error("No hay una matriz guardada. Calcula la matriz Northwest primero.");
+        return;
+    }
+
+    // Perform iterations using the saved matrix savedNWCMatriz
+
+    // Find the row and column with the maximum allocation
+    let maxAllocation = 0;
+    let maxRow = -1;
+    let maxCol = -1;
+
+    for (let i = 0; i < savedNWCMatriz.length; i++) {
+        for (let j = 0; j < savedNWCMatriz[i].length; j++) {
+            if (savedNWCMatriz[i][j] > maxAllocation) {
+                maxAllocation = savedNWCMatriz[i][j];
+                maxRow = i;
+                maxCol = j;
+            }
+        }
+    }
+
+    if (maxRow === -1 || maxCol === -1) {
+        console.error("No se encontró una asignación máxima en la matriz.");
+        return;
+    }
+
+    console.log("Fila con asignación máxima:", maxRow);
+    console.log("Columna con asignación máxima:", maxCol);
+    console.log("Cantidad máxima asignada:", maxAllocation);
+
+    // Modify the saved matrix or perform other calculations as needed
+    // For example, you might adjust the allocations or update the supply and demand arrays.
+
+    // Example: Update the saved matrix with a new value
+    // const newValue = 10;
+    // savedNWCMatriz[maxRow][maxCol] = newValue;
+
+    // Example: Update supply and demand arrays
+    // oferta[maxRow] -= newValue;
+    // demanda[maxCol] -= newValue;
+
+    // Check if there are any unfulfilled supply or demand
+    const unfulfilledSupply = oferta.some(supply => supply > 0);
+    const unfulfilledDemand = demanda.some(demand => demand > 0);
+
+    if (!unfulfilledSupply && !unfulfilledDemand) {
+        console.log("Todas las asignaciones han sido completadas.");
+        // Terminate the iterations
+    } else {
+        console.log("Se requieren más asignaciones. Continuando con las iteraciones.");
+        // Continue with further iterations
+    }
+}
+
+
+// Function to generate and display the matrix in HTML
+function generarMatriz(oferta, demanda, nwc) {
     const contenedorMatriz = document.getElementById('matriz');
     let html = '<h2>Matriz de Asignaciones del Algoritmo Northwest</h2>';
     html += '<table style="border-collapse: collapse;border: 2px solid black;">'; // Added style for border collapse
@@ -306,15 +378,14 @@ function generarMatriz(oferta, demanda, nwc, totalCost) {
     for (let j = 0; j < demanda.length; j++) {
         html += `<td style="padding: 10px;border: 2px solid black;">${demanda[j]}</td>`; // Added padding to data cells
     }
-    //html += `<td>Total cost: ${totalCost}</td>`;
     html += '</tr>';
     html += '</table>';
     contenedorMatriz.innerHTML = html;
 }
 
-
-
+// Initialize the graph when the DOM content is loaded
 document.addEventListener('DOMContentLoaded', () => {
     inicializarGrafo();
 });
+
 
