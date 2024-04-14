@@ -334,9 +334,6 @@ function generarMatrizAsignacion() {
   let nodosFiltradosFilas = nodos.filter((nodo, i) => filasValidas[i]); // Filtrar nodos para filas
   let nodosFiltradosColumnas = nodos.filter((nodo, i) => columnasValidas[i]); // Filtrar nodos para columnas
 
-  mostrarMatrizAsignacion(nodosFiltradosFilas, nodosFiltradosColumnas, matriz); //esto para mostrar en la página
-
-
   // Mostrar la matriz de asignación en la consola
   let matriz_consola = matriz;
   mostrarMatrizEnConsola(matriz_consola);
@@ -344,6 +341,9 @@ function generarMatrizAsignacion() {
   mostrarMatrizEnConsola(matriz_consola);
   matriz_consola = restar_filas(matriz_consola);
   mostrarMatrizEnConsola(matriz_consola);
+
+  let celdasResaltar = seleccionarCeros(matriz_consola);
+  mostrarMatrizAsignacion(nodosFiltradosFilas, nodosFiltradosColumnas, matriz, celdasResaltar);
 }
 
 // Función para mostrar la matriz de asignación en la consola
@@ -356,7 +356,7 @@ function mostrarMatrizEnConsola(matriz) {
 
 
 // Ajuste la función mostrarMatrizAsignacion para aceptar nodosFiltradosFilas y nodosFiltradosColumnas
-function mostrarMatrizAsignacion(nodosFilas, nodosColumnas, matriz) {
+function mostrarMatrizAsignacion(nodosFilas, nodosColumnas, matriz, celdasResaltar = []) {
   const contenedorMatriz = document.getElementById('matriz_asignacion');
   let html = '<h2>Asignación</h2>';
   html += '<table style="padding: 10px; border: 2px solid black;">';
@@ -369,10 +369,12 @@ function mostrarMatrizAsignacion(nodosFilas, nodosColumnas, matriz) {
   html += '</tr>';
 
   // Contenido de la matriz
-  matriz.forEach((fila, index) => {
-    html += `<tr><th style="padding: 10px; border: 2px solid black; background-color: Tomato; color: black;">${nodosFilas[index].label}</th>`;
-    fila.forEach(valor => {
-      html += `<td style="padding: 10px; border: 2px solid black; background-color: white; color: black;">${valor}</td>`;
+  matriz.forEach((fila, i) => {
+    html += `<tr><th style="padding: 10px; border: 2px solid black; background-color: Tomato; color: black;">${nodosFilas[i].label}</th>`;
+    fila.forEach((valor, j) => {
+      const esResaltar = celdasResaltar.some(celda => celda[0] === i && celda[1] === j);
+      const colorFondo = esResaltar ? "yellow" : "white";
+      html += `<td style="padding: 10px; border: 2px solid black; background-color: ${colorFondo}; color: black;">${valor}</td>`;
     });
     html += '</tr>';
   });
@@ -380,7 +382,6 @@ function mostrarMatrizAsignacion(nodosFilas, nodosColumnas, matriz) {
   html += '</table>';
   contenedorMatriz.innerHTML = html;
 }
-
 
 // Función para obtener la matriz de asignación del DOM
 function obtenerMatrizAsignacion() {
@@ -443,4 +444,24 @@ function restar_filas(matriz){
     }
   }
   return matriz;
+}
+
+function seleccionarCeros(matriz) {
+  let celdasResaltar = [];
+  let filasCubiertas = new Array(matriz.length).fill(false);
+  let columnasCubiertas = new Array(matriz[0].length).fill(false);
+
+  // Primera pasada: seleccionar cero en cada fila
+  matriz.forEach((fila, i) => {
+    for (let j = 0; j < fila.length; j++) {
+      if (fila[j] === 0 && !filasCubiertas[i] && !columnasCubiertas[j]) {
+        celdasResaltar.push([i, j]);
+        filasCubiertas[i] = true;
+        columnasCubiertas[j] = true;
+        break;
+      }
+    }
+  });
+
+  return celdasResaltar;
 }
