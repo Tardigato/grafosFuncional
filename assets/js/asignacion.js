@@ -335,14 +335,13 @@ function generarMatrizAsignacion() {
   let nodosFiltradosColumnas = nodos.filter((nodo, i) => columnasValidas[i]); // Filtrar nodos para columnas
 
   // Mostrar la matriz de asignación en la consola
-  let matriz_consola = matriz;
-  mostrarMatrizEnConsola(matriz_consola);
-  matriz_consola = restar_columnas(matriz_consola);
-  mostrarMatrizEnConsola(matriz_consola);
-  matriz_consola = restar_filas(matriz_consola);
-  mostrarMatrizEnConsola(matriz_consola);
+  mostrarMatrizEnConsola(matriz);
+  matriz_consola = restar_columnas(matriz);
+  mostrarMatrizEnConsola(matriz);
+  matriz_consola = restar_filas(matriz);
+  mostrarMatrizEnConsola(matriz);
 
-  let celdasResaltar = seleccionarCeros(matriz_consola);
+  let celdasResaltar = seleccionarCeros(matriz);
   mostrarMatrizAsignacion(nodosFiltradosFilas, nodosFiltradosColumnas, matriz, celdasResaltar);
 }
 
@@ -450,65 +449,44 @@ function seleccionarCeros(matriz) {
   let filasCubiertas = new Array(matriz.length).fill(false);
   let columnasCubiertas = new Array(matriz[0].length).fill(false);
   let celdasResaltar = [];
-  let cerosPorFila = matriz.map(fila => fila.filter(x => x === 0).length);
-  let cerosPorColumna = matriz[0].map((_, colIndex) => matriz.map(row => row[colIndex]).filter(x => x === 0).length);
 
-  let intentos = 0;
-  let cambios = true;
+  // Seleccionar ceros maximizando la cobertura
+  let seleccionados = true;
+  while (seleccionados) {
+      seleccionados = false;
+      let contadorCerosPorFila = matriz.map(fila => fila.filter(v => v === 0).length);
+      let contadorCerosPorColumna = matriz[0].map((_, j) => matriz.map(fila => fila[j]).filter(v => v === 0).length);
 
-  while (cambios && intentos < matriz.length + matriz[0].length) {
-      cambios = false;
-      intentos++;
-
-      // Marcar ceros en filas con el menor número de ceros disponibles primero
-      cerosPorFila.forEach((count, i) => {
-          if (count === 1 && !filasCubiertas[i]) { // Solo intenta si hay exactamente un cero y la fila no está cubierta
-              for (let j = 0; j < matriz[0].length; j++) {
-                  if (matriz[i][j] === 0 && !columnasCubiertas[j]) {
+      for (let i = 0; i < matriz.length; i++) {
+          for (let j = 0; j < matriz[i].length; j++) {
+              if (matriz[i][j] === 0 && !filasCubiertas[i] && !columnasCubiertas[j]) {
+                  if (contadorCerosPorFila[i] === 1 || contadorCerosPorColumna[j] === 1) {
                       celdasResaltar.push([i, j]);
                       filasCubiertas[i] = true;
                       columnasCubiertas[j] = true;
-                      cambios = true;
-
-                      // Actualiza los conteos de ceros
-                      cerosPorFila[i] = 0;
-                      matriz.forEach((_, rowIndex) => {
-                          if (matriz[rowIndex][j] === 0 && rowIndex !== i) {
-                              cerosPorFila[rowIndex]--;
-                          }
-                      });
-                      cerosPorColumna[j] = 0;
+                      seleccionados = true;
+                      // Actualizar contadores
+                      contadorCerosPorFila[i] = 0;
+                      matriz.forEach((_, idx) => contadorCerosPorColumna[j] -= matriz[idx][j] === 0 ? 1 : 0);
                       break;
                   }
               }
           }
-      });
-
-      // Marcar ceros en columnas de manera similar
-      cerosPorColumna.forEach((count, j) => {
-          if (count === 1 && !columnasCubiertas[j]) {
-              for (let i = 0; i < matriz.length; i++) {
-                  if (matriz[i][j] === 0 && !filasCubiertas[i]) {
-                      celdasResaltar.push([i, j]);
-                      filasCubiertas[i] = true;
-                      columnasCubiertas[j] = true;
-                      cambios = true;
-
-                      // Actualiza los conteos de ceros
-                      cerosPorColumna[j] = 0;
-                      matriz.forEach((row, colIndex) => {
-                          if (matriz[i][colIndex] === 0 && colIndex !== j) {
-                              cerosPorColumna[colIndex]--;
-                          }
-                      });
-                      cerosPorFila[i] = 0;
-                      break;
-                  }
-              }
-          }
-      });
+      }
   }
+
+  // Completar la selección de ceros si es posible
+  matriz.forEach((fila, i) => {
+      fila.forEach((valor, j) => {
+          if (valor === 0 && !filasCubiertas[i] && !columnasCubiertas[j]) {
+              celdasResaltar.push([i, j]);
+              filasCubiertas[i] = true;
+              columnasCubiertas[j] = true;
+          }
+      });
+  });
 
   return celdasResaltar;
 }
+
 
