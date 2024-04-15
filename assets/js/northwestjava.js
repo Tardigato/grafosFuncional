@@ -240,7 +240,9 @@ function calcularNorthwest() {
     // Create copies of oferta and demanda arrays
     let oferta2 = [...oferta];
     let demanda2 = [...demanda];
-
+    
+    console.log("Oferta:", oferta2);
+    console.log("Demanda:", demanda2);
     // Calculate Northwest corner matrix
     let nwc = [];
     let i = 0;
@@ -276,13 +278,15 @@ function calcularNorthwest() {
 
     // Log the results
     generarMatriz(oferta2, demanda2, nwc, totalCost);
+    generarMatriz(oferta, demanda, nwc, totalCost);
     console.log("Northwest corner matrix (NWC):", nwc);
     console.log("Total cost =", totalCost);
     console.log("Supply (Oferta):", oferta);
     console.log("Demand (Demanda):", demanda);
+    console.log("Supply (Oferta):", oferta2);
+    console.log("Demand (Demanda):", demanda2);
     console.log("Cost matrix (Costos):", costos);
 }
-
 
 function generarMatriz(oferta, demanda, nwc, totalCost) {
     const contenedorMatriz = document.getElementById('matriz');
