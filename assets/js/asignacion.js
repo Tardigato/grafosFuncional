@@ -334,6 +334,7 @@ function generarMatrizAsignacion() {
   let nodosFiltradosFilas = nodos.filter((nodo, i) => filasValidas[i]); // Filtrar nodos para filas
   let nodosFiltradosColumnas = nodos.filter((nodo, i) => columnasValidas[i]); // Filtrar nodos para columnas
 
+  matriz_inicial = matriz;
   // Mostrar la matriz de asignación en la consola
   mostrarMatrizEnConsola(matriz);
   matriz_consola = restar_columnas(matriz);
@@ -343,14 +344,28 @@ function generarMatrizAsignacion() {
 
   let celdasResaltar = seleccionarCeros(matriz);
   mostrarMatrizAsignacion(nodosFiltradosFilas, nodosFiltradosColumnas, matriz, celdasResaltar);
+
+  console.log("Matriz INICIAL:");
+  for(let a=0; a< matriz_inicial.length ; a++){
+    for(let b=0; b < matriz_inicial[a].length ; b++){
+      console.log(matriz_inicial[a][b]+ " ,");
+    }
+  }
 }
 
 // Función para mostrar la matriz de asignación en la consola
 function mostrarMatrizEnConsola(matriz) {
   console.log("Matriz:");
+  for(let a=0; a< matriz.length ; a++){
+    for(let b=0; b < matriz[a].length ; b++){
+      console.log(matriz[a][b]+ " ,");
+    }
+  }
+  /*
   matriz.forEach(fila => {
     console.log(fila.join('\t'));
   });
+  */
 }
 
 
@@ -489,4 +504,42 @@ function seleccionarCeros(matriz) {
   return celdasResaltar;
 }
 
+function encontrarNumeroMinimoLineas(matriz, filasCubiertas, columnasCubiertas) {
+  let filasNoCubiertas = 0;
+  let columnasNoCubiertas = 0;
 
+  matriz.forEach((fila, i) => {
+      if (!filasCubiertas[i]) filasNoCubiertas++;
+  });
+
+  matriz[0].forEach((_, j) => {
+      if (!columnasCubiertas[j]) columnasNoCubiertas++;
+  });
+
+  return Math.min(filasNoCubiertas, columnasNoCubiertas);
+}
+
+function aumentarCeros(matriz, filasCubiertas, columnasCubiertas) {
+  const minimoLineas = encontrarNumeroMinimoLineas(matriz, filasCubiertas, columnasCubiertas);
+  if (minimoLineas === matriz.length) return; // No es necesario aumentar ceros
+
+  const valoresNoCubiertos = [];
+  matriz.forEach((fila, i) => {
+      fila.forEach((valor, j) => {
+          if (!filasCubiertas[i] && !columnasCubiertas[j]) {
+              valoresNoCubiertos.push({ valor, fila: i, columna: j });
+          }
+      });
+  });
+
+  const minimoNoCubierto = Math.min(...valoresNoCubiertos.map(v => v.valor));
+  valoresNoCubiertos.forEach(v => {
+      if (v.valor === minimoNoCubierto) {
+          matriz[v.fila][v.columna] += minimoNoCubierto;
+      } else {
+          matriz[v.fila][v.columna] -= minimoNoCubierto;
+      }
+  });
+
+  aumentarCeros(matriz, filasCubiertas, columnasCubiertas); // Llamada recursiva para verificar si se cumplen las condiciones
+}
