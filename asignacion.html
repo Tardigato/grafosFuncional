@@ -2,25 +2,13 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Asignacion</title>
+    <title>Asignación</title>
     <meta charset="utf-8">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <meta name="description" content="">
     <meta name="keywords" content="">
     <link rel="stylesheet" href="assets/css/main.css">
-    <link rel="stylesheet" href="assets/css/contactos.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.min.js"></script>
-
-    <script>
-      function regresarAIndex() {
-          window.location.href = 'index.html';
-      }
-      function ayudagraf() {
-        window.location.href = 'paginahelp.html';
-    };
-  </script>
     
     <style>
         /* Custom styles for positioning buttons under the header */
@@ -86,20 +74,19 @@
 
     <!-- Heading -->
     <div id="heading">
-        <h1 style="display: inline;">Asignacion</h1>
+        <h1 style="display: inline;">Asignación</h1>
         
     </div>
     
     <div style="display: inline-flex; align-items: left;width:100%;background-color: rgb(43, 51, 98);color: white;padding-right:5%">
-            
+
         <button id="ayudaBtn" onclick="ayudagraf()" class="btn btn-primary custom-btn" style="border-radius: 45%; font-size: 50px;background-color: rgb(110, 241, 241);color: white;padding-bottom:1%;margin:1%"><b>?</b></button>
         <div style="color: aliceblue; font-family: 'Times New Roman', serif; padding-left: 20px; font-size: 40px;margin-right:5%;margin:1%">
             <p style="font-size: 30px; font-family: 'Times New Roman', Times, serif;">Si tienes dudas puedes recurrir a nuestra sección de ayuda</p>
         </div>
         
     </div>
-    
-    <!-- CONTACTOS -->
+
     <section class="wrapper">
         <div class="side-buttons" style="color: white;">
             <!-- Cambiar Nombre button -->
@@ -114,32 +101,31 @@
             <button onclick="guardarGrafo()" class="custom-btn" style="background-color: hsl(205, 46%, 43%);color: white;">Guardar Grafo</button>
             <!-- Algoritmo Northwest button -->
             <button onclick="cargarGrafo()" class="custom-btn" style="background-color: rgb(30, 39, 140);color: white;padding-left:1%;padding-right:1%;">Cargar Grafo</button>
-            <!-- Agregar Nodo de Oferta button -->
+            <!-- Generar Matriz -->
             <button onclick="generarMatriz()" class="custom-btn" style="background-color: rgb(97, 33, 161);color: white;padding-left:1%;padding-right:1%;">Matriz de Adyencia</button>
-            <!-- Agregar Jhonson Button
-            <button onclick="Jhonson()" class="custom-btn" style="background-color: rgb(137, 36, 127);color: white;padding-left:1%;padding-right:1%;">Johnson</button>
-            -->
+            
+            <section>
+                <input type="radio" id="minimo" name="radio" checked onclick="cambiarSeleccion(0)"><label for="minimo">MÍNIMO</label>    
+                <input type="radio" id="maximo" name="radio" onclick="cambiarSeleccion(1)"><label for="maximo">MÁXIMO</label>
+            </section>
+            <!-- ASIGNACION -->
+            <button onclick="asignacion()" class="custom-btn" style="background-color: rgb(111, 18, 52);color: white;padding-left:1%;padding-right:1%;">Asignación</button>
+            
+            <!-- MÁXIMO O MÍNIMO -->
+            
 
-
-            <!-- Minimo button 
-            <button onclick="calcularMinimumCost()" class="custom-btn" style="background-color: rgb(137, 36, 127);color: white;">Minimom</button>-->
         </div>
         
         <!-- Contenedor para el lienzo y la matriz -->
         <center>
-          
           <div id="cont">
             <div id="cont">
-            <div id="tablaXiYi" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
-            <div id="tablaHolguras" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
-            <div id="lienzo" style="width: 75%; height: 700px;background-color:rgb(251, 251, 248);margin: left 2%;border-radius:50px;"></div>
+            <div id="lienzo" style="width: 65%; height: 600px;background-color:rgb(248, 248, 251);margin: left 2%;border-radius:50px;"></div>
             <div id="matriz" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
-            <div id="listaHolguras" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div> 
+            <div id="matriz_asignacion" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
           </div>
         </center>
         
-        <script src="assets/js/dibujar_grafos.js" defer></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
     </section>
 
     <!-- Footer -->
@@ -152,10 +138,17 @@
     </footer>
 
     <!-- Scripts -->
+    <script src="assets/js/asignacion.js"></script>
+    
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/browser.min.js"></script>
     <script src="assets/js/breakpoints.min.js"></script>
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.min.js"></script>
+    
+    
 </body>
 </html>
