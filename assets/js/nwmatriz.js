@@ -1,66 +1,37 @@
 function guardarGrafo() {
     const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar el grafo:', 'grafo');
     if (nombreArchivo !== null) {
-        const matrixData = getMatrixData();
-        if (matrixData) {
-            const grafoJSON = JSON.stringify(matrixData);
-            const blob = new Blob([grafoJSON], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = nombreArchivo + '.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        } else {
-            console.error('Matrix data is not available.');
-        }
+      const grafoJSON = JSON.stringify({ nodos: nodosDataSet.get() });
+      const blob = new Blob([grafoJSON], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = nombreArchivo + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
-}
-
-function getMatrixData() {
-    const rows = parseInt(document.sizeForm.rowValue.value) || 5;
-    const cols = parseInt(document.sizeForm.colValue.value) || 7;
-    const matrix = [];
-
-    for (let i = 0; i < rows; i++) {
-        const row = [];
-        for (let j = 0; j < cols; j++) {
-            const inputId = `cell_${i}_${j}`;
-            const inputElement = document.getElementById(inputId);
-            if (inputElement) {
-                const inputValue = parseFloat(inputElement.value) || 0;
-                row.push(inputValue);
-            } else {
-                console.error(`Input element with ID ${inputId} not found.`);
-                return null;
-            }
-        }
-        matrix.push(row);
-    }
-
-    return {
-        rows: rows,
-        cols: cols,
-        data: matrix
-    };
-}
-
-
-function cargarGrafo() {
+  }
+  
+  
+  // Función para cargar un grafo desde un archivo JSON seleccionado por el usuario
+  function cargarGrafo() {
     const inputArchivo = document.getElementById('inputArchivo');
     const file = inputArchivo.files[0];
     const reader = new FileReader();
     reader.onload = function(event) {
-        const contenido = event.target.result;
-        const matrixData = JSON.parse(contenido);
-        // Populate the matrix with loaded data (assuming you have a function to handle this)
-        populateMatrix(matrixData);
+      const contenido = event.target.result;
+      const datos = JSON.parse(contenido);
+      // Limpiar los conjuntos de datos actuales
+      nodosDataSet.clear();
+      aristasDataSet.clear();
+      // Agregar los nodos y aristas del archivo JSON al grafo
+      nodosDataSet.add(datos.nodos);
+      aristasDataSet.add(datos.aristas);
     };
     reader.readAsText(file);
-}
-
+  }
 
 function matrix(rows, cols){
 	this.r = rows;
