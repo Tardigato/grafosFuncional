@@ -172,6 +172,10 @@ td select:focus {
         td {
           border: 1px solid grey;
         }
+        p{
+            text-align: center;
+            color: white;
+        }
 
         table.smaller td {
           text-align: center;
@@ -230,7 +234,8 @@ td select:focus {
             <!-- Cargar Grafo button -->
             <button onclick="cargarGrafo()" class="custom-btn" style="background-color: hsl(205, 46%, 43%);color: white;">Cargar Grafo</button>
             <form name='sizeForm' onsubmit='return false'>
-                Ingrese la cantidad de filas: <input type='text' name='rowValue' placeholder="5" style='width:40px;background:white;' onkeydown='if(event.keyCode==13){document.getElementById("makeFormButton").click();}'/>
+                Ingrese la cantidad de filas: <input type='text' name='rowValue' placeholder="5" style='width:40px;background:white;
+                ' onkeydown='if(event.keyCode==13){document.getElementById("makeFormButton").click();}'/>
                 <br>
                 Ingrese la cantidad de columnas: <input type='text' name='colValue' placeholder="7" style='width:40px;background:white;' onkeydown='if(event.keyCode==13){document.getElementById("makeFormButton").click();}'/>
                 <input type='button' id='makeFormButton' onclick='makeForm()' value='Crear Matriz' />

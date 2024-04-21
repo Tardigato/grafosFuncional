@@ -126,9 +126,16 @@ function makeForm(){
 	}
 	formString+='</tr></table></form>';
 	formString+='<button type="button" id="doAlgorithm" onclick="doAlgorithm()">Minimizar</button>';
+    formString+='<button type="button" id="moAlgorithm" onclick="moAlgorithm()">Maximizar</button>';
 	formString+='</div>';
 	document.getElementById('formSpace').innerHTML=formString;
 }
+
+
+
+
+
+
 
 
 function getValuesFromMatrix(){
@@ -234,8 +241,8 @@ function showMatrixUnits(m){
 
 function showMatrixShadows(m){
 	//shows the matrix of shadow costs alongside cost matrix
-	var mString = '<p>Shadow costs from above solution, below and to right of cost matrix</p>';	
-	mString += '<table class="smaller"><tr><td></td>';//blank first cell
+	var mString = '<p>Costo sombra</p>';	
+	mString += '<table class="pequeno"><tr><td></td>';//blank first cell
 		for(var j=0;j<cols;j++){
 		mString+='<td>'+String.fromCharCode(j+16+64)+'</td>';
 	}
@@ -257,7 +264,7 @@ function showMatrixShadows(m){
 	for (var j = 0; j < m.c; j++) {
 		mString += '<td>'+m.shadowD[j]+'</td>';
 	}
-	mString += '<td>Shadow costs</td></tr>';
+	mString += '<td>Costo Sombra</td></tr>';
 	mString += '</table>';
 	return mString;
 }
@@ -265,7 +272,7 @@ function showMatrixShadows(m){
 function showMatrixImps(m){
 	//shows the matrix of improvement indices for unallocated cells
 	//must call improvementIndices first for entering cell to be correctly identified
-	mString = '<p>Improvement indices from above solution in unallocated cells</p>';	
+	mString = '<p>...</p>';	
 	mString += '<table class="smaller"><tr><td></td>';//blank first cell
 	for(var j=0;j<cols;j++){
 		mString+='<td>'+String.fromCharCode(j+16+64)+'</td>';
@@ -285,10 +292,10 @@ function showMatrixImps(m){
 	}
 	mString += '</table>';
 	if (m.enteringCell[0] != 'X') {
-		mString += '<p>The entering cell is '+String.fromCharCode(m.enteringCell[0]+1+64)+String.fromCharCode(m.enteringCell[1]+16+64)+'</p>';
+		mString += '<p>La celda ingresada '+String.fromCharCode(m.enteringCell[0]+1+64)+String.fromCharCode(m.enteringCell[1]+16+64)+'</p>';
 	}
 	else {
-		mString += '<p>The optimal solution has been reached</p>';
+		mString += '<p>Se llego a la solution mas optima</p>';
 	}
 	return mString;
 }
@@ -539,7 +546,7 @@ function doAlgorithm() {
         shadowCosts(m);
         improvementIndices(m);
         if (m.enteringCell[0] != 'X') {
-            cycleString += '<p>This solution is not optimal</p></div>';
+            cycleString += '<p>Esta solution noes optima</p></div>';
         } else {
             cycleString += '<p>Tomo ' + cycleNumber + ' iteracions para llegar al minimo optimo.</p></div>';
         }
@@ -557,7 +564,7 @@ function doAlgorithm() {
             if (counter == 200 || !steppingStones[0]) {
                 // Failed to find stepping stones
                 steppingStonesOKFlag = false;
-                cycleString += '<p>The Stepping Stone algorithm found no closed path on iteration ' + cycleNumber + '.</p></div>'; // Turn these into user options
+                cycleString += '<p>No se encontro ninguna solution optima dentro de ' + cycleNumber + ' iterationes.</p></div>'; // Turn these into user options
             } else {
                 // steppingStones[1] should now be a list
                 improvedAllocation(m, steppingStones[1]);
@@ -567,7 +574,165 @@ function doAlgorithm() {
     } // End of while, so need to output results
     document.getElementById('findOptimal').innerHTML += cycleString;
     if (cycleNumber == 30) {
-        document.getElementById('findOptimal').innerHTML += '<p>Still no optimal solution found after ' + cycleNumber + ' iterations.</p>'; // Turn these into user options
+        document.getElementById('findOptimal').innerHTML += '<p>No se encontro ninguna solution optima dentro de ' + cycleNumber + ' iterationes.</p>'; // Turn these into user options
     }
 }
 
+//------------------------------maximo
+
+
+function improvedAllocationm(m, cellsList) {
+    var minAlloc = m.units[cellsList[1][0]][cellsList[1][1]]; // Initialize with the allocation of the first cell in the list
+    var exitCellNumber = 1; // Initialize the exit cell index
+    // Find the minimum allocation and its corresponding cell index
+    for (var i = 1; i < cellsList.length; i += 2) {
+        if (m.units[cellsList[i][0]][cellsList[i][1]] < minAlloc) {
+            minAlloc = m.units[cellsList[i][0]][cellsList[i][1]];
+            exitCellNumber = i;
+        }
+    }
+    // Update the allocation for the entering cell
+    m.units[cellsList[0][0]][cellsList[0][1]] = minAlloc;
+    // Update the allocations for the cells in the closed path
+    for (var i = 1; i < cellsList.length; i++) {
+        m.units[cellsList[i][0]][cellsList[i][1]] += Math.pow(-1, i) * minAlloc;
+    }
+    // Set the exit cell to 'X' indicating it is unallocated
+    m.units[cellsList[exitCellNumber][0]][cellsList[exitCellNumber][1]] = 'X';
+}
+
+
+
+function moAlgorithm() {
+    // Clear output div when button is re-pressed
+    document.getElementById('findOptimal').innerHTML = '';
+    var matrix = getValuesFromMatrix();
+    if (matrix[0]) {
+        m = matrix[1];
+    } else {
+        return; // In case matrix was not balanced
+    }
+    // m = getValuesFromMatrix();
+    m = northWestm(m);
+    var optimal = false;
+    var steppingStones = [];
+    var cycleNumber = 1;
+    var cycleString = '';
+    var steppingStonesOKFlag = true;
+    while (cycleNumber < 30 && !optimal && steppingStonesOKFlag) { // Could put a higher bound on cycle number
+        // Clear shadow costs and improvement indices
+        clearShadows(m);
+        clearImps(m);
+        // Make DOM extensions for each loop
+        if (cycleNumber === 1) {
+            document.getElementById('findOptimal').innerHTML = ''; // Clearing previous iterations
+        }
+        cycleString = '';
+        cycleString += '<div id = "cycle' + cycleNumber + '">';
+
+        cycleString += showMatrixUnits(m);
+        m.enteringCell = ['X', 'X'];
+        shadowCosts(m);
+        improvementIndicesm(m);
+        if (m.enteringCell[0] != 'X') {
+            cycleString += '<p>Esta solution no es optima</p></div>';
+        } else {
+            cycleString += '<p>Tomo ' + cycleNumber + ' iterationes para llegar al optimo maximo.</p></div>';
+        }
+        //cycleString += '<table style="background:rgb(240,250,255);font-size:60%;"><tr><td style="max-width:50%;">' + showMatrixShadows(m);
+        //cycleString += '</td><td style="max-width:50%;">' + showMatrixImps(m) + '</td></tr></table>';
+        if (m.enteringCell[0] == 'X') {
+            optimal = true;
+        } else {
+            steppingStones = findClosedPath(m);
+            var counter = 0; // Avoid infinite attempt to find solutions
+            while (!steppingStones[0] && counter < 200) {
+                steppingStones = findClosedPath(m);
+                counter++;
+            }
+            if (counter == 200 || !steppingStones[0]) {
+                // Failed to find stepping stones
+                steppingStonesOKFlag = false;
+                cycleString += '<p>No se encontro una ruta optima en ' + cycleNumber + ' iterationes.</p></div>'; // Turn these into user options
+            } else {
+                // steppingStones[1] should now be a list
+                improvedAllocationm(m, steppingStones[1]);
+                cycleNumber++;
+            }
+        }
+    } // End of while, so need to output results
+    document.getElementById('findOptimal').innerHTML += cycleString;
+    if (cycleNumber == 30) {
+        document.getElementById('findOptimal').innerHTML += '<p>No se econtro una ruta optima detro de ' + cycleNumber + ' iterationes.</p>'; // Turn these into user options
+    }
+}
+
+
+function improvedAllocationm(m, cellsList) {
+    var minAlloc = m.units[cellsList[1][0]][cellsList[1][1]]; // Initialize with the allocation of the first cell in the list
+    var exitCellNumber = 1; // Initialize the exit cell index
+    // Find the minimum allocation and its corresponding cell index
+    for (var i = 1; i < cellsList.length; i += 2) {
+        if (m.units[cellsList[i][0]][cellsList[i][1]] < minAlloc) {
+            minAlloc = m.units[cellsList[i][0]][cellsList[i][1]];
+            exitCellNumber = i;
+        }
+    }
+    // Update the allocation for the entering cell
+    m.units[cellsList[0][0]][cellsList[0][1]] = minAlloc;
+    // Update the allocations for the cells in the closed path
+    for (var i = 1; i < cellsList.length; i++) {
+        m.units[cellsList[i][0]][cellsList[i][1]] += Math.pow(-1, i) * minAlloc;
+    }
+    // Set the exit cell to 'X' indicating it is unallocated
+    m.units[cellsList[exitCellNumber][0]][cellsList[exitCellNumber][1]] = 'X';
+}
+
+
+function northWestm(m){
+    var nextij = [0, 0];
+    var supply = m.s.slice(0);
+    var demand = m.d.slice(0);
+    var n = northWestStepm(m, 0, 0);
+    for (var i = 1; i < m.r + m.c - 1; i++) {
+        n = northWestStepm(n[0], n[1][0], n[1][1]);
+    }
+    m.s = supply;
+    m.d = demand;
+    return m;
+}
+
+function northWestStepm(m, i, j) {
+    // Northwest corner method to find initial solution
+    var nextij = [];
+    m.units[i][j] = Math.min(m.s[i], m.d[j]); // Minimize the allocation based on supply and demand
+    if (m.s[i] < m.d[j]) {
+        // Next square is down
+        m.d[j] = m.d[j] - m.units[i][j]; // Reduce the demand accordingly
+        m.s[i] = 0;
+        nextij = [i + 1, j];
+    } else {
+        // Next square is across
+        m.s[i] = m.s[i] - m.units[i][j]; // Reduce the supply accordingly
+        m.d[j] = 0;
+        nextij = [i, j + 1];
+    }
+    return [m, nextij];
+}
+
+function improvementIndicesm(m) {
+    // Calculate improvement indices and entering cell coordinates
+    var maxImp = 0; // Initialize to find the maximum
+    for (var i = 0; i < m.r; i++) {
+        for (var j = 0; j < m.c; j++) {
+            if (m.units[i][j] == 'X') {
+                m.imp[i][j] = m.cost[i][j] - m.shadowS[i] - m.shadowD[j]; // Change to subtraction
+                if (m.imp[i][j] > maxImp) { // Check for maximum
+                    maxImp = m.imp[i][j];
+                    m.enteringCell[0] = i;
+                    m.enteringCell[1] = j;
+                }
+            }
+        }
+    }
+}
