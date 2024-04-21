@@ -15,58 +15,180 @@
         }
     
         function ayudagraf() {
-          window.location.href = 'paginahelp.html';
+          window.location.href = 'helpnw.html';
         };
     
-        // Función para calcular el algoritmo Northwest
+        // Function to calculate the Northwest algorithm
         function calcularNorthwest() {
-          // Aquí puedes colocar la lógica para calcular el algoritmo Northwest
-          // Después de calcular los resultados, actualiza la sección de resultados en el DOM
+          // Logic to calculate the Northwest algorithm goes here
+          // After calculating the results, update the results section in the DOM
           const resultadosDiv = document.getElementById('resultadosNorthwest');
-          const resultados = "Aquí van los resultados del algoritmo Northwest";
-          resultadosDiv.innerHTML = `<h2>Resultados del Algoritmo Northwest</h2><p>${resultados}</p>`;
+          const resultados = "Here go the results of the Northwest algorithm";
+          resultadosDiv.innerHTML = `<h2>Northwest Algorithm Results</h2><p>${resultados}</p>`;
         }
     
         document.addEventListener('DOMContentLoaded', function() {
-          // Tu código JavaScript aquí
+          // Your JavaScript code here
         });
+        
+        // Function to retrieve matrix data
+        function getMatrixData() {
+            const rows = parseInt(document.sizeForm.rowValue.value) || 5;
+            const cols = parseInt(document.sizeForm.colValue.value) || 7;
+            const matrix = [];
+
+            for (let i = 0; i < rows; i++) {
+                const row = [];
+                for (let j = 0; j < cols; j++) {
+                    const inputId = `cell_${i}_${j}`;
+                    const inputValue = parseFloat(document.getElementById(inputId).value) || 0;
+                    row.push(inputValue);
+                }
+                matrix.push(row);
+            }
+
+            return {
+                rows: rows,
+                cols: cols,
+                data: matrix
+            };
+        }
+        
+        // Function to save graph
+        function guardarGrafo() {
+            const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar el grafo:', 'grafo');
+            if (nombreArchivo !== null) {
+                const grafoJSON = JSON.stringify(getMatrixData());
+                const blob = new Blob([grafoJSON], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = nombreArchivo + '.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        function cargarGrafo() {
+            const inputArchivo = document.getElementById('inputArchivo');
+            const file = inputArchivo.files[0];
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const contenido = event.target.result;
+                const datos = JSON.parse(contenido);
+                nodosDataSet.clear();
+                aristasDataSet.clear();
+                nodosDataSet.add(datos.nodos);
+                aristasDataSet.add(datos.aristas);
+            };
+            reader.readAsText(file);
+        }
     </script>
     
     <style>
         /* Custom styles for positioning buttons under the header */
         .side-buttons {
-            position: absolute; /* Change from fixed to absolute */
-            top: 12%; /* Adjust as needed */
-            left: 0;
-            transform: translateY(0%);
-            z-index: 1000; /* Ensure buttons stay above other content */
-            display: flex;
-            flex-direction: column;
-            gap: 10px; /* Increase or decrease gap between buttons */
-            
-            margin-top: -4%;
-            margin-right: 10px;
-            background-color: #b3cae0;
-            padding-top: 1%;
-            border-radius: 10px;
+          position: absolute;
+          top: 12%;
+          left: 0;
+          transform: translateY(0%);
+          z-index: 1000;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          margin-top: -4%;
+          margin-right: 10px;
+          background-color: #b3cae0;
+          padding-top: 1%;
+          border-radius: 10px;
         }
-        
+
+       /* Ensure input fields are visible */
+td input[type="text"],
+td input[type="number"],
+td input[type="email"],
+td input[type="password"],
+td textarea,
+td select {
+  color: black; /* Text color */
+  background-color: white; /* Background color */
+  border: 1px solid #ccc; /* Border color */
+  padding: 5px; /* Padding */
+  box-sizing: border-box; /* Include padding in width/height calculation */
+  width: 100%; /* Expand input fields to fill the cell */
+}
+
+/* Style focused input fields */
+td input[type="text"]:focus,
+td input[type="number"]:focus,
+td input[type="email"]:focus,
+td input[type="password"]:focus,
+td textarea:focus,
+td select:focus {
+  border-color: #3498db; /* Border color on focus */
+  box-shadow: 0 0 0 1px #3498db; /* Box shadow on focus */
+}
+ 
+
+
+
+
+
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        input[type="password"],
+        textarea,
+        select {
+          color: black;
+        }
+
         .side-buttons .custom-btn {
-            width: 80%; /* Set a fixed width for buttons */
-            margin-bottom: 10px; /* Adjust margin between buttons */
-            font-size: 70%; /* Adjust font size */
-            border: 2px solid black;
-            
-            border-radius: 10px;
-            cursor: pointer;
-            font-family: 'Times New Roman', Times, serif;
-            color: white;
-            margin-left: 10px;
-            
+          width: 80%;
+          margin-bottom: 10px;
+          font-size: 70%;
+          border: 2px solid black;
+          border-radius: 10px;
+          cursor: pointer;
+          font-family: 'Times New Roman', Times, serif;
+          color: white;
+          margin-left: 10px;
         }
 
         .side-buttons .custom-btn:hover {
-            background-color: purple; /* Change button color on hover */
+          background-color: purple;
+        }
+
+        table {
+          border: 1px solid rgb(201, 16, 139);
+          padding: 1px;
+          background-color: white;
+          width: 50%;
+          color: black;
+        }
+
+        td {
+          border: 1px solid grey;
+        }
+        p{
+            text-align: center;
+            color: white;
+        }
+
+        table.smaller td {
+          text-align: center;
+        }
+
+        /* Style for input elements within td cells */
+        td input[type="text"],
+        td input[type="number"],
+        td input[type="email"],
+        td input[type="password"],
+        td textarea,
+        td select {
+          color: black !important;
         }
     </style>
 </head>
@@ -82,10 +204,6 @@
     <nav id="menu">
         <ul class="links">
             <li><a href="index.html">Inicio</a></li>
-            <!--
-            <li><a href="elements.html">Elements</a></li>
-            <li><a href="generic.html">Generic</a></li>
-            -->
             <li><a href="dibujar_grafos.html">Dibujar grafos</a></li>
             <li><a href="jhonson.html">Algoritmo Jonhson</a></li>
             <li><a href="asignacion.html">Algoritmo de Asignación</a></li>
@@ -97,7 +215,6 @@
     <!-- Heading -->
     <div id="heading">
         <h1 style="display: inline;">Northwest</h1>
-        
     </div>
     
     <div style="display: inline-flex; align-items: left;width:100%;background-color: rgb(43, 51, 98);color: white;padding-right:5%">
@@ -105,47 +222,30 @@
         <div style="color: aliceblue; font-family: 'Times New Roman', serif; padding-left: 20px; font-size: 40px;margin-right:5%;margin:1%">
             <p style="font-size: 30px; font-family: 'Times New Roman', Times, serif;">Si tienes dudas puedes recurrir a nuestra seccion de ayuda.</p>
         </div>
-        
     </div>
     
     <!-- CONTACTOS -->
     <section class="wrapper">
-        
-      
-        
-        <div class="side-buttons" style="color: white;">
-            <!-- Cambiar Nombre button -->
-            <button onclick="cambiarNombre()" class="custom-btn" style="background-color: rgb(129, 34, 34);color: white;">Cambiar Nombre</button>
-            <!-- Eliminar Nodo button -->
-            <button onclick="eliminarNodo()" class="custom-btn"style="background-color: rgb(199, 85, 23);color: white;">Eliminar Nodo</button>
+        <div class="side-buttons" style="color: white;margin-top:1%;">
             <!-- Guardar Grafo button -->
             <button onclick="guardarGrafo()" class="custom-btn"style="background-color: #c7a117;color: white;">Guardar Grafo</button>
             <!-- Input para cargar el grafo -->
             <input type="file" id="inputArchivo" accept=".json" class="custom-btn" style="background-color: #5da13b;margin-top:5%;margin-bottom:5%;padding:5%;font-size:50%">
             <!-- Cargar Grafo button -->
             <button onclick="cargarGrafo()" class="custom-btn" style="background-color: hsl(205, 46%, 43%);color: white;">Cargar Grafo</button>
-            <!-- Algoritmo Northwest button -->
-            <button onclick="calcularNorthwest()" class="custom-btn" style="background-color: rgb(30, 39, 140);color: white;padding-left:1%;padding-right:1%;">Algoritmo Northwest</button>
-            <!-- Agregar Nodo de Oferta button -->
-            <button onclick="agregarNodo('oferta')" class="custom-btn" style="background-color: rgb(97, 33, 161);color: white;padding-left:1%;padding-right:1%;">Agregar Nodo de Oferta</button>
-            <!-- Agregar Nodo de Demanda button -->
-            <button onclick="agregarNodo('demanda')" class="custom-btn" style="background-color: rgb(137, 36, 127);color: white;padding-left:1%;padding-right:1%;">Agregar Nodo de Demanda</button>
-            <button onclick="iteracion()" class="custom-btn" style="background-color: rgb(255, 165, 0);color: white;padding-left:1%;padding-right:1%;">Iteración</button>
-           
+            <form name='sizeForm' onsubmit='return false' style="margin-left: 10%;font-size:100%;font-family: 'Times New Roman', Times, serif;">
+                Ingrese la cantidad de filas: <input type='text' name='rowValue' placeholder="5" style='width:70px;background:rgb(255, 255, 255);' onkeydown='if(event.keyCode==13){document.getElementById("makeFormButton").click();}'/>
+                <br>
+                Ingrese la cantidad de columnas: <input type='text' name='colValue' placeholder="7" style='width:70px;background:white;' onkeydown='if(event.keyCode==13){document.getElementById("makeFormButton").click();}'/>
+                <input style="border-radius: 20px;background-color:white;margin-top:10%;" type='button' id='makeFormButton' onclick='makeForm()' value='Crear Matriz' />
+            </form>
         </div>
         
         <!-- Contenedor para el lienzo y la matriz -->
-        <center>
-            
-            <div id="cont">
-                <div id="lienzo" style="width: 75%; height: 700px;background-color:rgb(251, 251, 248);margin-left: 30px;border-radius:50px;"></div>
-                <div id="matriz" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
-            </div>
+        <center >
+            <div id='formSpace' style="margin:5px;"></div>
+            <div id='findOptimal'></div>
         </center>
-        
-        <script src="assets\js\northwestjava.js" defer></script>
-
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
     </section>
 
     <!-- Footer -->
@@ -163,5 +263,6 @@
     <script src="assets/js/breakpoints.min.js"></script>
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
+    <script src="assets/js/nwmatriz.js"></script>
 </body>
 </html>

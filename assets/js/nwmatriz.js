@@ -282,7 +282,9 @@ function showMatrixImps(m){
 		mString+='<td>'+String.fromCharCode(i+1+64)+'</td>';
 		for(var j = 0; j < m.c; j++){
 			if (m.units[i][j] == 'X') {
-				mString += '<td>'+m.imp[i][j]+'</td>';
+				mString += '<td style="background-color: purple; color: white;">'+m.imp[i][j]+'</td>';
+                
+
 			}
 			else {
 				mString += '<td>-</td>';
@@ -299,6 +301,12 @@ function showMatrixImps(m){
 	}
 	return mString;
 }
+
+
+
+
+
+
 
 function northWestStep(m, i, j){
 	//north west corner method to find initial solution
