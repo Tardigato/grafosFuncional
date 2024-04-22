@@ -293,10 +293,10 @@ function cargarGrafo() {
 eleccion = 0;
 
 function mostrarSeleccion() { //solo para ver si está o no seleccionado
-  if(eleccion == 0)
-    console.log("MINIMO");
+  if(eleccion == 1)
+    console.log("MÁXIMO");
   else
-    console.log("MAXIMO");
+    console.log("MÍNIMO");
 }
 
 function cambiarSeleccion(valor) {
@@ -323,6 +323,14 @@ function algoritmo_asinacion() {
 
   console.log("Matriz inicial:");
   imprimirMatriz(matrix);
+
+  if(eleccion==1){
+    console.log("Se debe volver la matriz a negativa, y luego sumarle el que tenga valor absoluto más alto, y se procede normal");
+
+    matrix = convertirMatrizMaximizar(matrix);
+    imprimirMatriz(matrix);
+
+  }
 
   let matrixAfterRowSubtraction = restar_minimo_columnas(matrix);
   console.log("Matriz restando mínimo de filas:");
@@ -620,4 +628,16 @@ function seleccionarPosiciones(matriz_cereada) {
   });
 
   return celdasResaltar;
+}
+
+
+//PARA MAXIMIZAR
+
+function convertirMatrizMaximizar(matriz) {
+  // Convertir la matriz para maximizar la cobertura
+  let matrizMaximizada = matriz.map(fila => fila.map(valor => -valor)); // Convertir los valores a negativos
+  let maximoAbsoluto = Math.max(...matrizMaximizada.flat()); // Encontrar el valor absoluto más alto
+  matrizMaximizada = matrizMaximizada.map(fila => fila.map(valor => valor + maximoAbsoluto)); // Sumarle el valor absoluto más alto a todos los valores
+
+  return matrizMaximizada;
 }
