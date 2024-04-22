@@ -305,28 +305,56 @@ function cambiarSeleccion(valor) {
 }
 
 function asignacion() {
-  // Ejemplo de uso
   const matrix = [
-      [3, 2, 4],
-      [3, 2, 1],
-      [6, 5, 2]
+    [3, 2, 4],
+    [3, 2, 1],
+    [6, 5, 2]
   ];
-  
-  imprimirMatriz(matrix)
-  const matrixAfterRowSubtraction = restar_minimo_fila(matrix);
+
+  console.log("Matriz inicial:");
+  imprimirMatriz(matrix);
+
+  let matrixAfterRowSubtraction = restar_minimo_columnas(matrix);
+  console.log("Matriz restando mínimo de filas:");
   imprimirMatriz(matrixAfterRowSubtraction);
-  const matrixAfterColSubtraction = restar_minimo_columnas(matrixAfterRowSubtraction);
+
+  let matrixAfterColSubtraction = restar_minimo_fila(matrixAfterRowSubtraction);
+  console.log("Matriz restando mínimo de columnas:");
   imprimirMatriz(matrixAfterColSubtraction);
 
-  const result = hungarianAlgorithm(matrixAfterColSubtraction);
-  console.log("Solución:");
-  result.selectedValues.forEach((item) => {
-    console.log(`${item.value} (fila ${item.row}, columna ${item.col})`);
-  });
-  console.log(`Óptimo = ${result.optimalValue}`);
+  // Cubrir todos los ceros con el menor número de líneas
+  let { coveredRows, coveredCols } = cubrirCeros(matrixAfterColSubtraction);
+  let numCoveredLines = coveredRows.filter(x => x).length + coveredCols.filter(x => x).length;
 
+  console.log("tamaño matriz = ");
+  console.log(matrix.length);
+  console.log("lineas cubiertas = ");
+  console.log(numCoveredLines);
+
+  console.log(`Filas cubiertas: ${coveredRows.map((v, i) => v ? i : null).filter(v => v !== null)}`);
+  console.log(`Columnas cubiertas: ${coveredCols.map((v, i) => v ? i : null).filter(v => v !== null)}`);
+  
+  while (numCoveredLines < matrix.length) { // Si no cubrimos todas las filas/columnas, necesitamos ajustar
+    matrixAfterColSubtraction = ajustarMatriz(matrixAfterColSubtraction, coveredRows, coveredCols);
+    let coverResult = cubrirCeros(matrixAfterColSubtraction);
+    coveredRows = coverResult.coveredRows;
+    coveredCols = coverResult.coveredCols;
+    numCoveredLines = coveredRows.filter(x => x).length + coveredCols.filter(x => x).length;
+  }
+
+  // Mostrar la solución
+  console.log("Matriz final después de ajustes:");
+  imprimirMatriz(matrixAfterColSubtraction);
+
+  console.log("Solución:");
+  console.log(`Filas cubiertas: ${coveredRows.map((v, i) => v ? i : null).filter(v => v !== null)}`);
+  console.log(`Columnas cubiertas: ${coveredCols.map((v, i) => v ? i : null).filter(v => v !== null)}`);
 
   imprimirMatriz(matrix);
+}
+
+function imprimirMatriz(matrix) {
+  matrix.forEach(row => console.log(row.join('\t')));
 }
 
 function restar_minimo_fila(matrix) {
@@ -360,44 +388,89 @@ function restar_minimo_columnas(matrix) {
   return newMatrix;
 }
 
-function hungarianAlgorithm(matrix) {
-  const numRows = matrix.length;
-  const numCols = matrix[0].length;
+function cubrirCeros(matrix) {
+  const n = matrix.length;
+  const coveredRows = new Array(n).fill(false);
+  const coveredCols = new Array(n).fill(false);
 
-  const coveredRows = new Array(numRows).fill(false);
-  const coveredCols = new Array(numCols).fill(false);
-  const selectedValues = [];
+  let numLines = 0;
 
   while (true) {
-      let zerosFound = false;
-
-      for (let i = 0; i < numRows; i++) {
-          for (let j = 0; j < numCols; j++) {
-              if (matrix[i][j] === 0 && !coveredRows[i] && !coveredCols[j]) {
-                  selectedValues.push({ value: matrix[i][j], row: i, col: j });
-                  zerosFound = true;
-                  coveredRows[i] = true;
-                  coveredCols[j] = true;
-                  break;
-              }
+    // Encontrar la fila con la mayor cantidad de ceros sin cubrir
+    let maxZeroCountRow = 0;
+    let maxRow = -1;
+    for (let i = 0; i < n; i++) {
+      if (!coveredRows[i]) {
+        let zeroCount = 0;
+        for (let j = 0; j < n; j++) {
+          if (!coveredCols[j] && matrix[i][j] === 0) {
+            zeroCount++;
           }
-          if (zerosFound) break;
+        }
+        if (zeroCount > maxZeroCountRow) {
+          maxZeroCountRow = zeroCount;
+          maxRow = i;
+        }
       }
+    }
 
-      if (!zerosFound) break;
+    // Encontrar la columna con la mayor cantidad de ceros sin cubrir
+    let maxZeroCountCol = 0;
+    let maxCol = -1;
+    for (let j = 0; j < n; j++) {
+      if (!coveredCols[j]) {
+        let zeroCount = 0;
+        for (let i = 0; i < n; i++) {
+          if (!coveredRows[i] && matrix[i][j] === 0) {
+            zeroCount++;
+          }
+        }
+        if (zeroCount > maxZeroCountCol) {
+          maxZeroCountCol = zeroCount;
+          maxCol = j;
+        }
+      }
+    }
+
+    // Si no se encuentra ninguna fila o columna con ceros sin cubrir, salir del bucle
+    if (maxZeroCountRow === 0 && maxZeroCountCol === 0) {
+      break;
+    }
+
+    // Cubrir la fila o columna con la mayor cantidad de ceros sin cubrir
+    if (maxZeroCountRow >= maxZeroCountCol) {
+      coveredRows[maxRow] = true;
+      numLines++;
+    } else {
+      coveredCols[maxCol] = true;
+      numLines++;
+    }
   }
 
-  const optimalValue = selectedValues.reduce((acc, item) => acc + item.value, 0);
-
-  return {
-      selectedValues: selectedValues,
-      optimalValue: optimalValue
-  };
+  return { coveredRows, coveredCols, numLines };
 }
 
-function imprimirMatriz(matrix) {
-  console.log("Matriz: ");
-  for (let i = 0; i < matrix.length; i++) {
-      console.log(matrix[i].join("\t"));
+function ajustarMatriz(matrix, coveredRows, coveredCols) {
+  const newMatrix = matrix.map(row => [...row]); // Creando una copia de cada fila
+  let minUncoveredValue = Infinity;
+  for (let i = 0; i < newMatrix.length; i++) {
+    for (let j = 0; j < newMatrix[i].length; j++) {
+      if (!coveredRows[i] && !coveredCols[j]) {
+        minUncoveredValue = Math.min(minUncoveredValue, newMatrix[i][j]);
+      }
+    }
   }
+
+  for (let i = 0; i < newMatrix.length; i++) {
+    for (let j = 0; j < newMatrix[i].length; j++) {
+      if (!coveredRows[i] && !coveredCols[j]) {
+        newMatrix[i][j] -= minUncoveredValue;
+      }
+      if (coveredRows[i] && coveredCols[j]) {
+        newMatrix[i][j] += minUncoveredValue;
+      }
+    }
+  }
+  return newMatrix;
 }
+
