@@ -306,7 +306,8 @@ function cambiarSeleccion(valor) {
 
 function asignacion(){
   generarMatrizAsignacion();
-  algoritmo_asinacion();
+  let matrixCreada = algoritmo_asinacion();
+  
 }
 
 function algoritmo_asinacion() {
@@ -527,6 +528,15 @@ function generarMatrizAsignacion() {
 
   let celdasResaltar = seleccionarPosiciones(matrix_cereada);
   mostrarMatrizAsignacion(nodosFiltradosFilas, nodosFiltradosColumnas, matriz, celdasResaltar);
+
+  // Calcular la suma de las celdas resaltadas
+  let sumaOptimo = 0;
+  celdasResaltar.forEach(celda => {
+      sumaOptimo += matriz[celda[0]][celda[1]]; // Sumar el valor de la celda resaltada
+  });
+
+  // Mostrar la suma en el HTML
+  document.getElementById('optimo-valor').textContent = sumaOptimo;
 }
 
 // Ajuste la función mostrarMatrizAsignacion para aceptar nodosFiltradosFilas y nodosFiltradosColumnas
