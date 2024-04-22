@@ -304,7 +304,12 @@ function cambiarSeleccion(valor) {
   mostrarSeleccion(); // Llama a esta función para mostrar la selección actual
 }
 
-function asignacion() {
+function asignacion(){
+  generarMatrizAsignacion();
+  algoritmo_asinacion();
+}
+
+function algoritmo_asinacion() {
   const matrix = [
     [3, 2, 4],
     [3, 2, 1],
@@ -326,6 +331,7 @@ function asignacion() {
   let { coveredRows, coveredCols } = cubrirCeros(matrixAfterColSubtraction);
   let numCoveredLines = coveredRows.filter(x => x).length + coveredCols.filter(x => x).length;
 
+  /*
   console.log("tamaño matriz = ");
   console.log(matrix.length);
   console.log("lineas cubiertas = ");
@@ -333,6 +339,7 @@ function asignacion() {
 
   console.log(`Filas cubiertas: ${coveredRows.map((v, i) => v ? i : null).filter(v => v !== null)}`);
   console.log(`Columnas cubiertas: ${coveredCols.map((v, i) => v ? i : null).filter(v => v !== null)}`);
+  */
   
   while (numCoveredLines < matrix.length) { // Si no cubrimos todas las filas/columnas, necesitamos ajustar
     matrixAfterColSubtraction = ajustarMatriz(matrixAfterColSubtraction, coveredRows, coveredCols);
@@ -344,7 +351,7 @@ function asignacion() {
 
   // Mostrar la solución
   console.log("Matriz final después de ajustes:");
-  imprimirMatriz(matrixAfterColSubtraction);
+  imprimirMatriz(matrixAfterColSubtraction);  //muestra la matriz cereada
 
   console.log("Solución:");
   console.log(`Filas cubiertas: ${coveredRows.map((v, i) => v ? i : null).filter(v => v !== null)}`);
@@ -474,3 +481,68 @@ function ajustarMatriz(matrix, coveredRows, coveredCols) {
   return newMatrix;
 }
 
+//PARA MOSTRAR AL USUARIO
+
+function generarMatrizAsignacion() {
+  const nodos = nodosDataSet.get({ fields: ['id', 'label'] });
+  let matriz = [];
+
+  // Generar matriz inicial
+  nodos.forEach(nodo => {
+    const fila = [];
+    nodos.forEach(otroNodo => {
+      const conexion = aristasDataSet.get({
+        filter: edge => edge.from === nodo.id && edge.to === otroNodo.id
+      });
+      fila.push(conexion.length > 0 ? parseInt(conexion[0].label || 1) : 0);
+    });
+    matriz.push(fila);
+  });
+
+  // Identificar filas y columnas que no sean todas ceros
+  let filasValidas = matriz.map(fila => fila.some(valor => valor !== 0));
+  let columnasValidas = matriz[0].map((col, i) => matriz.some(fila => fila[i] !== 0));
+
+  // Filtrar las filas y columnas para mantener solo las que no son todas ceros
+  matriz = matriz.filter((fila, i) => filasValidas[i]).map(fila => fila.filter((col, i) => columnasValidas[i]));
+
+  // Filtrar nodos basados en filas y columnas validas
+  let nodosFiltradosFilas = nodos.filter((nodo, i) => filasValidas[i]); // Filtrar nodos para filas
+  let nodosFiltradosColumnas = nodos.filter((nodo, i) => columnasValidas[i]); // Filtrar nodos para columnas
+
+
+  let celdasResaltar = seleccionarCeros(matriz);
+  mostrarMatrizAsignacion(nodosFiltradosFilas, nodosFiltradosColumnas, matriz, celdasResaltar);
+}
+
+// Ajuste la función mostrarMatrizAsignacion para aceptar nodosFiltradosFilas y nodosFiltradosColumnas
+function mostrarMatrizAsignacion(nodosFilas, nodosColumnas, matriz, celdasResaltar = []) {
+  const contenedorMatriz = document.getElementById('matriz_asignacion');
+  let html = '<h2>Asignación</h2>';
+  html += '<table style="padding: 10px; border: 2px solid black;">';
+
+  // Encabezados de columna
+  html += '<tr><th style="padding: 10px; border: 2px solid black; background-color: white; color: black;"></th>';
+  nodosColumnas.forEach(nodo => {
+    html += `<th style="padding: 10px; border: 2px solid black; background-color: DodgerBlue; color: black;">${nodo.label}</th>`;
+  });
+  html += '</tr>';
+
+  // Contenido de la matriz
+  matriz.forEach((fila, i) => {
+    html += `<tr><th style="padding: 10px; border: 2px solid black; background-color: Tomato; color: black;">${nodosFilas[i].label}</th>`;
+    fila.forEach((valor, j) => {
+      const esResaltar = celdasResaltar.some(celda => celda[0] === i && celda[1] === j);
+      const colorFondo = esResaltar ? "yellow" : "white";
+      html += `<td style="padding: 10px; border: 2px solid black; background-color: ${colorFondo}; color: black;">${valor}</td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += '</table>';
+  contenedorMatriz.innerHTML = html;
+}
+
+function seleccionarCeros(matriz) {
+  
+}
