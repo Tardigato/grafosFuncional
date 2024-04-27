@@ -1,37 +1,181 @@
-function guardarGrafo() {
-    const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar el grafo:', 'grafo');
-    if (nombreArchivo !== null) {
-      const grafoJSON = JSON.stringify({ nodos: nodosDataSet.get() });
-      const blob = new Blob([grafoJSON], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = nombreArchivo + '.json';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+// Assuming this function is called after the user has entered data into the matrix
+
+function Matrix(rows, cols) {
+    this.r = rows;
+    this.c = cols;
+    this.cost = [];
+    this.units = [];
+    this.d = [];
+    for (var i = 0; i < rows; i++) {
+        this.cost[i] = [];
+        this.units[i] = [];
+        for (var j = 0; j < cols; j++) {
+            this.cost[i][j] = 0;
+            this.units[i][j] = 'X';
+        }
     }
-  }
-  
-  
-  // Función para cargar un grafo desde un archivo JSON seleccionado por el usuario
-  function cargarGrafo() {
+    for (var i = 0; i < rows; i++) {
+        this.d[i] = 0;
+    }
+}
+
+function extractMatrixDataFromForm() {
+    const rows = Math.abs(parseInt(document.sizeForm.rowValue.value)) || 5;
+    const cols = Math.abs(parseInt(document.sizeForm.colValue.value)) || 7;
+    const matrix = new Matrix(rows, cols);
+
+    for (let i = 0; i < matrix.r; i++) {
+        for (let j = 0; j < matrix.c; j++) {
+            const counter = i * (matrix.c + 1) + j;
+            const inputValue = parseFloat(document.networkForm.elements[counter].value) || 0;
+            matrix.cost[i][j] = Math.abs(inputValue);
+        }
+        matrix.s[i] = Math.abs(parseFloat(document.networkForm.elements[i * (matrix.c + 1) + matrix.c].value)) || 100;
+    }
+
+    for (let j = 0; j < matrix.c; j++) {
+        matrix.d[j] = Math.abs(parseFloat(document.networkForm.elements[matrix.r * (matrix.c + 1) + j].value)) || parseInt((100 * matrix.r) / matrix.c);
+    }
+
+    matrix.d[matrix.c - 1] = Math.abs(parseFloat(document.networkForm.elements[matrix.r * (matrix.c + 1) + matrix.c - 1].value)) || 100 * matrix.r - parseInt((100 * matrix.r) / matrix.c) * (matrix.c - 1);
+
+    // Validate entries and deal with unbalanced
+    let checkTot = 0;
+    for (let i = 0; i < matrix.r; i++) {
+        checkTot += matrix.s[i];
+    }
+
+    for (let j = 0; j < matrix.c; j++) {
+        checkTot -= matrix.d[j];
+    }
+
+    if (checkTot !== 0) {
+        alert('La oferta y la demanda deben estar balanceadas. Por favor, ingrese los datos nuevamente.');
+        return null;
+    } else {
+        return matrix;
+    }
+}
+
+
+function guardarGrafo(matrix) {
+    // Prompt user for file name
+    const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar el grafo:', 'grafo');
+
+    // Check if user canceled prompt
+    if (nombreArchivo !== null) {
+        // Log the matrix data before converting to JSON
+        console.log('Matrix data before conversion to JSON:', matrix);
+
+        // Extract relevant matrix data
+        const matrixData = {
+            rows: matrix.r,
+            cols: matrix.c,
+            cost: matrix.cost,
+            units: matrix.units,
+            d: matrix.d
+        };
+
+        // Convert matrix data to JSON
+        const grafoJSON = JSON.stringify({ matrix: matrixData });
+
+        // Log the JSON data before creating Blob
+        console.log('JSON data:', grafoJSON);
+
+        // Create Blob from JSON data
+        const blob = new Blob([grafoJSON], { type: 'application/json' });
+
+        // Create object URL from Blob
+        const url = URL.createObjectURL(blob);
+
+        // Create a link element to trigger download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nombreArchivo + '.json';
+
+        // Append link element to document body
+        document.body.appendChild(a);
+
+        // Trigger download by clicking the link
+        a.click();
+
+        // Remove link element from document body
+        document.body.removeChild(a);
+
+        // Revoke object URL to release resources
+        URL.revokeObjectURL(url);
+    }
+}
+
+
+// Call getMatrixDataFromForm within guardarGrafo
+function guardarGrafoConMatrix() {
+    const matrix = extractMatrixDataFromForm();
+    if (matrix) {
+        guardarGrafo(matrix);
+    }
+}
+
+
+
+
+function cargarGrafo() {
     const inputArchivo = document.getElementById('inputArchivo');
     const file = inputArchivo.files[0];
     const reader = new FileReader();
-    reader.onload = function(event) {
-      const contenido = event.target.result;
-      const datos = JSON.parse(contenido);
-      // Limpiar los conjuntos de datos actuales
-      nodosDataSet.clear();
-      aristasDataSet.clear();
-      // Agregar los nodos y aristas del archivo JSON al grafo
-      nodosDataSet.add(datos.nodos);
-      aristasDataSet.add(datos.aristas);
+    reader.onload = function (event) {
+        try {
+            const contenido = event.target.result;
+            const datos = JSON.parse(contenido);
+
+            matrix = new Matrix(datos.matrix.rows, datos.matrix.cols);
+            matrix.cost = datos.matrix.cost;
+            matrix.units = datos.matrix.units;
+            matrix.d = datos.matrix.d;
+
+            makeForm2(matrix);
+        } catch (error) {
+            alert('Error al cargar el archivo: ' + error.message);
+        }
     };
     reader.readAsText(file);
-  }
+}
+
+
+function makeForm2(matrix) {
+    document.getElementById('findOptimal').innerHTML = '';
+    rows = matrix.r;
+    cols = matrix.c;
+    var formString = '<p>Ingrese los costos, las demandas y las ofertas en la matriz. (Nota tiene que estar balanceado para poder continuar.)</p>';
+    formString += '<form name="networkForm" onsubmit="return false">';
+    formString += '<table class="other">';
+    formString += '<tr><td></td>';
+    for (var j = 0; j < cols; j++) {
+        formString += '<td>' + String.fromCharCode(j + 16 + 64) + '</td>';
+    }
+    formString += '<td>Oferta</td>';
+    formString += '</tr>';
+    for (var i = 0; i < rows; i++) {
+        formString += '<tr>'
+        formString += '<td>' + String.fromCharCode(i + 1 + 64) + '</td>';
+        for (var j = 0; j < cols + 1; j++) {
+            formString += '<td><input type="text" style="width:30px;" value="' + matrix.cost[i][j] + '"></td>';
+        }
+        formString += '</tr>';
+    }
+    formString += '<tr><td>Demanda</td>';
+    for (var j = 0; j < cols; j++) {
+        formString += '<td><input type="text" style="width:30px;" value="' + matrix.d[j] + '"></td>';
+    }
+    formString += '</tr></table></form>';
+    formString += '<button type="button" id="doAlgorithm" onclick="doAlgorithm()">Minimizar</button>';
+    formString += '<button type="button" id="moAlgorithm" onclick="moAlgorithm()">Maximizar</button>';
+    formString += '</div>';
+    document.getElementById('formSpace').innerHTML = formString;
+}
+
+
+
 
 function matrix(rows, cols){
 	this.r = rows;
@@ -104,13 +248,14 @@ function makeForm(){
 
 
 
-
-
-
-
-
 function getValuesFromMatrix(){
 	//gets the values from the matrix defined by the user
+	
+
+
+
+
+
 	//after the function makeForm has acted
 	//works and gets supply and demand amounts as separate arrays
 	rows = Math.abs(parseInt(document.sizeForm.rowValue.value))||5;
@@ -156,6 +301,17 @@ function getValuesFromMatrix(){
 	else {
 		return [true, m];
 	}
+
+	
+
+
+
+
+
+
+
+
+
 }
 
 function showMatrixCosts(m){
