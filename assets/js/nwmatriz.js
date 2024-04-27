@@ -1,70 +1,78 @@
-// Assuming this function is called after the user has entered data into the matrix
+// Define the Matrix object
+let savedMatrix;
 
+
+// Modify the Matrix constructor to initialize rows and cols
 function Matrix(rows, cols) {
     this.r = rows;
     this.c = cols;
+    // Initialize other properties as needed
     this.cost = [];
     this.units = [];
+    this.imp = [];
+    this.stones = [];
+    this.s = [];
     this.d = [];
+    this.shadowD = [];
+    this.shadowS = [];
+
+    // Initialize matrix arrays
     for (var i = 0; i < rows; i++) {
         this.cost[i] = [];
         this.units[i] = [];
+        this.imp[i] = [];
+        this.stones[i] = [];
         for (var j = 0; j < cols; j++) {
             this.cost[i][j] = 0;
             this.units[i][j] = 'X';
+            this.imp[i][j] = 'X';
+            this.stones[i][j] = 'X';
         }
     }
+    // Initialize supply and demand arrays
     for (var i = 0; i < rows; i++) {
-        this.d[i] = 0;
+        this.s[i] = 0;
+        this.shadowS[i] = 'X';
+    }
+    for (var j = 0; j < cols; j++) {
+        this.d[j] = 0;
+        this.shadowD[j] = 'X';
     }
 }
 
+// Modify the extractMatrixDataFromForm function to pass rows and cols to the Matrix constructor
 function extractMatrixDataFromForm() {
-    const rows = Math.abs(parseInt(document.sizeForm.rowValue.value)) || 5;
-    const cols = Math.abs(parseInt(document.sizeForm.colValue.value)) || 7;
-    const matrix = new Matrix(rows, cols);
+    // Extract data from the form inputs
+    var rows = parseInt(document.getElementById("rows").value);
+    var cols = parseInt(document.getElementById("cols").value);
 
-    for (let i = 0; i < matrix.r; i++) {
-        for (let j = 0; j < matrix.c; j++) {
-            const counter = i * (matrix.c + 1) + j;
-            const inputValue = parseFloat(document.networkForm.elements[counter].value) || 0;
-            matrix.cost[i][j] = Math.abs(inputValue);
+    // Initialize a new Matrix object with rows and cols
+    var matrix = new Matrix(rows, cols);
+
+    // Populate the matrix with data from the form inputs
+    for (var i = 0; i < rows; i++) {
+        for (var j = 0; j < cols; j++) {
+            var cellValue = parseInt(document.getElementById("cell_" + i + "_" + j).value);
+            matrix.cost[i][j] = cellValue; // Use matrix.cost instead of direct assignment
         }
-        matrix.s[i] = Math.abs(parseFloat(document.networkForm.elements[i * (matrix.c + 1) + matrix.c].value)) || 100;
     }
 
-    for (let j = 0; j < matrix.c; j++) {
-        matrix.d[j] = Math.abs(parseFloat(document.networkForm.elements[matrix.r * (matrix.c + 1) + j].value)) || parseInt((100 * matrix.r) / matrix.c);
-    }
-
-    matrix.d[matrix.c - 1] = Math.abs(parseFloat(document.networkForm.elements[matrix.r * (matrix.c + 1) + matrix.c - 1].value)) || 100 * matrix.r - parseInt((100 * matrix.r) / matrix.c) * (matrix.c - 1);
-
-    // Validate entries and deal with unbalanced
-    let checkTot = 0;
-    for (let i = 0; i < matrix.r; i++) {
-        checkTot += matrix.s[i];
-    }
-
-    for (let j = 0; j < matrix.c; j++) {
-        checkTot -= matrix.d[j];
-    }
-
-    if (checkTot !== 0) {
-        alert('La oferta y la demanda deben estar balanceadas. Por favor, ingrese los datos nuevamente.');
-        return null;
-    } else {
-        return matrix;
-    }
+    // Return the populated matrix
+    return matrix;
 }
 
 
+
+
+// Function to save the graph
+// Function to save the graph
 function guardarGrafo(matrix) {
     // Prompt user for file name
     const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar el grafo:', 'grafo');
 
     // Check if user canceled prompt
     if (nombreArchivo !== null) {
-        // Log the matrix data before converting to JSON
+        // Log the matrix data before conversion to JSON
         console.log('Matrix data before conversion to JSON:', matrix);
 
         // Extract relevant matrix data
@@ -73,8 +81,16 @@ function guardarGrafo(matrix) {
             cols: matrix.c,
             cost: matrix.cost,
             units: matrix.units,
-            d: matrix.d
+            imp: matrix.imp,
+            stones: matrix.stones,
+            s: matrix.s,
+            d: matrix.d,
+            shadowD: matrix.shadowD,
+            shadowS: matrix.shadowS
         };
+
+        // Log the extracted matrix data
+        console.log('Extracted matrix data:', matrixData);
 
         // Convert matrix data to JSON
         const grafoJSON = JSON.stringify({ matrix: matrixData });
@@ -109,16 +125,18 @@ function guardarGrafo(matrix) {
 
 
 // Call getMatrixDataFromForm within guardarGrafo
+// Modify the makeForm function call to call guardargrafo with savedMatrix
 function guardarGrafoConMatrix() {
-    const matrix = extractMatrixDataFromForm();
-    if (matrix) {
-        guardarGrafo(matrix);
+    if (savedMatrix) {
+        guardarGrafo(savedMatrix);
+    } else {
+        alert('No hay datos de la matriz para guardar. Por favor, ingrese los datos primero.');
     }
 }
 
 
 
-
+// Function to load the graph
 function cargarGrafo() {
     const inputArchivo = document.getElementById('inputArchivo');
     const file = inputArchivo.files[0];
@@ -131,7 +149,12 @@ function cargarGrafo() {
             matrix = new Matrix(datos.matrix.rows, datos.matrix.cols);
             matrix.cost = datos.matrix.cost;
             matrix.units = datos.matrix.units;
+            matrix.imp = datos.matrix.imp;
+            matrix.stones = datos.matrix.stones;
+            matrix.s = datos.matrix.s;
             matrix.d = datos.matrix.d;
+            matrix.shadowD = datos.matrix.shadowD;
+            matrix.shadowS = datos.matrix.shadowS;
 
             makeForm2(matrix);
         } catch (error) {
@@ -142,6 +165,11 @@ function cargarGrafo() {
 }
 
 
+
+
+
+
+// Function to create form based on matrix data
 function makeForm2(matrix) {
     document.getElementById('findOptimal').innerHTML = '';
     rows = matrix.r;
@@ -158,9 +186,11 @@ function makeForm2(matrix) {
     for (var i = 0; i < rows; i++) {
         formString += '<tr>'
         formString += '<td>' + String.fromCharCode(i + 1 + 64) + '</td>';
-        for (var j = 0; j < cols + 1; j++) {
+        for (var j = 0; j < cols; j++) {
             formString += '<td><input type="text" style="width:30px;" value="' + matrix.cost[i][j] + '"></td>';
         }
+        // Add input field for oferta in each row
+        formString += '<td><input type="text" style="width:30px;" value="' + matrix.s[i] + '"></td>';
         formString += '</tr>';
     }
     formString += '<tr><td>Demanda</td>';
@@ -173,6 +203,8 @@ function makeForm2(matrix) {
     formString += '</div>';
     document.getElementById('formSpace').innerHTML = formString;
 }
+
+
 
 
 
@@ -212,39 +244,79 @@ function matrix(rows, cols){
 }
 
 
+// Initialize savedMatrix variable outside any function scope
+
+
+// Modify the makeForm function to save the matrix with user inputs into savedMatrix
 function makeForm(){
-	//clear divs from any previous call
-	document.getElementById('findOptimal').innerHTML = '';
-	rows = Math.abs(parseInt(document.sizeForm.rowValue.value))||5;
-	cols = Math.abs(parseInt(document.sizeForm.colValue.value))||7;
-	var formString='<p>Ingrese los costos, las demandas y las ofertas en la matriz. (Nota tiene que estar balanciado para poder continuar.)</p>';
-	formString+='<form name="networkForm" onsubmit="return false">';
-	formString+='<table class = "other">';
-	formString+='<tr><td></td>';//blank first cell
-	for(var j=0;j<cols;j++){
-		formString+='<td>'+String.fromCharCode(j+16+64)+'</td>';
-	}
-	formString += '<td>Oferta</td>';
-	formString+='</tr>';
-	for(var i=0;i<rows;i++){
-		formString+='<tr>'
-		formString+='<td>'+String.fromCharCode(i+1+64)+'</td>';
-		for(var j=0;j<cols+1;j++){
-			formString+='<td><input type="text" style="width:30px;" value=""></td>';
-			}
-		formString+='</tr>';
-		}
-	formString += '<tr><td>Demanda</td>';
-	for (var j = 0; j < cols; j++) {
-		formString += '<td><input type="text" style="width:30px;" value=""</td>';
-		//might need to add the onkeydown line 91 stuff here
-	}
-	formString+='</tr></table></form>';
-	formString+='<button type="button" id="doAlgorithm" onclick="doAlgorithm()">Minimizar</button>';
-    formString+='<button type="button" id="moAlgorithm" onclick="moAlgorithm()">Maximizar</button>';
-	formString+='</div>';
-	document.getElementById('formSpace').innerHTML=formString;
+    // Clear divs from any previous call
+    document.getElementById('findOptimal').innerHTML = '';
+    var rows = Math.abs(parseInt(document.sizeForm.rowValue.value)) || 5;
+    var cols = Math.abs(parseInt(document.sizeForm.colValue.value)) || 7;
+    
+    // Initialize a new Matrix object
+    savedMatrix = new Matrix(rows, cols);
+
+    var formString = '<p>Ingrese los costos, las demandas y las ofertas en la matriz. (Nota tiene que estar balanciado para poder continuar.)</p>';
+    formString += '<form name="networkForm" onsubmit="return false">';
+    formString += '<table class="other">';
+    formString += '<tr><td></td>'; // Blank first cell
+    for(var j = 0; j < cols; j++){
+        formString += '<td>' + String.fromCharCode(j + 16 + 64) + '</td>';
+    }
+    formString += '<td>Oferta</td>';
+    formString += '</tr>';
+    for(var i = 0; i < rows; i++){
+        formString += '<tr>';
+        formString += '<td>' + String.fromCharCode(i + 1 + 64) + '</td>';
+        for(var j = 0; j < cols; j++){
+            formString += '<td><input type="text" style="width:30px;" id="cell_' + i + '_' + j + '" value=""></td>';
+        }
+        // Add input field for oferta in each row
+        formString += '<td><input type="text" style="width:30px;" id="oferta_' + i + '" value=""></td>';
+        formString += '</tr>';
+    }
+    formString += '<tr><td>Demanda</td>';
+    for(var j = 0; j < cols; j++){
+        formString += '<td><input type="text" style="width:30px;" id="demand_' + j + '" value=""></td>';
+    }
+    formString += '</tr></table></form>';
+    formString += '<button type="button" id="doAlgorithm" onclick="doAlgorithm()">Minimizar</button>';
+    formString += '<button type="button" id="moAlgorithm" onclick="moAlgorithm()">Maximizar</button>';
+    formString += '</div>';
+
+    document.getElementById('formSpace').innerHTML = formString;
+
+    document.getElementById('guardarGrafoBtn').addEventListener('click', function() {
+        // Retrieve and save the cost values
+        for (var i = 0; i < rows; i++) {
+            for (var j = 0; j < cols; j++) {
+                var cellValue = parseInt(document.getElementById("cell_" + i + "_" + j).value);
+                savedMatrix.cost[i][j] = cellValue;
+            }
+            // Retrieve and save the oferta values
+            var ofertaValue = parseInt(document.getElementById("oferta_" + i).value);
+            savedMatrix.s[i] = ofertaValue;
+        }
+        
+        // Retrieve and save the demand values
+        for(var j = 0; j < cols; j++){
+            var demandValue = parseInt(document.getElementById("demand_" + j).value);
+            savedMatrix.d[j] = demandValue;
+        }
+        
+        // Call the guardarGrafo function
+        guardarGrafo(savedMatrix);
+    });
 }
+
+
+
+
+
+
+
+
 
 
 
