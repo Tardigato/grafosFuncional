@@ -1,8 +1,5 @@
-// Define the Matrix object
 let savedMatrix;
 
-
-// Modify the Matrix constructor to initialize rows and cols
 function Matrix(rows, cols) {
     this.r = rows;
     this.c = cols;
@@ -40,7 +37,6 @@ function Matrix(rows, cols) {
     }
 }
 
-// Modify the extractMatrixDataFromForm function to pass rows and cols to the Matrix constructor
 function extractMatrixDataFromForm() {
     // Extract data from the form inputs
     var rows = parseInt(document.getElementById("rows").value);
@@ -61,11 +57,6 @@ function extractMatrixDataFromForm() {
     return matrix;
 }
 
-
-
-
-// Function to save the graph
-// Function to save the graph
 function guardarGrafo(matrix) {
     // Prompt user for file name
     const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar el grafo:', 'grafo');
@@ -123,9 +114,6 @@ function guardarGrafo(matrix) {
     }
 }
 
-
-// Call getMatrixDataFromForm within guardarGrafo
-// Modify the makeForm function call to call guardargrafo with savedMatrix
 function guardarGrafoConMatrix() {
     if (savedMatrix) {
         guardarGrafo(savedMatrix);
@@ -134,9 +122,6 @@ function guardarGrafoConMatrix() {
     }
 }
 
-
-
-// Function to load the graph
 function cargarGrafo() {
     const inputArchivo = document.getElementById('inputArchivo');
     const file = inputArchivo.files[0];
@@ -164,12 +149,6 @@ function cargarGrafo() {
     reader.readAsText(file);
 }
 
-
-
-
-
-
-// Function to create form based on matrix data
 function makeForm2(matrix) {
     document.getElementById('findOptimal').innerHTML = '';
     rows = matrix.r;
@@ -203,11 +182,6 @@ function makeForm2(matrix) {
     formString += '</div>';
     document.getElementById('formSpace').innerHTML = formString;
 }
-
-
-
-
-
 
 function matrix(rows, cols){
 	this.r = rows;
@@ -243,11 +217,6 @@ function matrix(rows, cols){
 	}
 }
 
-
-// Initialize savedMatrix variable outside any function scope
-
-
-// Modify the makeForm function to save the matrix with user inputs into savedMatrix
 function makeForm(){
     // Clear divs from any previous call
     document.getElementById('findOptimal').innerHTML = '';
@@ -310,26 +279,8 @@ function makeForm(){
     });
 }
 
-
-
-
-
-
-
-
-
-
-
 function getValuesFromMatrix(){
-	//gets the values from the matrix defined by the user
 	
-
-
-
-
-
-	//after the function makeForm has acted
-	//works and gets supply and demand amounts as separate arrays
 	rows = Math.abs(parseInt(document.sizeForm.rowValue.value))||5;
 	cols = Math.abs(parseInt(document.sizeForm.colValue.value))||7;
 	m = new matrix(rows, cols);
@@ -501,12 +452,6 @@ function showMatrixImps(m){
 	return mString;
 }
 
-
-
-
-
-
-
 function northWestStep(m, i, j){
 	//north west corner method to find initial solution
 	var nextij = [];
@@ -614,12 +559,7 @@ function clearShadows(m) {
 }
 
 function findCellsInRowAndColumn(m, c){
-	//helper function for closedPath
-	//starting at cell c finds a cell in the same row with an allocation
-	//and a cell in the new cells column with an allocation
-	//returns the two new cells if success and allocates to m.stones
-	//returns fail if fails
-	//first count spare cells in row
+	
 	var newcinrow = [];
 	var counter = 0;
 	for (var k = 0; k < m.c; k++) {
@@ -667,10 +607,7 @@ function findCellsInRowAndColumn(m, c){
 }
 
 function findClosedPath(m){
-	//finds a closed path starting and ending at the entering cell
-	//using only cells with an allocation
-	//returns an array of true or false with the closed path as the second element or empty
-	//must return all stones to X if findCellsInRowAndColumn fails and is called again
+	
 	clearStones(m);
 	//allocate entering cell to m.units so it can be found as part of the path
 	m.units[m.enteringCell[0]][m.enteringCell[1]] = 0;
@@ -787,7 +724,6 @@ function doAlgorithm() {
 
 //------------------------------maximo
 
-
 function improvedAllocationm(m, cellsList) {
     var minAlloc = m.units[cellsList[1][0]][cellsList[1][1]]; // Initialize with the allocation of the first cell in the list
     var exitCellNumber = 1; // Initialize the exit cell index
@@ -807,8 +743,6 @@ function improvedAllocationm(m, cellsList) {
     // Set the exit cell to 'X' indicating it is unallocated
     m.units[cellsList[exitCellNumber][0]][cellsList[exitCellNumber][1]] = 'X';
 }
-
-
 
 function moAlgorithm() {
     // Clear output div when button is re-pressed
@@ -874,7 +808,6 @@ function moAlgorithm() {
     }
 }
 
-
 function improvedAllocationm(m, cellsList) {
     var minAlloc = m.units[cellsList[1][0]][cellsList[1][1]]; // Initialize with the allocation of the first cell in the list
     var exitCellNumber = 1; // Initialize the exit cell index
@@ -894,7 +827,6 @@ function improvedAllocationm(m, cellsList) {
     // Set the exit cell to 'X' indicating it is unallocated
     m.units[cellsList[exitCellNumber][0]][cellsList[exitCellNumber][1]] = 'X';
 }
-
 
 function northWestm(m){
     var nextij = [0, 0];
