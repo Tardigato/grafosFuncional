@@ -286,3 +286,66 @@ slider.oninput = function() {
     output.innerHTML = this.value;
     randomizearray.click();
 };
+
+// Función para guardar la lista de datos con un nombre proporcionado por el usuario
+function guardarLista() {
+    const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar la lista:', 'lista');
+    if (nombreArchivo !== null) {
+        // Obtener los datos de las barras representadas en la interfaz
+        let bars = document.getElementsByClassName("bar");
+        let listaDeDatos = [];
+        for (let i = 0; i < bars.length; i++) {
+            let heightString = bars[i].style.height;
+            let height = parseInt(heightString.substring(0, heightString.length - 2)); // Eliminar "px" al final y convertir a número
+            listaDeDatos.push(height);
+        }
+
+        // Convertir la lista de datos a formato JSON
+        const listaJSON = JSON.stringify({ datos: listaDeDatos });
+
+        // Crear y descargar el archivo JSON
+        const blob = new Blob([listaJSON], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nombreArchivo + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+}
+
+// Función para cargar una lista de datos desde un archivo JSON seleccionado por el usuario
+function cargarLista() {
+    const inputArchivo = document.getElementById('inputArchivo');
+    const file = inputArchivo.files[0];
+
+    if (!file) {
+        console.error("No se seleccionó ningún archivo.");
+        return;
+    }
+
+    const reader = new FileReader();
+    
+    reader.onload = function(event) {
+        try {
+            const contenido = event.target.result;
+            const datos = JSON.parse(contenido);
+
+            if (!datos || !datos.datos || !Array.isArray(datos.datos)) {
+                console.error("El archivo JSON no contiene una lista de datos válida.");
+                return;
+            }
+            // Limpiar la lista de datos actual y cargar la nueva lista desde el archivo
+            let nuevaListaDeDatos = datos.datos;
+            // Actualizar la interfaz con la nueva lista de datos
+            drawBars(nuevaListaDeDatos); // Suponiendo que tienes una función drawBars para mostrar la lista en el contenedor de barras
+            console.log("Lista cargada exitosamente:", nuevaListaDeDatos);
+        } catch (error) {
+            console.error("Error al procesar el archivo JSON:", error);
+        }
+    };
+    
+    reader.readAsText(file);
+}

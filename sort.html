@@ -85,7 +85,7 @@
     </div>
     <div style="display: inline-flex; align-items: left;width:100%;background-color: rgb(43, 51, 98);color: white;padding-right:5%">
 
-        <button id="ayudaBtn" onclick="ayudagraf()" class="btn btn-primary custom-btn" style="border-radius: 45%; font-size: 50px;background-color: rgb(110, 241, 241);color: white;padding-bottom:1%;margin:1%"><b>?</b></button>
+        <button id="ayudaBtn" onclick="redirigirAyuda()" class="btn btn-primary custom-btn" style="border-radius: 45%; font-size: 50px;background-color: rgb(110, 241, 241);color: white;padding-bottom:1%;margin:1%"><b>?</b></button>
         <div style="color: aliceblue; font-family: 'Times New Roman', serif; padding-left: 20px; font-size: 40px;margin-right:5%;margin:1%">
             <p style="font-size: 30px; font-family: 'Times New Roman', Times, serif;">Si tienes dudas puedes recurrir a nuestra sección de ayuda</p>
         </div>
@@ -98,7 +98,7 @@
             <label for="input_array" style="color: white;">Ingresa la lista de datos separada por comas:</label>
             <input type="text" id="input_array" placeholder="Ejemplo: 5, 3, 8, 1, 4">
             <center>       
-                Elements <span id="output">125</span><input type="range" id="slider" min="10" max="200" step="5" value="125" default="125" /></center><br>
+                Elementos <span id="output">125</span><input type="range" id="slider" min="10" max="200" step="5" value="125" default="125" /></center><br>
             <select name="" id="algo">
                 <option selected hidden disabled>Elegir algoritmo</option>
                 <option value="shell">Shell Sort</option>
@@ -109,6 +109,10 @@
             <br>
             <button id="sort_button" class="custom-btn">Sort</button>
             <div id="sorting_time_display" style="border: 2px solid white; background-color: rgba(255, 255, 255, 0.1); padding: 10px; margin-top: 20px; text-align: center; font-weight: bold;"></div>
+        <!-- Botón para cargar lista 
+        <button onclick="guardarLista()" class="custom-btn" style="background-color: hsl(205, 46%, 43%);color: white;">Guardar Lista</button>
+        <input type="file" id="inputArchivo" accept=".json" style="display: none;">
+        <button onclick="document.getElementById('inputArchivo').click()" class="custom-btn" style="background-color: rgb(30, 39, 140);color: white;padding-left:1%;padding-right:1%;">Cargar Lista</button>-->
         </div>
         <div id="bars_container" style="margin-left: 25%; margin-right: 3%;"></div>
     </section>
@@ -125,6 +129,11 @@
 
     <!-- Scripts -->
     <script src="assets/js/sorts.js" defer></script>
+    <script>
+        function redirigirAyuda() {
+            window.location.href = 'ayudasort.html';
+        }
+    </script>
 
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/browser.min.js"></script>
