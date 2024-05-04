@@ -158,29 +158,27 @@ function cargarGrafo() {
 }
 
 // Define cols in a scope accessible to both the event listeners and the functions
-let cols;
+let cols = 0; // Default value, can be overridden later
 
 // Add event listener to doAlgorithm button
-document.getElementById('doAlgorithm').addEventListener('click', function() {
+document.getElementById('doAlgorithm2').addEventListener('click', function() {
     console.log("Minimizar button clicked.");
     console.log("Data sent to doAlgorithm2:", savedMatrix);
-    // Call the doAlgorithm2 function
+    // Call the doAlgorithm2 function with savedMatrix as a parameter
     doAlgorithm2(savedMatrix);
 });
 
-// Add event listener to moAlgorithm button
-document.getElementById('moAlgorithm').addEventListener('click', function() {
+
+document.getElementById('moAlgorithm2').addEventListener('click', function() {
     console.log("Maximizar button clicked.");
-    console.log("Data sent to moAlgorithm2:", savedMatrix);
+    console.log("Data sent to moAlgorithm2:", matrix);
     // Call the moAlgorithm2 function
-    moAlgorithm2(savedMatrix);
+    moAlgorithm2(matrix);
 });
 
-// Function to set the value of cols
 function setColsValue(value) {
     cols = value;
 }
-
 
 function makeForm2(matrix) {
     // Log that the function is being called
@@ -203,13 +201,16 @@ function makeForm2(matrix) {
     // Log the received matrix data to the console
     console.log("Data received in makeForm:", matrix);
     
-    // Initialize a new Matrix object
+  
     var savedMatrix = new Matrix(rows, cols); // Use cols instead of matrix.cols
+savedMatrix.cols = cols; // Set the cols property in savedMatrix
+
     
     // Populate the Matrix object with data from the matrix parameter
     savedMatrix.cost = matrix.cost;
     savedMatrix.s = matrix.s;
     savedMatrix.d = matrix.d;
+    console.log("Data to send:", savedMatrix);
 
     // Log the form HTML that will be added to formSpace
     var formString = '<p>Ingrese los costos, las demandas y las ofertas en la matriz. (Nota tiene que estar balanciado para poder continuar.)</p>';
@@ -236,8 +237,8 @@ function makeForm2(matrix) {
         formString += '<td><input type="text" style="width:30px;" id="demand_' + j + '" value="' + savedMatrix.d[j] + '"></td>';
     }
     formString += '</tr></table></form>';
-    formString += '<button type="button" id="doAlgorithm" onclick="doAlgorithm2(matrix)">Minimizar</button>';
-    formString += '<button type="button" id="moAlgorithm" onclick="moAlgorithm2(matrix)">Maximizar</button>';
+    formString += '<button type="button" id="doAlgorithm2" onclick="doAlgorithm2(savedMatrix)">Minimizar</button>';
+    formString += '<button type="button" id="moAlgorithm2" onclick="moAlgorithm2(matrix)">Maximizar</button>';
     formString += '</div>';
 
     // Log the form HTML that will be added to formSpace
@@ -270,10 +271,6 @@ function makeForm2(matrix) {
     });
 }
 
-
-
-
-// Fixing the 'rows' property access in getValuesFromMatrix2 function
 function getValuesFromMatrix2(matrix) {
     try {
         // Ensure proper scoping of variables
@@ -320,76 +317,14 @@ function getValuesFromMatrix2(matrix) {
     }
 }
 
-function northWest2(m){
-    var nextij = [0,0];
-    var supply = m.s.slice(0);
-    var demand = m.d.slice(0);
-    var n = northWestStep2(m, 0, 0);
-    for(var i = 1; i < m.r+m.c-1; i++){
-        n = northWestStep2(n[0], n[1][0], n[1][1]);
-    }
-    m.s = supply;
-    m.d = demand;
-    return m;
-}
-
-function northWestm2(m){
-    var nextij = [0, 0];
-    var supply = m.s.slice(0);
-    var demand = m.d.slice(0);
-    var n = northWestStepm2(m, 0, 0);
-    for (var i = 1; i < m.r + m.c - 1; i++) {
-        n = northWestStepm2(n[0], n[1][0], n[1][1]);
-    }
-    m.s = supply;
-    m.d = demand;
-    return m;
-}
-
-function northWestStep2(m, i, j) {
-    // Northwest corner method to find initial solution
-    var nextij = [];
-    // Check if the matrix has valid dimensions
-    if (i < m.r && j < m.c) {
-        m.units[i][j] = Math.min(m.s[i], m.d[j]); // Minimize the allocation based on supply and demand
-        if (m.s[i] < m.d[j]) {
-            // Next square is down
-            m.d[j] -= m.units[i][j]; // Reduce the demand accordingly
-            m.s[i] = 0;
-            nextij = [i + 1, j];
-        } else {
-            // Next square is across
-            m.s[i] -= m.units[i][j]; // Reduce the supply accordingly
-            m.d[j] = 0;
-            nextij = [i, j + 1];
-        }
-    }
-    return [m, nextij];
-}
-
-function northWestStepm2(m, i, j) {
-    // Northwest corner method to find initial solution
-    var nextij = [];
-    // Check if the matrix has valid dimensions
-    if (i < m.r && j < m.c) {
-        m.units[i][j] = Math.min(m.s[i], m.d[j]); // Minimize the allocation based on supply and demand
-        if (m.s[i] < m.d[j]) {
-            // Next square is down
-            m.d[j] -= m.units[i][j]; // Reduce the demand accordingly
-            m.s[i] = 0;
-            nextij = [i + 1, j];
-        } else {
-            // Next square is across
-            m.s[i] -= m.units[i][j]; // Reduce the supply accordingly
-            m.d[j] = 0;
-            nextij = [i, j + 1];
-        }
-    }
-    return [m, nextij];
-}
-
 function doAlgorithm2(matrix) {
     try {
+        // Ensure matrix is defined and has the required properties
+        if (!matrix || !matrix.cols) {
+            console.error("Invalid matrix data:", matrix);
+            return;
+        }
+        
         // Extracting 'cols' from the matrix object
         var cols = matrix.cols;
         console.log("Cols:", cols); // Log cols value
@@ -460,7 +395,6 @@ function doAlgorithm2(matrix) {
     }
 }
 
-
 function moAlgorithm2(matrix) {
     try {
         // Clear output div when button is re-pressed
@@ -523,6 +457,79 @@ function moAlgorithm2(matrix) {
         console.error("Error in moAlgorithm2:", error);
     }
 }
+
+
+
+
+
+function northWest2(m){
+    var nextij = [0,0];
+    var supply = m.s.slice(0);
+    var demand = m.d.slice(0);
+    var n = northWestStep2(m, 0, 0);
+    for(var i = 1; i < m.r+m.c-1; i++){
+        n = northWestStep2(n[0], n[1][0], n[1][1]);
+    }
+    m.s = supply;
+    m.d = demand;
+    return m;
+}
+
+function northWestm2(m){
+    var nextij = [0, 0];
+    var supply = m.s.slice(0);
+    var demand = m.d.slice(0);
+    var n = northWestStepm2(m, 0, 0);
+    for (var i = 1; i < m.r + m.c - 1; i++) {
+        n = northWestStepm2(n[0], n[1][0], n[1][1]);
+    }
+    m.s = supply;
+    m.d = demand;
+    return m;
+}
+
+function northWestStep2(m, i, j) {
+    // Northwest corner method to find initial solution
+    var nextij = [];
+    // Check if the matrix has valid dimensions
+    if (i < m.r && j < m.c) {
+        m.units[i][j] = Math.min(m.s[i], m.d[j]); // Minimize the allocation based on supply and demand
+        if (m.s[i] < m.d[j]) {
+            // Next square is down
+            m.d[j] -= m.units[i][j]; // Reduce the demand accordingly
+            m.s[i] = 0;
+            nextij = [i + 1, j];
+        } else {
+            // Next square is across
+            m.s[i] -= m.units[i][j]; // Reduce the supply accordingly
+            m.d[j] = 0;
+            nextij = [i, j + 1];
+        }
+    }
+    return [m, nextij];
+}
+
+function northWestStepm2(m, i, j) {
+    // Northwest corner method to find initial solution
+    var nextij = [];
+    // Check if the matrix has valid dimensions
+    if (i < m.r && j < m.c) {
+        m.units[i][j] = Math.min(m.s[i], m.d[j]); // Minimize the allocation based on supply and demand
+        if (m.s[i] < m.d[j]) {
+            // Next square is down
+            m.d[j] -= m.units[i][j]; // Reduce the demand accordingly
+            m.s[i] = 0;
+            nextij = [i + 1, j];
+        } else {
+            // Next square is across
+            m.s[i] -= m.units[i][j]; // Reduce the supply accordingly
+            m.d[j] = 0;
+            nextij = [i, j + 1];
+        }
+    }
+    return [m, nextij];
+}
+
 
 
 
