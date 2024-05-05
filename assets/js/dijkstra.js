@@ -222,20 +222,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Función para guardar el grafo con un nombre proporcionado por el usuario
 function guardarGrafo() {
+    resetNodeLabels(); // Reset node labels before saving the graph
+
+    // Reset edge colors
+    aristasDataSet.forEach(edge => {
+        aristasDataSet.update({ id: edge.id, color: { color: 'blue', highlight: 'blue' } });
+    });
+
     const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar el grafo:', 'grafo');
     if (nombreArchivo !== null) {
-      const grafoJSON = JSON.stringify({ nodos: nodosDataSet.get(), aristas: aristasDataSet.get() });
-      const blob = new Blob([grafoJSON], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = nombreArchivo + '.json';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+        const grafoJSON = JSON.stringify({ nodos: nodosDataSet.get(), aristas: aristasDataSet.get() });
+        const blob = new Blob([grafoJSON], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nombreArchivo + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     }
-  }
+}
+
+
 
 // Función para cargar un grafo desde un archivo JSON seleccionado por el usuario
 function cargarGrafo() {
