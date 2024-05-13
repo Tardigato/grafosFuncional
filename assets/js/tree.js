@@ -5,7 +5,6 @@ let seleccionado;
 let modoAgregarNodo = false;
 let nodoRoot = null;
 
-
 function inicializarArbol() {
     const lienzo = document.getElementById('lienzo');
     nodosDataSet = new vis.DataSet();
@@ -51,9 +50,9 @@ function agregarNodoArbolRec(valor, nodoActualId) {
 
   const valorActual = nodosDataSet.get(nodoActualId).label;
 
-  if (valor < valorActual) {
+  if (parseFloat(valor) < parseFloat(valorActual)) {
       let nodoIzquierdoId = nodosDataSet.get(nodoActualId).izquierda;
-      if (nodoIzquierdoId === null) {
+      if (nodoIzquierdoId == null) {
           // Si no hay nodo izquierdo, agregamos el nuevo nodo aquí
           let nuevoId = nodosDataSet.length + 1;
           nodosDataSet.add({ id: nuevoId, label: valor, nodoPadreId: nodoActualId, izquierda: null, derecha: null, x: nodosDataSet.get(nodoActualId).x - 50, y: nodosDataSet.get(nodoActualId).y + 50 });
@@ -66,7 +65,7 @@ function agregarNodoArbolRec(valor, nodoActualId) {
       }
   } else {
       let nodoDerechoId = nodosDataSet.get(nodoActualId).derecha;
-      if (nodoDerechoId === null) {
+      if (nodoDerechoId == null) {
           // Si no hay nodo derecho, agregamos el nuevo nodo aquí
           let nuevoId = nodosDataSet.length + 1;
           nodosDataSet.add({ id: nuevoId, label: valor, nodoPadreId: nodoActualId, izquierda: null, derecha: null, x: nodosDataSet.get(nodoActualId).x + 50, y: nodosDataSet.get(nodoActualId).y + 50 });
@@ -76,9 +75,58 @@ function agregarNodoArbolRec(valor, nodoActualId) {
           
       } else {
           // Si hay nodo derecho, buscamos hacia abajo en el subárbol derecho
-          //const nodoPadreDerecho = encontrarNodoPadre(nodoActualId); // Encontrar el nodo padre del nodo actual
-          agregarNodoArbolRec(valor, nodoDerechoId); // Llamada recursiva con el ID del nodo padre del subárbol derecho
+          agregarNodoArbolRec(valor, nodoDerechoId); 
       }
+  }
+}
+
+function preOrder(){
+  console.log("PRE ORDER")
+  preOrderRec(nodoRoot);
+}
+
+function preOrderRec(nodoId) {
+  if (nodoId != null) {
+    const nodo = nodosDataSet.get(nodoId);
+    console.log(nodo.label + "  "); // Visitamos el nodo actual
+    // Luego recorremos el subárbol izquierdo
+    preOrderRec(nodosDataSet.get(nodoId).izquierda);
+    // Finalmente, recorremos el subárbol derecho
+    preOrderRec(nodosDataSet.get(nodoId).derecha);
+  }
+}
+
+function inOrder(){
+  console.log("IN ORDER")
+  inOrderRec(nodoRoot);
+}
+
+function inOrderRec(nodoId) {
+  if (nodoId != null) {
+    const nodo = nodosDataSet.get(nodoId);
+    // Luego recorremos el subárbol izquierdo
+    inOrderRec(nodosDataSet.get(nodoId).izquierda);
+    // Visitamos el nodo actual
+    console.log(nodo.label + "  "); 
+    // Finalmente, recorremos el subárbol derecho
+    inOrderRec(nodosDataSet.get(nodoId).derecha);
+  }
+}
+
+function postOrder(){
+  console.log("POST ORDER")
+  postOrderRec(nodoRoot);
+}
+
+function postOrderRec(nodoId) {
+  if (nodoId != null) {
+    const nodo = nodosDataSet.get(nodoId);
+    // Luego recorremos el subárbol izquierdo
+    postOrderRec(nodosDataSet.get(nodoId).izquierda);
+    // Finalmente, recorremos el subárbol derecho
+    postOrderRec(nodosDataSet.get(nodoId).derecha);
+    // Visitamos el nodo actual
+    console.log(nodo.label + "  "); 
   }
 }
 
@@ -202,7 +250,7 @@ function mostrarMatriz(nodos, matriz, sumasFilas, sumasColumnas) {
   // Agregar la fila de sumatorias por columnas al final de la tabla
   html += '<tr><th style="padding: 10px;border: 2px solid black;background-color: red;">Suma por Columna</th>';
   sumasColumnas.forEach(suma => {
-    html += `<td style="padding: 10px;border: 2px solid black;">${suma}</td>`;
+    html += `<td style="padding: 10px;border: 2px solid black;;background-color: white">${suma}</td>`;
   });
   html += '<td></td></tr>'; // Celda vacía para alinear con el encabezado de sumatorias por filas
   html += '</table>';
@@ -211,7 +259,7 @@ function mostrarMatriz(nodos, matriz, sumasFilas, sumasColumnas) {
 
 // Función para guardar el grafo con un nombre proporcionado por el usuario
 function guardarGrafo() {
-  const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar el grafo:', 'grafo');
+  const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar el árbol:', 'arbol');
   if (nombreArchivo !== null) {
     const grafoJSON = JSON.stringify({ nodos: nodosDataSet.get(), aristas: aristasDataSet.get() });
     const blob = new Blob([grafoJSON], { type: 'application/json' });
