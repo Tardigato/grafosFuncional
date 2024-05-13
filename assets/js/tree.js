@@ -3,6 +3,7 @@ let nodosDataSet;
 let aristasDataSet;
 let seleccionado;
 let modoAgregarNodo = false;
+let nodoRoot = null;
 
 
 function inicializarArbol() {
@@ -13,7 +14,7 @@ function inicializarArbol() {
     // Aquí se definen las opciones, incluida la desactivación de la física
     const opciones = {
         physics: {
-        enabled: false // Desactivando con false
+        enabled: true // Desactivando con false
         },
         edges: {
             
@@ -27,29 +28,53 @@ function inicializarArbol() {
     arbol = new vis.Network(lienzo, data, opciones);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    inicializarArbol();
-});
-
 //para agregar nodos al árbol
 function agregarNodoArbol() {
     // Solicitar al usuario que ingrese el valor del nodo
     const valor = prompt('Ingrese el valor del nodo:');
+    let nodoPadreId;
+    
     if (valor !== null) {
         // Crear el nuevo nodo
         const nuevoId = nodosDataSet.length + 1;
-        nodosDataSet.add({ id: nuevoId, label: valor });
 
-        // Verificar si es el primer nodo del árbol
-        if (nodosDataSet.length === 1) {
-            return; // No hay conexiones que hacer si es el primer nodo
+        console.log("cantidad de nodos: " + nodosDataSet.length)
+        //ve si es el primer nodo creado (root)
+        if(nodosDataSet.length <= 0){
+          nodosDataSet.add({ id: nuevoId, label: valor, nodoPadreId: null, izquierda: null, derecha: null});
+          nodoRoot = nuevoId;
+          console.log("Nodo root creado");
+        } 
+        else {
+          let nodoPadre = encontrarNodoPadre(nuevoId);
+
+          nodosDataSet.add({ id: nuevoId, label: valor, nodoPadreId: nodoPadre, izquierda: null, derecha: null});
+          aristasDataSet.add({ from: nodoRoot, to: nuevoId});
+          console.log("Nuevo nodo creado: " ); 
+          if(nodosDataSet.get(nuevoId).label < nodosDataSet.get(nodoPadre).label){
+            console.log("izquierda");
+            nodosDataSet.set(nodoPadre).izquierda = nuevoId;
+            
+          } else {
+            console.log("derecha");
+            nodosDataSet.set(nodoPadre).derecha = nuevoId;
+            
+          }
+          
+
+
         }
 
+        console.log("Label nodo root: " + nodosDataSet.get(nodoRoot).label);
+
+
+        /*
         // Encontrar el nodo padre para el nuevo nodo
         let nodoPadreId = encontrarNodoPadre(nuevoId);
 
         // Agregar la conexión entre el nuevo nodo y su padre
-        aristasDataSet.add({ from: nodoPadreId, to: nuevoId });
+        aristasDataSet.add({ from: nodoPadreId, to: nuevoId});
+        */
 
         // Desactivar el modo de agregar nodo después de agregarlo
         modoAgregarNodo = false;
@@ -68,6 +93,11 @@ function encontrarNodoPadre(nuevoId) {
     return null;
 }
 
+
+// Inicializar el grafo cuando se carga la página
+document.addEventListener('DOMContentLoaded', () => {
+  inicializarArbol();
+});
 
 
 
@@ -190,12 +220,6 @@ function mostrarMatriz(nodos, matriz, sumasFilas, sumasColumnas) {
   html += '</table>';
   contenedorMatriz.innerHTML = html;
 }
-
-
-// Inicializar el grafo cuando se carga la página
-document.addEventListener('DOMContentLoaded', () => {
-  inicializarGrafo();
-});
 
 // Función para guardar el grafo con un nombre proporcionado por el usuario
 function guardarGrafo() {
