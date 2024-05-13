@@ -777,7 +777,7 @@
               n.insert(8),
               n.insert(10),
               n.insert(15),
-              console.log(n.insert(13)),
+              n.insert(13),
               n.insert(12),
               n.insert(14),
               n.insert(20),
