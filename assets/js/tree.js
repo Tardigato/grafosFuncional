@@ -28,72 +28,59 @@ function inicializarArbol() {
     arbol = new vis.Network(lienzo, data, opciones);
 }
 
-//para agregar nodos al árbol
 function agregarNodoArbol() {
   // Solicitar al usuario que ingrese el valor del nodo
   const valor = prompt('Ingrese el valor del nodo:');
-  
   if (valor !== null) {
-      // Crear el nuevo nodo
-      const nuevoId = nodosDataSet.length + 1;
-      
-      // Verificar si es el primer nodo (raíz)
-      if (nodosDataSet.length === 0) {
-          nodosDataSet.add({ id: nuevoId, label: valor, nodoPadreId: null, izquierda: null, derecha: null, x: 0, y: -200});
-
-          nodoRoot = nuevoId;
-          console.log("Nodo root creado");
-          return;
-      }
-      
-      // Empezar a buscar la posición para el nuevo nodo desde la raíz
-      let nodoActualId = nodoRoot;
-      while (nodoActualId !== null) {
-          const valorActual = nodosDataSet.get(nodoActualId).label;
-          
-          // Si el valor del nuevo nodo es menor que el valor del nodo actual, movemos a la izquierda
-          if (valor < valorActual) {
-              const nodoIzquierdoId = nodosDataSet.get(nodoActualId).izquierda;
-              if (nodoIzquierdoId === null) {
-                  // Si no hay nodo izquierdo, agregamos el nuevo nodo aquí
-                  nodosDataSet.add({ id: nuevoId, label: valor, nodoPadreId: nodoActualId, izquierda: null, derecha: null, x: nodosDataSet.get(nodoActualId).x-50, y: nodosDataSet.get(nodoActualId).y+50});
-                  aristasDataSet.add({ from: nodoActualId, to: nuevoId });
-                  console.log("Nuevo nodo creado a la izquierda de " + valorActual);
-                  break;
-              } else {
-                  // Si hay nodo izquierdo, continuamos buscando hacia abajo
-                  nodoActualId = nodoIzquierdoId;
-              }
-          } else {
-              // Si el valor del nuevo nodo es mayor o igual, movemos a la derecha
-              const nodoDerechoId = nodosDataSet.get(nodoActualId).derecha;
-              if (nodoDerechoId === null) {
-                  // Si no hay nodo derecho, agregamos el nuevo nodo aquí
-                  nodosDataSet.add({ id: nuevoId, label: valor, nodoPadreId: nodoActualId, izquierda: null, derecha: null, x: nodosDataSet.get(nodoActualId).x+50, y: nodosDataSet.get(nodoActualId).y+50});
-                  aristasDataSet.add({ from: nodoActualId, to: nuevoId });
-                  console.log("Nuevo nodo creado a la derecha de " + valorActual);
-                  break;
-              } else {
-                  // Si hay nodo derecho, continuamos buscando hacia abajo
-                  nodoActualId = nodoDerechoId;
-              }
-          }
-      }
+      agregarNodoArbolRec(valor, nodoRoot); // Llamar a la función recursiva con el valor y el ID de la raíz
   }
 }
 
-// Función para encontrar el nodo padre para un nuevo nodo
-function encontrarNodoPadre(nuevoId) {
-    const nodos = nodosDataSet.get();
-    for (const nodo of nodos) {
-        const padreId = nodo.id;
-        if (aristasDataSet.get({ filter: item => item.to === padreId }).length < 2) {
-            return padreId;
-        }
-    }
-    return null;
-}
+function agregarNodoArbolRec(valor, nodoActualId) {
+  if (valor === null) {
+      return; // Si el usuario cancela, no hacemos nada
+  }
 
+  // Verificar si es el primer nodo (raíz)
+  if (nodosDataSet.length === 0) {
+      nodosDataSet.add({ id: 1, label: valor, nodoPadreId: null, izquierda: null, derecha: null, x: 0, y: -200 });
+      nodoRoot = 1;
+      console.log("Nodo root creado");
+      return;
+  }
+
+  const valorActual = nodosDataSet.get(nodoActualId).label;
+
+  if (valor < valorActual) {
+      let nodoIzquierdoId = nodosDataSet.get(nodoActualId).izquierda;
+      if (nodoIzquierdoId === null) {
+          // Si no hay nodo izquierdo, agregamos el nuevo nodo aquí
+          let nuevoId = nodosDataSet.length + 1;
+          nodosDataSet.add({ id: nuevoId, label: valor, nodoPadreId: nodoActualId, izquierda: null, derecha: null, x: nodosDataSet.get(nodoActualId).x - 50, y: nodosDataSet.get(nodoActualId).y + 50 });
+          aristasDataSet.add({ from: nodoActualId, to: nuevoId });
+          console.log("Nuevo nodo creado a la izquierda de " + valorActual);
+          nodosDataSet.update({ id: nodoActualId, izquierda: nuevoId });
+      } else {
+          // Si hay nodo izquierdo, continuamos buscando hacia abajo
+          agregarNodoArbolRec(valor, nodoIzquierdoId); // Llamada recursiva con el ID del nodo izquierdo
+      }
+  } else {
+      let nodoDerechoId = nodosDataSet.get(nodoActualId).derecha;
+      if (nodoDerechoId === null) {
+          // Si no hay nodo derecho, agregamos el nuevo nodo aquí
+          let nuevoId = nodosDataSet.length + 1;
+          nodosDataSet.add({ id: nuevoId, label: valor, nodoPadreId: nodoActualId, izquierda: null, derecha: null, x: nodosDataSet.get(nodoActualId).x + 50, y: nodosDataSet.get(nodoActualId).y + 50 });
+          aristasDataSet.add({ from: nodoActualId, to: nuevoId });
+          console.log("Nuevo nodo creado a la derecha de " + valorActual);
+          nodosDataSet.update({ id: nodoActualId, derecha: nuevoId });
+          
+      } else {
+          // Si hay nodo derecho, buscamos hacia abajo en el subárbol derecho
+          //const nodoPadreDerecho = encontrarNodoPadre(nodoActualId); // Encontrar el nodo padre del nodo actual
+          agregarNodoArbolRec(valor, nodoDerechoId); // Llamada recursiva con el ID del nodo padre del subárbol derecho
+      }
+  }
+}
 
 // Inicializar el grafo cuando se carga la página
 document.addEventListener('DOMContentLoaded', () => {
