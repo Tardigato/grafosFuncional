@@ -1,109 +1,33 @@
-let arbol;
+let grafo;
 let nodosDataSet;
 let aristasDataSet;
 let seleccionado;
+let modoEliminarArista = false;
+// Variable para controlar el modo de la aplicación
 let modoAgregarNodo = false;
-let nodoRoot = null;
 
 
-function inicializarArbol() {
-    const lienzo = document.getElementById('lienzo');
-    nodosDataSet = new vis.DataSet();
-    aristasDataSet = new vis.DataSet();
-    const data = { nodes: nodosDataSet, edges: aristasDataSet };
-    // Aquí se definen las opciones, incluida la desactivación de la física
-    const opciones = {
-        physics: {
-        enabled: false // Desactivando con false
-        },
-        edges: {
-            
-        },
+// Función para inicializar el grafo
+function inicializarGrafo() {
+  const lienzo = document.getElementById('lienzo');
+  nodosDataSet = new vis.DataSet();
+  aristasDataSet = new vis.DataSet();
+  const data = { nodes: nodosDataSet, edges: aristasDataSet };
+  const opciones = {};
+  grafo = new vis.Network(lienzo, data, opciones);
 
-        nodes: {
-            
-        }
-    };
-
-    arbol = new vis.Network(lienzo, data, opciones);
+  // Eventos del grafo
+  grafo.on('click', clicEnNodo);
+  grafo.on('doubleClick', dobleClicEnArista);
+  grafo.on('click', eliminarAristaSeleccionada);
 }
 
-//para agregar nodos al árbol
-function agregarNodoArbol() {
-  // Solicitar al usuario que ingrese el valor del nodo
-  const valor = prompt('Ingrese el valor del nodo:');
-  
-  if (valor !== null) {
-      // Crear el nuevo nodo
-      const nuevoId = nodosDataSet.length + 1;
-      
-      // Verificar si es el primer nodo (raíz)
-      if (nodosDataSet.length === 0) {
-          nodosDataSet.add({ id: nuevoId, label: valor, nodoPadreId: null, izquierda: null, derecha: null, x: 0, y: -200});
-
-          nodoRoot = nuevoId;
-          console.log("Nodo root creado");
-          return;
-      }
-      
-      // Empezar a buscar la posición para el nuevo nodo desde la raíz
-      let nodoActualId = nodoRoot;
-      while (nodoActualId !== null) {
-          const valorActual = nodosDataSet.get(nodoActualId).label;
-          
-          // Si el valor del nuevo nodo es menor que el valor del nodo actual, movemos a la izquierda
-          if (valor < valorActual) {
-              const nodoIzquierdoId = nodosDataSet.get(nodoActualId).izquierda;
-              if (nodoIzquierdoId === null) {
-                  // Si no hay nodo izquierdo, agregamos el nuevo nodo aquí
-                  nodosDataSet.add({ id: nuevoId, label: valor, nodoPadreId: nodoActualId, izquierda: null, derecha: null, x: nodosDataSet.get(nodoActualId).x-50, y: nodosDataSet.get(nodoActualId).y+50});
-                  aristasDataSet.add({ from: nodoActualId, to: nuevoId });
-                  console.log("Nuevo nodo creado a la izquierda de " + valorActual);
-                  break;
-              } else {
-                  // Si hay nodo izquierdo, continuamos buscando hacia abajo
-                  nodoActualId = nodoIzquierdoId;
-              }
-          } else {
-              // Si el valor del nuevo nodo es mayor o igual, movemos a la derecha
-              const nodoDerechoId = nodosDataSet.get(nodoActualId).derecha;
-              if (nodoDerechoId === null) {
-                  // Si no hay nodo derecho, agregamos el nuevo nodo aquí
-                  nodosDataSet.add({ id: nuevoId, label: valor, nodoPadreId: nodoActualId, izquierda: null, derecha: null, x: nodosDataSet.get(nodoActualId).x+50, y: nodosDataSet.get(nodoActualId).y+50});
-                  aristasDataSet.add({ from: nodoActualId, to: nuevoId });
-                  console.log("Nuevo nodo creado a la derecha de " + valorActual);
-                  break;
-              } else {
-                  // Si hay nodo derecho, continuamos buscando hacia abajo
-                  nodoActualId = nodoDerechoId;
-              }
-          }
-      }
+var options = {
+  physics: {
+    enabled: false
   }
-}
+};
 
-// Función para encontrar el nodo padre para un nuevo nodo
-function encontrarNodoPadre(nuevoId) {
-    const nodos = nodosDataSet.get();
-    for (const nodo of nodos) {
-        const padreId = nodo.id;
-        if (aristasDataSet.get({ filter: item => item.to === padreId }).length < 2) {
-            return padreId;
-        }
-    }
-    return null;
-}
-
-
-// Inicializar el grafo cuando se carga la página
-document.addEventListener('DOMContentLoaded', () => {
-  inicializarArbol();
-});
-
-
-
-
-//DESDE AQUÍ HAY CÓDIGO AÚN NO TRATADO
 
 // Función para manejar el clic en un nodo
 function clicEnNodo(propiedades) {
@@ -125,11 +49,79 @@ function clicEnNodo(propiedades) {
   }
 }
 
+// Función para manejar el doble clic en una arista
+function dobleClicEnArista(propiedades) {
+  const { edges } = propiedades;
+  if (edges.length > 0) {
+    // Se pide al usuario que ingrese un valor para la arista
+    const valor = prompt('Ingrese el valor para la conexión:', '');
+    if (valor !== null) {
+      // Se actualiza la arista con el valor ingresado
+      aristasDataSet.update({ id: edges[0], label: valor });
+    }
+  }
+}
+
+// Función para manejar el clic en una arista y eliminarla si estamos en modo de eliminación
+function eliminarAristaSeleccionada(propiedades) {
+  if (modoEliminarArista) {
+    const aristaId = propiedades.edges[0];
+    if (aristaId !== undefined) {
+      eliminarArista(aristaId);
+      modoEliminarArista = false; // Desactivar el modo de eliminación después de eliminar la arista
+    }
+  }
+}
+
 // Función para activar el modo de eliminación de arista
 function activarModoEliminarArista() {
   modoEliminarArista = true;
   alert('Haz clic en la arista que deseas eliminar.');
 }
+
+// Función para eliminar una arista dado su ID
+function eliminarArista(aristaId) {
+  aristasDataSet.remove({ id: aristaId });
+}
+
+// Agregar un evento de teclado al documento para detectar la eliminación de aristas
+document.addEventListener('keydown', function(event) {
+  // Verificar si la tecla presionada es la tecla "Delete" o "Backspace"
+  if (event.key === 'Delete' || event.key === 'Backspace') {
+    // Verificar si hay una arista seleccionada
+    const seleccion = grafo.getSelection();
+    if (seleccion.edges.length > 0) {
+      // Eliminar la arista seleccionada
+      eliminarArista(seleccion.edges[0]);
+    }
+  }
+});
+
+// Función para agregar un nodo al grafo en la posición donde se hizo clic
+function agregarNodo() {
+  // Activamos el modo de agregar nodo
+  modoAgregarNodo = true;
+
+  // Desactivamos los eventos de clic en el grafo mientras agregamos nodos
+  grafo.off('click');
+
+  // Agregamos un evento de clic al lienzo para capturar las coordenadas del clic
+  grafo.on('click', function(event) {
+    // Verificamos si estamos en el modo de agregar nodo
+    if (modoAgregarNodo) {
+      const position = event.pointer.canvas; // Obtiene las coordenadas del clic
+      const nuevoId = nodosDataSet.length + 1; // Genera un nuevo ID único para el nodo
+      nodosDataSet.add({ id: nuevoId, label: 'Nodo ' + nuevoId, x: position.x, y: position.y }); // Agrega el nodo en la posición del clic
+      
+      // Removemos el evento después de agregar el nodo para evitar agregar nodos adicionales con clics posteriores
+      grafo.off('click');
+      // Reactivamos los eventos de clic en el grafo
+      grafo.on('click', clicEnNodo);
+      modoAgregarNodo = false; // Desactivamos el modo de agregar nodo
+    }
+  });
+}
+
 
 // Función para cambiar el nombre de un nodo seleccionado
 function cambiarNombre() {
@@ -222,6 +214,12 @@ function mostrarMatriz(nodos, matriz, sumasFilas, sumasColumnas) {
   contenedorMatriz.innerHTML = html;
 }
 
+
+// Inicializar el grafo cuando se carga la página
+document.addEventListener('DOMContentLoaded', () => {
+  inicializarGrafo();
+});
+
 // Función para guardar el grafo con un nombre proporcionado por el usuario
 function guardarGrafo() {
   const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar el grafo:', 'grafo');
@@ -256,5 +254,3 @@ function cargarGrafo() {
   };
   reader.readAsText(file);
 }
-
-
