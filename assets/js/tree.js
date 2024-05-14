@@ -45,17 +45,18 @@ function agregarNodoArbolRec(valor, nodoActualId) {
       return; // Si el usuario cancela, no hacemos nada
   }
 
-  // Verificar si es el primer nodo (raíz)
-  if (nodosDataSet.length === 0) {
+  if(buscarNodoArbol(valor, nodoRoot) === -1){
+    console.log("Ese nodo no existe aún :)");
+    // Verificar si es el primer nodo (raíz)
+    if (nodosDataSet.length === 0) {
       nodosDataSet.add({ id: 1, label: valor, nodoPadreId: null, izquierda: null, derecha: null, x: 0, y: -200 });
       nodoRoot = 1;
       console.log("Nodo root creado");
       return;
-  }
+    }
+    const valorActual = nodosDataSet.get(nodoActualId).label;
 
-  const valorActual = nodosDataSet.get(nodoActualId).label;
-
-  if (valor < valorActual) {
+    if (parseFloat(valor) < parseFloat(valorActual)) {
       let nodoIzquierdoId = nodosDataSet.get(nodoActualId).izquierda;
       if (nodoIzquierdoId == null) {
           // Si no hay nodo izquierdo, agregamos el nuevo nodo aquí
@@ -68,7 +69,7 @@ function agregarNodoArbolRec(valor, nodoActualId) {
           // Si hay nodo izquierdo, continuamos buscando hacia abajo
           agregarNodoArbolRec(valor, nodoIzquierdoId); // Llamada recursiva con el ID del nodo izquierdo
       }
-  } else {
+    } else {
       let nodoDerechoId = nodosDataSet.get(nodoActualId).derecha;
       if (nodoDerechoId == null) {
           // Si no hay nodo derecho, agregamos el nuevo nodo aquí
@@ -82,6 +83,9 @@ function agregarNodoArbolRec(valor, nodoActualId) {
           // Si hay nodo derecho, buscamos hacia abajo en el subárbol derecho
           agregarNodoArbolRec(valor, nodoDerechoId); 
       }
+    }
+  } else {
+    console.log("Este nodo ya existe :( ");
   }
 }
 
@@ -308,6 +312,28 @@ function calcularProfundidad(nodoId) {
 function calcularProfundidadArbol() {
   const profundidad = calcularProfundidad(nodoRoot);
   console.log("Profundidad del árbol:", profundidad);
+}
+
+// Función para buscar un nodo en el árbol por su valor
+function buscarNodoArbol(valor, nodoActualId) {
+  if (nodoActualId == null) {
+      return -1;
+  }
+  const nodoActual = nodosDataSet.get(nodoActualId);
+  if (nodoActual.label === valor) {
+      return nodoActual; // Devolver el nodo si se encuentra
+  }
+  if (valor < nodoActual.label) {
+      // Buscar en el subárbol izquierdo
+      return buscarNodoArbol(valor, nodoActual.izquierda);
+  } else {
+      // Buscar en el subárbol derecho
+      return buscarNodoArbol(valor, nodoActual.derecha);
+  }
+}
+
+function comodin(){
+  console.log(buscarNodoArbol("12", nodoRoot));
 }
 
 // Inicializar el grafo cuando se carga la página
