@@ -356,3 +356,42 @@ class UnionFind {
 }
 
 /*----------------------------------------*/
+function kruskalWithHighestWeight() {
+  const edges = [];
+  // Generate the list of edges
+  aristasDataSet.forEach(arista => {
+      const { from, to } = arista;
+      const weight = parseInt(arista.label || 1);
+      edges.push([from, to, weight]);
+  });
+  
+  // Sort the edges by weight (in descending order).
+  edges.sort((a, b) => b[2] - a[2]); // Sort in descending order.
+
+  const unionFind = new UnionFind(nodosDataSet.length);
+  const mst = []; // This will hold the edges of our minimum spanning tree.
+
+  // For every edge, in decreasing order of their weight (highest weight first).
+  for (const [u, v, weight] of edges) {
+      // If the two vertices of the edge are in different subsets, add the edge to the MST.
+      if (unionFind.find(u) !== unionFind.find(v)) {
+          mst.push([u, v, weight]);
+          unionFind.union(u, v); // Merge the two subsets.
+      }
+  }
+
+  // Highlight the edges in the MST
+  aristasDataSet.forEach(arista => {
+      const { from, to } = arista;
+      if (mst.some(edge => (edge[0] === from && edge[1] === to) || (edge[0] === to && edge[1] === from))) {
+          aristasDataSet.update({ id: arista.id, color: { color: 'red', highlight: 'red' } });
+      } else {
+          aristasDataSet.update({ id: arista.id, color: { color: 'blue', highlight: 'blue' } });
+      }
+  });
+}
+
+// Function to execute Kruskal with highest weight and highlight the resulting edges
+function executeKruskalWithHighestWeight() {
+  kruskalWithHighestWeight();
+}
