@@ -4,6 +4,10 @@ let aristasDataSet;
 let seleccionado;
 let modoAgregarNodo = false;
 let nodoRoot = null;
+let arbol_pre_order = "";
+let arbol_in_order = "";
+let arbol_post_order = "";
+
 
 function inicializarArbol() {
     const lienzo = document.getElementById('lienzo');
@@ -14,6 +18,7 @@ function inicializarArbol() {
     const opciones = {
         physics: {
         enabled: false // Desactivando con false
+        
         },
         edges: {
             
@@ -50,7 +55,7 @@ function agregarNodoArbolRec(valor, nodoActualId) {
 
   const valorActual = nodosDataSet.get(nodoActualId).label;
 
-  if (parseFloat(valor) < parseFloat(valorActual)) {
+  if (valor < valorActual) {
       let nodoIzquierdoId = nodosDataSet.get(nodoActualId).izquierda;
       if (nodoIzquierdoId == null) {
           // Si no hay nodo izquierdo, agregamos el nuevo nodo aquí
@@ -81,53 +86,102 @@ function agregarNodoArbolRec(valor, nodoActualId) {
 }
 
 function preOrder(){
-  console.log("PRE ORDER")
+  arbol_pre_order = ""; // Reiniciar la variable global
+  console.log("PRE ORDER");
   preOrderRec(nodoRoot);
+  // Mostrar preorder en pantalla
+  document.getElementById('preorder').textContent = "PRE ORDER: " + arbol_pre_order;
+  console.log(arbol_pre_order);
 }
 
 function preOrderRec(nodoId) {
   if (nodoId != null) {
     const nodo = nodosDataSet.get(nodoId);
-    console.log(nodo.label + "  "); // Visitamos el nodo actual
+    arbol_pre_order += nodo.label + ", "; // Acumular el texto del nodo
+    console.log(nodo.label + " "); // Visitamos el nodo actual
     // Luego recorremos el subárbol izquierdo
-    preOrderRec(nodosDataSet.get(nodoId).izquierda);
+    preOrderRec(nodo.izquierda);
     // Finalmente, recorremos el subárbol derecho
-    preOrderRec(nodosDataSet.get(nodoId).derecha);
+    preOrderRec(nodo.derecha);
   }
 }
 
 function inOrder(){
-  console.log("IN ORDER")
+  arbol_in_order = ""; // Reiniciar la variable global
+  console.log("IN ORDER");
   inOrderRec(nodoRoot);
+  // Mostrar preorder en pantalla
+  document.getElementById('inorder').textContent = "IN ORDER: " + arbol_in_order;
+  console.log(arbol_in_order);
 }
 
 function inOrderRec(nodoId) {
   if (nodoId != null) {
     const nodo = nodosDataSet.get(nodoId);
     // Luego recorremos el subárbol izquierdo
-    inOrderRec(nodosDataSet.get(nodoId).izquierda);
-    // Visitamos el nodo actual
-    console.log(nodo.label + "  "); 
+    inOrderRec(nodo.izquierda);
+    arbol_in_order += nodo.label + ", "; // Acumular el texto del nodo
+    console.log(nodo.label + " "); // Visitamos el nodo actual
     // Finalmente, recorremos el subárbol derecho
-    inOrderRec(nodosDataSet.get(nodoId).derecha);
+    inOrderRec(nodo.derecha);
   }
 }
 
 function postOrder(){
-  console.log("POST ORDER")
+  arbol_post_order = ""; // Reiniciar la variable global
+  console.log("POST ORDER");
   postOrderRec(nodoRoot);
+  // Mostrar preorder en pantalla
+  document.getElementById('postorder').textContent = "POST ORDER: " + arbol_post_order;
+  console.log(arbol_post_order);
 }
 
 function postOrderRec(nodoId) {
   if (nodoId != null) {
     const nodo = nodosDataSet.get(nodoId);
     // Luego recorremos el subárbol izquierdo
-    postOrderRec(nodosDataSet.get(nodoId).izquierda);
+    postOrderRec(nodo.izquierda);
     // Finalmente, recorremos el subárbol derecho
-    postOrderRec(nodosDataSet.get(nodoId).derecha);
-    // Visitamos el nodo actual
-    console.log(nodo.label + "  "); 
+    postOrderRec(nodo.derecha);
+    arbol_post_order += nodo.label + ", "; // Acumular el texto del nodo
+    console.log(nodo.label + " "); // Visitamos el nodo actual
   }
+}
+
+// Función para guardar el grafo con un nombre proporcionado por el usuario
+function guardarArbol() {
+  const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar el árbol:', 'arbol');
+  if (nombreArchivo !== null) {
+    const grafoJSON = JSON.stringify({ nodos: nodosDataSet.get(), aristas: aristasDataSet.get()});
+    const blob = new Blob([grafoJSON], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = nombreArchivo + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+}
+
+// Función para cargar un grafo desde un archivo JSON seleccionado por el usuario
+function cargarArbol() {
+  const inputArchivo = document.getElementById('inputArchivo');
+    const file = inputArchivo.files[0];
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const contenido = event.target.result;
+      const datos = JSON.parse(contenido);
+      // Limpiar los conjuntos de datos actuales
+      nodosDataSet.clear();
+      aristasDataSet.clear();
+      // Agregar los nodos y aristas del archivo JSON al grafo
+      nodosDataSet.add(datos.nodos);
+      aristasDataSet.add(datos.aristas);
+    };
+  reader.readAsText(file);
+  nodoRoot = 1;
 }
 
 // Inicializar el grafo cuando se carga la página
@@ -242,9 +296,9 @@ function mostrarMatriz(nodos, matriz, sumasFilas, sumasColumnas) {
   matriz.forEach((fila, index) => {
     html += `<tr><th style="padding: 10px;border: 2px solid black;background-color: red;">${nodos[index].label}</th>`;
     fila.forEach(valor => {
-      html += `<td style="padding: 10px;border: 2px solid black;">${valor}</td>`;
+      html += `<td style="padding: 10px;border: 2px solid black;background-color: white;">${valor}</td>`;
     });
-    html += `<td style="padding: 10px;border: 2px solid black;">${sumasFilas[index]}</td>`; // Mostrar la sumatoria por fila
+    html += `<td style="padding: 10px;border: 2px solid black;background-color: white">${sumasFilas[index]}</td>`; // Mostrar la sumatoria por fila
     html += '</tr>';
   });
   // Agregar la fila de sumatorias por columnas al final de la tabla
@@ -257,39 +311,6 @@ function mostrarMatriz(nodos, matriz, sumasFilas, sumasColumnas) {
   contenedorMatriz.innerHTML = html;
 }
 
-// Función para guardar el grafo con un nombre proporcionado por el usuario
-function guardarGrafo() {
-  const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar el árbol:', 'arbol');
-  if (nombreArchivo !== null) {
-    const grafoJSON = JSON.stringify({ nodos: nodosDataSet.get(), aristas: aristasDataSet.get() });
-    const blob = new Blob([grafoJSON], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = nombreArchivo + '.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
-}
 
-// Función para cargar un grafo desde un archivo JSON seleccionado por el usuario
-function cargarGrafo() {
-  const inputArchivo = document.getElementById('inputArchivo');
-  const file = inputArchivo.files[0];
-  const reader = new FileReader();
-  reader.onload = function(event) {
-    const contenido = event.target.result;
-    const datos = JSON.parse(contenido);
-    // Limpiar los conjuntos de datos actuales
-    nodosDataSet.clear();
-    aristasDataSet.clear();
-    // Agregar los nodos y aristas del archivo JSON al grafo
-    nodosDataSet.add(datos.nodos);
-    aristasDataSet.add(datos.aristas);
-  };
-  reader.readAsText(file);
-}
 
 
