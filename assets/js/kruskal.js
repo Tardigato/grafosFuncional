@@ -222,7 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Función para guardar el grafo con un nombre proporcionado por el usuario
 function guardarGrafo() {
-    resetNodeLabels(); // Reset node labels before saving the graph
 
     // Reset edge colors
     aristasDataSet.forEach(edge => {
