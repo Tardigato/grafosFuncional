@@ -17,7 +17,7 @@ function inicializarArbol() {
     // Aquí se definen las opciones, incluida la desactivación de la física
     const opciones = {
         physics: {
-        enabled: false // Desactivando con false
+          enabled: false // Desactivando con false
 
         },
         edges: {
@@ -291,6 +291,23 @@ function construirArbolDesdePrePost(preOrder, postOrder, preInicio, preFin, post
       aristasDataSet.add({ from: root, to: derechaRoot });
   }
   return root;
+}
+
+// Función para calcular la profundidad del árbol
+function calcularProfundidad(nodoId) {
+  if (nodoId == null) {
+      return 0;
+  }
+  const nodo = nodosDataSet.get(nodoId);
+  const profundidadIzquierda = calcularProfundidad(nodo.izquierda);
+  const profundidadDerecha = calcularProfundidad(nodo.derecha);
+  return Math.max(profundidadIzquierda, profundidadDerecha) + 1;
+}
+
+// Función para calcular la profundidad del árbol y mostrarla en la consola
+function calcularProfundidadArbol() {
+  const profundidad = calcularProfundidad(nodoRoot);
+  console.log("Profundidad del árbol:", profundidad);
 }
 
 // Inicializar el grafo cuando se carga la página
