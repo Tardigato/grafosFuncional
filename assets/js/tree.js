@@ -18,7 +18,7 @@ function inicializarArbol() {
     const opciones = {
         physics: {
         enabled: false // Desactivando con false
-        
+
         },
         edges: {
             
@@ -184,6 +184,115 @@ function cargarArbol() {
   nodoRoot = 1;
 }
 
+function pre_in() {
+  const preOrder = document.getElementById("lista1").value.trim().split(/\s+/);
+  const inOrder = document.getElementById("lista2").value.trim().split(/\s+/);
+  if (preOrder.length === 0 || inOrder.length === 0) {
+      alert("Por favor, ingrese ambos recorridos Pre Order e In Order.");
+      return;
+  }
+  reconstruirDesdePreIn(preOrder, inOrder);
+}
+
+function reconstruirDesdePreIn(preOrder, inOrder) {
+  nodosDataSet.clear();
+  aristasDataSet.clear();
+  nodoRoot = construirArbolDesdePreIn(preOrder, inOrder, 0, preOrder.length - 1, 0, inOrder.length - 1);
+}
+
+function construirArbolDesdePreIn(preOrder, inOrder, preInicio, preFin, inInicio, inFin) {
+  if (preInicio > preFin || inInicio > inFin) {
+      return null;
+  }
+  const root = preOrder[preInicio];
+  nodosDataSet.add({ id: root, label: root });
+  const rootIndexInOrder = inOrder.indexOf(root);
+  const izquierdaTamano = rootIndexInOrder - inInicio;
+  const izquierdaRoot = construirArbolDesdePreIn(preOrder, inOrder, preInicio + 1, preInicio + izquierdaTamano, inInicio, rootIndexInOrder - 1);
+  const derechaRoot = construirArbolDesdePreIn(preOrder, inOrder, preInicio + izquierdaTamano + 1, preFin, rootIndexInOrder + 1, inFin);
+  if (izquierdaRoot !== null) {
+      aristasDataSet.add({ from: root, to: izquierdaRoot });
+  }
+  if (derechaRoot !== null) {
+      aristasDataSet.add({ from: root, to: derechaRoot });
+  }
+  return root;
+}
+
+function post_in() {
+  const postOrder = document.getElementById("lista1").value.trim().split(/\s+/);
+  const inOrder = document.getElementById("lista2").value.trim().split(/\s+/);
+  if (postOrder.length === 0 || inOrder.length === 0) {
+      alert("Por favor, ingrese ambos recorridos Post Order e In Order.");
+      return;
+  }
+  reconstruirDesdePostIn(postOrder, inOrder);
+}
+
+function reconstruirDesdePostIn(postOrder, inOrder) {
+  nodosDataSet.clear();
+  aristasDataSet.clear();
+  nodoRoot = construirArbolDesdePostIn(postOrder, inOrder, 0, postOrder.length - 1, 0, inOrder.length - 1);
+}
+
+function construirArbolDesdePostIn(postOrder, inOrder, postInicio, postFin, inInicio, inFin) {
+  if (postInicio > postFin || inInicio > inFin) {
+      return null;
+  }
+  const root = postOrder[postFin];
+  nodosDataSet.add({ id: root, label: root });
+  const rootIndexInOrder = inOrder.indexOf(root);
+  const izquierdaTamano = rootIndexInOrder - inInicio;
+  const izquierdaRoot = construirArbolDesdePostIn(postOrder, inOrder, postInicio, postInicio + izquierdaTamano - 1, inInicio, rootIndexInOrder - 1);
+  const derechaRoot = construirArbolDesdePostIn(postOrder, inOrder, postInicio + izquierdaTamano, postFin - 1, rootIndexInOrder + 1, inFin);
+  if (izquierdaRoot !== null) {
+      aristasDataSet.add({ from: root, to: izquierdaRoot });
+  }
+  if (derechaRoot !== null) {
+      aristasDataSet.add({ from: root, to: derechaRoot });
+  }
+  return root;
+}
+
+function pre_post() {
+  const preOrder = document.getElementById("lista1").value.trim().split(/\s+/);
+  const postOrder = document.getElementById("lista2").value.trim().split(/\s+/);
+  if (preOrder.length === 0 || postOrder.length === 0) {
+      alert("Por favor, ingrese ambos recorridos Pre Order y Post Order.");
+      return;
+  }
+  reconstruirDesdePrePost(preOrder, postOrder);
+}
+
+function reconstruirDesdePrePost(preOrder, postOrder) {
+  nodosDataSet.clear();
+  aristasDataSet.clear();
+  nodoRoot = construirArbolDesdePrePost(preOrder, postOrder, 0, preOrder.length - 1, 0, postOrder.length - 1);
+}
+
+function construirArbolDesdePrePost(preOrder, postOrder, preInicio, preFin, postInicio, postFin) {
+  if (preInicio > preFin || postInicio > postFin) {
+      return null;
+  }
+  const root = preOrder[preInicio];
+  nodosDataSet.add({ id: root, label: root });
+  if (preInicio === preFin) {
+      return root;
+  }
+  const siguienteRoot = preOrder[preInicio + 1];
+  const rootIndexPostOrder = postOrder.indexOf(siguienteRoot);
+  const izquierdaTamano = rootIndexPostOrder - postInicio + 1;
+  const izquierdaRoot = construirArbolDesdePrePost(preOrder, postOrder, preInicio + 1, preInicio + izquierdaTamano, postInicio, rootIndexPostOrder);
+  const derechaRoot = construirArbolDesdePrePost(preOrder, postOrder, preInicio + izquierdaTamano + 1, preFin, rootIndexPostOrder + 1, postFin - 1);
+  if (izquierdaRoot !== null) {
+      aristasDataSet.add({ from: root, to: izquierdaRoot });
+  }
+  if (derechaRoot !== null) {
+      aristasDataSet.add({ from: root, to: derechaRoot });
+  }
+  return root;
+}
+
 // Inicializar el grafo cuando se carga la página
 document.addEventListener('DOMContentLoaded', () => {
   inicializarArbol();
@@ -246,71 +355,3 @@ function eliminarNodo() {
     alert('Por favor, seleccione un nodo primero.');
   }
 }
-
-
-// Función para generar la matriz de adyacencia y calcular las sumatorias por filas y por columnas
-function generarMatriz() {
-  const nodos = nodosDataSet.get({ fields: ['id', 'label'] });
-  const matriz = [];
-  const sumasFilas = [];
-  const sumasColumnas = new Array(nodos.length).fill(0); // Inicializar el array de sumatorias por columnas con ceros
-  
-  nodos.forEach((nodo, rowIndex) => {
-    const fila = [];
-    let sumaFila = 0; // Inicializar la sumatoria por fila para este nodo
-    nodos.forEach((otroNodo, columnIndex) => {
-      const conexion = aristasDataSet.get({
-        filter: edge => (edge.from === nodo.id && edge.to === otroNodo.id)
-      });
-      if (conexion.length > 0) {
-        // Asignar valor numérico a la conexión
-        const valor = parseInt(conexion[0].label || 1);
-        fila.push(valor);
-        sumaFila += valor; // Sumar al total de la fila
-        sumasColumnas[columnIndex] += valor; // Sumar al total de la columna
-      } else {
-        fila.push(0); // Sin conexión
-      }
-    });
-    matriz.push(fila);
-    sumasFilas.push(sumaFila);
-  });
-
-  mostrarMatriz(nodos, matriz, sumasFilas, sumasColumnas);
-}
-
-
-// Función para mostrar la matriz de adyacencia y las sumatorias por filas y por columnas en el DOM 
-function mostrarMatriz(nodos, matriz, sumasFilas, sumasColumnas) {
-  const contenedorMatriz = document.getElementById('matriz');
-  let html = '<h2>Matriz de Adyacencia</h2>';
-  html += '<table style="padding: 10px;border: 2px solid black;">';
-  // Encabezados de columna
-  html += '<tr><th style="padding: 10px;border: 2px solid black;background-color: green;"></th>';
-  nodos.forEach((nodo, index) => {
-    html += `<th style="padding: 10px;border: 2px solid black;background-color: green;">${nodo.label}</th>`;
-  });
-  html += '<th style="padding: 10px;border: 2px solid black;background-color: green;">Suma por Fila</th>'; // Encabezado para la sumatoria por filas
-  html += '</tr>';
-  // Contenido de la matriz
-  matriz.forEach((fila, index) => {
-    html += `<tr><th style="padding: 10px;border: 2px solid black;background-color: red;">${nodos[index].label}</th>`;
-    fila.forEach(valor => {
-      html += `<td style="padding: 10px;border: 2px solid black;background-color: white;">${valor}</td>`;
-    });
-    html += `<td style="padding: 10px;border: 2px solid black;background-color: white">${sumasFilas[index]}</td>`; // Mostrar la sumatoria por fila
-    html += '</tr>';
-  });
-  // Agregar la fila de sumatorias por columnas al final de la tabla
-  html += '<tr><th style="padding: 10px;border: 2px solid black;background-color: red;">Suma por Columna</th>';
-  sumasColumnas.forEach(suma => {
-    html += `<td style="padding: 10px;border: 2px solid black;;background-color: white">${suma}</td>`;
-  });
-  html += '<td></td></tr>'; // Celda vacía para alinear con el encabezado de sumatorias por filas
-  html += '</table>';
-  contenedorMatriz.innerHTML = html;
-}
-
-
-
-
