@@ -121,48 +121,34 @@ function cambiarNombre() {
 }
 
 function calcularBaricentro() {
-    let nodos = nodosDataSet.get();
-    let posiciones = nodos.map(nodo => grafo.getPositions([nodo.id])[nodo.id]);
-    let n = posiciones.length;
-    if (n === 0) return;
-
-    // Encontrar las coordenadas mínimas y máximas para obtener el área del rectángulo
-    let minX = Number.MAX_VALUE;
-    let minY = Number.MAX_VALUE;
-    let maxX = Number.MIN_VALUE;
-    let maxY = Number.MIN_VALUE;
-    for (let i = 0; i < n; i++) {
-        minX = Math.min(minX, posiciones[i].x);
-        minY = Math.min(minY, posiciones[i].y);
-        maxX = Math.max(maxX, posiciones[i].x);
-        maxY = Math.max(maxY, posiciones[i].y);
-    }
-
-    // Calcular el centro del rectángulo
-    let centroX = (minX + maxX) / 2;
-    let centroY = (minY + maxY) / 2;
-
-    if (nodoCentralId) {
-        // Actualizar la posición del nodo central
-        nodosDataSet.update({ id: nodoCentralId, x: centroX, y: centroY });
-    } else {
-        // Agregar el nodo central si no existe
-        nodoCentralId = nodosDataSet.length + 1;
-        nodosDataSet.add({
-            id: nodoCentralId,
-            label: 'centro',
-            x: centroX,
-            y: centroY,
-            color: 'green',
-            physics: false
-        });
-    }
-    
-
+  let nodos = nodosDataSet.get();
+  let posiciones = nodos.map(nodo => grafo.getPositions([nodo.id])[nodo.id]);
+  let n = posiciones.length;
+  if (n === 0) return;
+  let sumaX = posiciones.reduce((acum, pos) => acum + pos.x, 0);
+  let sumaY = posiciones.reduce((acum, pos) => acum + pos.y, 0);
+  let baricentroX = sumaX / n;
+  let baricentroY = sumaY / n;
+  if (nodoCentralId) {
+    nodosDataSet.update({
+      id: nodoCentralId,
+      x: baricentroX,
+      y: baricentroY,
+      color: 'green',
+      physics: false
+    });
+  } else {
+    nodoCentralId = nodosDataSet.length + 1;
+    nodosDataSet.add({
+      id: nodoCentralId,
+      label: 'centro',
+      x: baricentroX,
+      y: baricentroY,
+      color: 'green',
+      physics: false
+    });
+  }
 }
-
-
-
 
 function guardarGrafo() {
   const nombreArchivo = prompt('Ingrese el nombre del archivo:', 'grafo.json');
@@ -231,18 +217,13 @@ function guardarPosicionIndividual() {
     /*Nodo Nodo 1: (600, 300)
     Nodo Nodo 2: (600, -230)
     Nodo Nodo 3: (-400, -230)
-    Nodo Nodo 4: (-400, 300)*/ 
-    if((x<600 && x>-400)&& (y<300 && y>-230)){
+    Nodo Nodo 4: (-400, 300) 
+    if((x<600 && x>-400)&& (y<300 && y>-230)){}*/
         if (!isNaN(id) && !isNaN(x) && !isNaN(y)) {
             nodosDataSet.update({ id: id, x: x, y: y });
             calcularBaricentro(); 
         }
-    }else{
-        alert('Los valores ingresados superan el lienzo');
     }
- 
-
     document.getElementById('formPosicionIndividual').style.display = 'none';
-}
 
 document.addEventListener('DOMContentLoaded', inicializarGrafo);
