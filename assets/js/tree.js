@@ -21,7 +21,7 @@ function inicializarArbol() {
 
         },
         edges: {
-            
+          smooth: false, // Aristas curvas
         },
 
         nodes: {
@@ -32,11 +32,53 @@ function inicializarArbol() {
     arbol = new vis.Network(lienzo, data, opciones);
 }
 
+function calcularEspacios(nodoId, nivel = 0) {
+  if (nodoId == null) return { width: 0, pos: [] };
+
+  const nodo = nodosDataSet.get(nodoId);
+  const espacioHorizontalBase = 50;
+
+  // Calcular espacios para los hijos
+  const espacioIzquierda = calcularEspacios(nodo.izquierda, nivel + 1);
+  const espacioDerecha = calcularEspacios(nodo.derecha, nivel + 1);
+
+  // Calcular el ancho necesario para este subárbol
+  const width = Math.max(espacioIzquierda.width + espacioDerecha.width + espacioHorizontalBase, espacioHorizontalBase);
+  const pos = [];
+
+  // Ajustar las posiciones de los nodos hijos
+  let posXIzquierda = -width / 2 + (espacioIzquierda.width / 2);
+  let posXDerecha = width / 2 - (espacioDerecha.width / 2);
+
+  if (nodo.izquierda != null) {
+      pos.push(...espacioIzquierda.pos.map(p => ({ ...p, x: p.x + posXIzquierda, y: p.y + 50 })));
+  }
+
+  if (nodo.derecha != null) {
+      pos.push(...espacioDerecha.pos.map(p => ({ ...p, x: p.x + posXDerecha, y: p.y + 50 })));
+  }
+
+  pos.push({ id: nodoId, x: 0, y: nivel * 50 });
+
+  return { width, pos };
+}
+
+function ajustarPosiciones(nodoId) {
+  const espacios = calcularEspacios(nodoId);
+  for (const pos of espacios.pos) {
+      const nodo = nodosDataSet.get(pos.id);
+      nodo.x = pos.x;
+      nodo.y = pos.y - 200;
+      nodosDataSet.update(nodo);
+  }
+}
+
 function agregarNodoArbol() {
   // Solicitar al usuario que ingrese el valor del nodo
   const valor = prompt('Ingrese el valor del nodo:');
   if (valor !== null) {
       agregarNodoArbolRec(valor, nodoRoot); // Llamar a la función recursiva con el valor y el ID de la raíz
+      ajustarPosiciones(nodoRoot); // Ajustar posiciones después de agregar el nodo
   }
 }
 
@@ -45,47 +87,47 @@ function agregarNodoArbolRec(valor, nodoActualId) {
       return; // Si el usuario cancela, no hacemos nada
   }
 
-  if(buscarNodoArbol(valor, nodoRoot) === -1){
-    console.log("Ese nodo no existe aún :)");
-    // Verificar si es el primer nodo (raíz)
-    if (nodosDataSet.length === 0) {
-      nodosDataSet.add({ id: 1, label: valor, nodoPadreId: null, izquierda: null, derecha: null, x: 0, y: -200 });
-      nodoRoot = 1;
-      console.log("Nodo root creado");
-      return;
-    }
-    const valorActual = nodosDataSet.get(nodoActualId).label;
+  if (buscarNodoArbol(valor, nodoRoot) === -1) {
+      console.log("Ese nodo no existe aún :)");
+      // Verificar si es el primer nodo (raíz)
+      if (nodosDataSet.length === 0) {
+          nodosDataSet.add({ id: 1, label: valor, nodoPadreId: null, izquierda: null, derecha: null, x: 0, y: -200 });
+          nodoRoot = 1;
+          console.log("Nodo root creado");
+          return;
+      }
+      const valorActual = nodosDataSet.get(nodoActualId).label;
 
-    if (parseFloat(valor) < parseFloat(valorActual)) {
-      let nodoIzquierdoId = nodosDataSet.get(nodoActualId).izquierda;
-      if (nodoIzquierdoId == null) {
-          // Si no hay nodo izquierdo, agregamos el nuevo nodo aquí
-          let nuevoId = nodosDataSet.length + 1;
-          nodosDataSet.add({ id: nuevoId, label: valor, nodoPadreId: nodoActualId, izquierda: null, derecha: null, x: nodosDataSet.get(nodoActualId).x - 50, y: nodosDataSet.get(nodoActualId).y + 50 });
-          aristasDataSet.add({ from: nodoActualId, to: nuevoId });
-          console.log("Nuevo nodo creado a la izquierda de " + valorActual);
-          nodosDataSet.update({ id: nodoActualId, izquierda: nuevoId });
+      if (parseFloat(valor) < parseFloat(valorActual)) {
+          let nodoIzquierdoId = nodosDataSet.get(nodoActualId).izquierda;
+          if (nodoIzquierdoId == null) {
+              // Si no hay nodo izquierdo, agregamos el nuevo nodo aquí
+              let nuevoId = nodosDataSet.length + 1;
+              nodosDataSet.add({ id: nuevoId, label: valor, nodoPadreId: nodoActualId, izquierda: null, derecha: null, x: nodosDataSet.get(nodoActualId).x - 100, y: nodosDataSet.get(nodoActualId).y + 70 });
+              aristasDataSet.add({ from: nodoActualId, to: nuevoId });
+              console.log("Nuevo nodo creado a la izquierda de " + valorActual);
+              nodosDataSet.update({ id: nodoActualId, izquierda: nuevoId });
+          } else {
+              // Si hay nodo izquierdo, continuamos buscando hacia abajo
+              agregarNodoArbolRec(valor, nodoIzquierdoId); // Llamada recursiva con el ID del nodo izquierdo
+          }
       } else {
-          // Si hay nodo izquierdo, continuamos buscando hacia abajo
-          agregarNodoArbolRec(valor, nodoIzquierdoId); // Llamada recursiva con el ID del nodo izquierdo
+          let nodoDerechoId = nodosDataSet.get(nodoActualId).derecha;
+          if (nodoDerechoId == null) {
+              // Si no hay nodo derecho, agregamos el nuevo nodo aquí
+              let nuevoId = nodosDataSet.length + 1;
+              nodosDataSet.add({ id: nuevoId, label: valor, nodoPadreId: nodoActualId, izquierda: null, derecha: null, x: nodosDataSet.get(nodoActualId).x + 100, y: nodosDataSet.get(nodoActualId).y + 70 });
+              aristasDataSet.add({ from: nodoActualId, to: nuevoId });
+              console.log("Nuevo nodo creado a la derecha de " + valorActual);
+              nodosDataSet.update({ id: nodoActualId, derecha: nuevoId });
+          } else {
+              // Si hay nodo derecho, buscamos hacia abajo en el subárbol derecho
+              agregarNodoArbolRec(valor, nodoDerechoId);
+          }
       }
-    } else {
-      let nodoDerechoId = nodosDataSet.get(nodoActualId).derecha;
-      if (nodoDerechoId == null) {
-          // Si no hay nodo derecho, agregamos el nuevo nodo aquí
-          let nuevoId = nodosDataSet.length + 1;
-          nodosDataSet.add({ id: nuevoId, label: valor, nodoPadreId: nodoActualId, izquierda: null, derecha: null, x: nodosDataSet.get(nodoActualId).x + 50, y: nodosDataSet.get(nodoActualId).y + 50 });
-          aristasDataSet.add({ from: nodoActualId, to: nuevoId });
-          console.log("Nuevo nodo creado a la derecha de " + valorActual);
-          nodosDataSet.update({ id: nodoActualId, derecha: nuevoId });
-          
-      } else {
-          // Si hay nodo derecho, buscamos hacia abajo en el subárbol derecho
-          agregarNodoArbolRec(valor, nodoDerechoId); 
-      }
-    }
+
   } else {
-    console.log("Este nodo ya existe :( ");
+      console.log("Este nodo ya existe :( ");
   }
 }
 
@@ -101,7 +143,7 @@ function preOrder(){
 function preOrderRec(nodoId) {
   if (nodoId != null) {
     const nodo = nodosDataSet.get(nodoId);
-    arbol_pre_order += nodo.label + ", "; // Acumular el texto del nodo
+    arbol_pre_order += nodo.label + " "; // Acumular el texto del nodo
     console.log(nodo.label + " "); // Visitamos el nodo actual
     // Luego recorremos el subárbol izquierdo
     preOrderRec(nodo.izquierda);
@@ -124,7 +166,7 @@ function inOrderRec(nodoId) {
     const nodo = nodosDataSet.get(nodoId);
     // Luego recorremos el subárbol izquierdo
     inOrderRec(nodo.izquierda);
-    arbol_in_order += nodo.label + ", "; // Acumular el texto del nodo
+    arbol_in_order += nodo.label + " "; // Acumular el texto del nodo
     console.log(nodo.label + " "); // Visitamos el nodo actual
     // Finalmente, recorremos el subárbol derecho
     inOrderRec(nodo.derecha);
@@ -147,7 +189,7 @@ function postOrderRec(nodoId) {
     postOrderRec(nodo.izquierda);
     // Finalmente, recorremos el subárbol derecho
     postOrderRec(nodo.derecha);
-    arbol_post_order += nodo.label + ", "; // Acumular el texto del nodo
+    arbol_post_order += nodo.label + " "; // Acumular el texto del nodo
     console.log(nodo.label + " "); // Visitamos el nodo actual
   }
 }
@@ -191,8 +233,8 @@ function cargarArbol() {
 function pre_in() {
   const preOrder = document.getElementById("lista1").value.trim().split(/\s+/);
   const inOrder = document.getElementById("lista2").value.trim().split(/\s+/);
-  if (preOrder.length === 0 || inOrder.length === 0) {
-      alert("Por favor, ingrese ambos recorridos Pre Order e In Order.");
+  if (!listasTienenLosMismosElementos(preOrder, inOrder)) {
+      alert("Ambas listas deben tener los mismos elementos para poder construir el árbol.");
       return;
   }
   reconstruirDesdePreIn(preOrder, inOrder);
@@ -226,9 +268,9 @@ function construirArbolDesdePreIn(preOrder, inOrder, preInicio, preFin, inInicio
 function post_in() {
   const postOrder = document.getElementById("lista1").value.trim().split(/\s+/);
   const inOrder = document.getElementById("lista2").value.trim().split(/\s+/);
-  if (postOrder.length === 0 || inOrder.length === 0) {
-      alert("Por favor, ingrese ambos recorridos Post Order e In Order.");
-      return;
+  if (!listasTienenLosMismosElementos(postOrder, inOrder)) {
+    alert("Ambas listas deben tener los mismos elementos para poder construir el árbol.");
+    return;
   }
   reconstruirDesdePostIn(postOrder, inOrder);
 }
@@ -261,9 +303,9 @@ function construirArbolDesdePostIn(postOrder, inOrder, postInicio, postFin, inIn
 function pre_post() {
   const preOrder = document.getElementById("lista1").value.trim().split(/\s+/);
   const postOrder = document.getElementById("lista2").value.trim().split(/\s+/);
-  if (preOrder.length === 0 || postOrder.length === 0) {
-      alert("Por favor, ingrese ambos recorridos Pre Order y Post Order.");
-      return;
+  if (!listasTienenLosMismosElementos(preOrder, postOrder)) {
+    alert("Ambas listas deben tener los mismos elementos para poder construir el árbol.");
+    return;
   }
   reconstruirDesdePrePost(preOrder, postOrder);
 }
@@ -332,8 +374,31 @@ function buscarNodoArbol(valor, nodoActualId) {
   }
 }
 
-function comodin(){
-  console.log(buscarNodoArbol("12", nodoRoot));
+function listasTienenLosMismosElementos(lista1, lista2) {
+  if (lista1.length !== lista2.length) {
+      return false;
+  }
+  const frecuencia1 = contarFrecuenciaElementos(lista1);
+  const frecuencia2 = contarFrecuenciaElementos(lista2);
+  for (let elemento in frecuencia1) {
+      if (frecuencia1[elemento] !== frecuencia2[elemento]) {
+          return false;
+      }
+  }
+  return true;
+}
+
+function contarFrecuenciaElementos(lista) {
+  const frecuencia = {};
+  for (let i = 0; i < lista.length; i++) {
+      const elemento = lista[i];
+      if (frecuencia[elemento]) {
+          frecuencia[elemento]++;
+      } else {
+          frecuencia[elemento] = 1;
+      }
+  }
+  return frecuencia;
 }
 
 // Inicializar el grafo cuando se carga la página
@@ -341,7 +406,9 @@ document.addEventListener('DOMContentLoaded', () => {
   inicializarArbol();
 });
 
-
+function comodin(){
+  calcularProfundidadArbol();
+}
 
 
 //DESDE AQUÍ HAY CÓDIGO AÚN NO TRATADO
