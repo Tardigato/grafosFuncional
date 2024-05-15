@@ -96,12 +96,20 @@ function agregarNodo() {
   });
 }
 
+// Función para eliminar el nodo seleccionado
 function eliminarNodo() {
-  if (seleccionado !== undefined) {
-    nodosDataSet.remove(seleccionado);
-    seleccionado = undefined;
+    if (seleccionado !== undefined) {
+      nodosDataSet.remove({ id: seleccionado });
+      // Eliminar aristas relacionadas al nodo seleccionado
+      const aristas = aristasDataSet.get({ filter: function (item) { return item.from === seleccionado || item.to === seleccionado; } });
+      aristas.forEach(function (arista) {
+        aristasDataSet.remove({ id: arista.id });
+      });
+    } else {
+      alert('Por favor, seleccione un nodo primero.');
+    }
   }
-}
+  
 
 function cambiarNombre() {
   if (seleccionado !== undefined) {
@@ -113,30 +121,48 @@ function cambiarNombre() {
 }
 
 function calcularBaricentro() {
-  const nodos = nodosDataSet.get();
-  const posiciones = nodos.map(nodo => grafo.getPositions([nodo.id])[nodo.id]);
-  const n = posiciones.length;
-  if (n === 0) return;
-  const sumaX = posiciones.reduce((acum, pos) => acum + pos.x, 0);
-  const sumaY = posiciones.reduce((acum, pos) => acum + pos.y, 0);
-  const baricentroX = sumaX / n;
-  const baricentroY = sumaY / n;
-  if (nodoCentralId) {
-    nodosDataSet.update({ id: nodoCentralId, x: baricentroX, y: baricentroY });
-  } else {
-    nodoCentralId = nodosDataSet.length + 1;
-    nodosDataSet.add({
-      id: nodoCentralId,
-      label: 'centro',
-      x: baricentroX,
-      y: baricentroY,
-      color: 'green',
-      physics: false
-    });
-  }
-  // Asegurarse de que el evento de clic vuelva a estar configurado después de calcular el baricentro
-  grafo.on('click', clicEnNodo);
+    let nodos = nodosDataSet.get();
+    let posiciones = nodos.map(nodo => grafo.getPositions([nodo.id])[nodo.id]);
+    let n = posiciones.length;
+    if (n === 0) return;
+
+    // Encontrar las coordenadas mínimas y máximas para obtener el área del rectángulo
+    let minX = Number.MAX_VALUE;
+    let minY = Number.MAX_VALUE;
+    let maxX = Number.MIN_VALUE;
+    let maxY = Number.MIN_VALUE;
+    for (let i = 0; i < n; i++) {
+        minX = Math.min(minX, posiciones[i].x);
+        minY = Math.min(minY, posiciones[i].y);
+        maxX = Math.max(maxX, posiciones[i].x);
+        maxY = Math.max(maxY, posiciones[i].y);
+    }
+
+    // Calcular el centro del rectángulo
+    let centroX = (minX + maxX) / 2;
+    let centroY = (minY + maxY) / 2;
+
+    if (nodoCentralId) {
+        // Actualizar la posición del nodo central
+        nodosDataSet.update({ id: nodoCentralId, x: centroX, y: centroY });
+    } else {
+        // Agregar el nodo central si no existe
+        nodoCentralId = nodosDataSet.length + 1;
+        nodosDataSet.add({
+            id: nodoCentralId,
+            label: 'centro',
+            x: centroX,
+            y: centroY,
+            color: 'green',
+            physics: false
+        });
+    }
+    
+
 }
+
+
+
 
 function guardarGrafo() {
   const nombreArchivo = prompt('Ingrese el nombre del archivo:', 'grafo.json');
@@ -202,11 +228,19 @@ function guardarPosicionIndividual() {
     const id = parseInt(document.getElementById('nodoSelect').value);
     const x = parseFloat(document.getElementById('posX').value);
     const y = parseFloat(document.getElementById('posY').value);
-
-    if (!isNaN(id) && !isNaN(x) && !isNaN(y)) {
-        nodosDataSet.update({ id: id, x: x, y: y });
-        calcularBaricentro();  // actualizar el baricentro si es necesario
+    /*Nodo Nodo 1: (600, 300)
+    Nodo Nodo 2: (600, -230)
+    Nodo Nodo 3: (-400, -230)
+    Nodo Nodo 4: (-400, 300)*/ 
+    if((x<600 && x>-400)&& (y<300 && y>-230)){
+        if (!isNaN(id) && !isNaN(x) && !isNaN(y)) {
+            nodosDataSet.update({ id: id, x: x, y: y });
+            calcularBaricentro(); 
+        }
+    }else{
+        alert('Los valores ingresados superan el lienzo');
     }
+ 
 
     document.getElementById('formPosicionIndividual').style.display = 'none';
 }
