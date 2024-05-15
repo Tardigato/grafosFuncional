@@ -13,7 +13,14 @@ function inicializarGrafo() {
   nodosDataSet = new vis.DataSet();
   aristasDataSet = new vis.DataSet();
   const data = { nodes: nodosDataSet, edges: aristasDataSet };
-  const opciones = {};
+  const opciones = {
+  physics: {
+    enabled: true,
+  },
+  edges:{
+    smooth: false,
+  }
+};
   grafo = new vis.Network(lienzo, data, opciones);
 
   // Eventos del grafo
@@ -21,13 +28,16 @@ function inicializarGrafo() {
   grafo.on('doubleClick', dobleClicEnArista);
   grafo.on('click', eliminarAristaSeleccionada);
 }
-
-var options = {
+/***
+const options = {
   physics: {
-    enabled: false
+    enabled: false,
+  },
+  edges:{
+    smooth: false,
   }
 };
-
+***/
 
 // Función para manejar el clic en un nodo
 // Función para manejar el clic en un nodo
