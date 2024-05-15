@@ -238,6 +238,7 @@ function pre_in() {
       return;
   }
   reconstruirDesdePreIn(preOrder, inOrder);
+  ajustarPosiciones(nodoRoot);
 }
 
 function reconstruirDesdePreIn(preOrder, inOrder) {
@@ -251,16 +252,18 @@ function construirArbolDesdePreIn(preOrder, inOrder, preInicio, preFin, inInicio
       return null;
   }
   const root = preOrder[preInicio];
-  nodosDataSet.add({ id: root, label: root });
+  nodosDataSet.add({ id: root, label: root, izquierda: null, derecha: null });
   const rootIndexInOrder = inOrder.indexOf(root);
   const izquierdaTamano = rootIndexInOrder - inInicio;
   const izquierdaRoot = construirArbolDesdePreIn(preOrder, inOrder, preInicio + 1, preInicio + izquierdaTamano, inInicio, rootIndexInOrder - 1);
   const derechaRoot = construirArbolDesdePreIn(preOrder, inOrder, preInicio + izquierdaTamano + 1, preFin, rootIndexInOrder + 1, inFin);
   if (izquierdaRoot !== null) {
       aristasDataSet.add({ from: root, to: izquierdaRoot });
+      nodosDataSet.update({ id: root, izquierda: izquierdaRoot });
   }
   if (derechaRoot !== null) {
       aristasDataSet.add({ from: root, to: derechaRoot });
+      nodosDataSet.update({ id: root, derecha: derechaRoot });
   }
   return root;
 }
@@ -273,6 +276,7 @@ function post_in() {
     return;
   }
   reconstruirDesdePostIn(postOrder, inOrder);
+  ajustarPosiciones(nodoRoot);
 }
 
 function reconstruirDesdePostIn(postOrder, inOrder) {
@@ -286,16 +290,18 @@ function construirArbolDesdePostIn(postOrder, inOrder, postInicio, postFin, inIn
       return null;
   }
   const root = postOrder[postFin];
-  nodosDataSet.add({ id: root, label: root });
+  nodosDataSet.add({ id: root, label: root, izquierda: null, derecha: null });
   const rootIndexInOrder = inOrder.indexOf(root);
   const izquierdaTamano = rootIndexInOrder - inInicio;
   const izquierdaRoot = construirArbolDesdePostIn(postOrder, inOrder, postInicio, postInicio + izquierdaTamano - 1, inInicio, rootIndexInOrder - 1);
   const derechaRoot = construirArbolDesdePostIn(postOrder, inOrder, postInicio + izquierdaTamano, postFin - 1, rootIndexInOrder + 1, inFin);
   if (izquierdaRoot !== null) {
       aristasDataSet.add({ from: root, to: izquierdaRoot });
+      nodosDataSet.update({ id: root, izquierda: izquierdaRoot });
   }
   if (derechaRoot !== null) {
       aristasDataSet.add({ from: root, to: derechaRoot });
+      nodosDataSet.update({ id: root, derecha: derechaRoot });
   }
   return root;
 }
@@ -308,6 +314,7 @@ function pre_post() {
     return;
   }
   reconstruirDesdePrePost(preOrder, postOrder);
+  ajustarPosiciones(nodoRoot);
 }
 
 function reconstruirDesdePrePost(preOrder, postOrder) {
@@ -321,7 +328,7 @@ function construirArbolDesdePrePost(preOrder, postOrder, preInicio, preFin, post
       return null;
   }
   const root = preOrder[preInicio];
-  nodosDataSet.add({ id: root, label: root });
+  nodosDataSet.add({ id: root, label: root, izquierda: null, derecha: null });
   if (preInicio === preFin) {
       return root;
   }
@@ -332,12 +339,15 @@ function construirArbolDesdePrePost(preOrder, postOrder, preInicio, preFin, post
   const derechaRoot = construirArbolDesdePrePost(preOrder, postOrder, preInicio + izquierdaTamano + 1, preFin, rootIndexPostOrder + 1, postFin - 1);
   if (izquierdaRoot !== null) {
       aristasDataSet.add({ from: root, to: izquierdaRoot });
+      nodosDataSet.update({ id: root, izquierda: izquierdaRoot });
   }
   if (derechaRoot !== null) {
       aristasDataSet.add({ from: root, to: derechaRoot });
+      nodosDataSet.update({ id: root, derecha: derechaRoot });
   }
   return root;
 }
+
 
 // Función para calcular la profundidad del árbol
 function calcularProfundidad(nodoId) {
