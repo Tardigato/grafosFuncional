@@ -278,7 +278,7 @@ function cargarGrafo() {
   }
 
   // Kruskal's algorithm function.
-function kruskal() {
+  function kruskal() {
     const edges = [];
     // Generate the list of edges
     aristasDataSet.forEach(arista => {
@@ -292,6 +292,7 @@ function kruskal() {
 
     const unionFind = new UnionFind(nodosDataSet.length);
     const mst = []; // This will hold the edges of our minimum spanning tree.
+    let sumaAristasResaltadas = 0; // Variable para almacenar la suma de los pesos de las aristas resaltadas
 
     // For every edge, in increasing order of their weight.
     for (const [u, v, weight] of edges) {
@@ -299,6 +300,7 @@ function kruskal() {
         if (unionFind.find(u) !== unionFind.find(v)) {
             mst.push([u, v, weight]);
             unionFind.union(u, v); // Merge the two subsets.
+            sumaAristasResaltadas += weight; // Agregar el peso de la arista al total
         }
     }
 
@@ -311,7 +313,11 @@ function kruskal() {
             aristasDataSet.update({ id: arista.id, color: { color: 'blue', highlight: 'blue' } });
         }
     });
+
+    // Actualizar el contenido del elemento HTML con la suma de los pesos de las aristas resaltadas
+    document.getElementById('sumaAristas').innerText = 'Suma de los pesos de las aristas resaltadas: ' + sumaAristasResaltadas;
 }
+
 
 // Función para ejecutar Kruskal y resaltar las aristas resultantes
 function ejecutarKruskal() {
@@ -372,6 +378,7 @@ function kruskalWithHighestWeight() {
 
   const unionFind = new UnionFind(nodosDataSet.length);
   const mst = []; // This will hold the edges of our minimum spanning tree.
+  let sumaAristasResaltadas = 0; // Variable para almacenar la suma de los pesos de las aristas resaltadas
 
   // For every edge, in decreasing order of their weight (highest weight first).
   for (const [u, v, weight] of edges) {
@@ -379,6 +386,7 @@ function kruskalWithHighestWeight() {
       if (unionFind.find(u) !== unionFind.find(v)) {
           mst.push([u, v, weight]);
           unionFind.union(u, v); // Merge the two subsets.
+          sumaAristasResaltadas += weight; // Agregar el peso de la arista al total
       }
   }
 
@@ -391,6 +399,9 @@ function kruskalWithHighestWeight() {
           aristasDataSet.update({ id: arista.id, color: { color: 'blue', highlight: 'blue' } });
       }
   });
+
+  // Actualizar el contenido del elemento HTML con la suma de los pesos de las aristas resaltadas
+  document.getElementById('sumaAristas').innerText = 'Suma de los pesos de las aristas resaltadas: ' + sumaAristasResaltadas;
 }
 
 // Function to execute Kruskal with highest weight and highlight the resulting edges
