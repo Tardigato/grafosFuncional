@@ -20,145 +20,195 @@ function inicializarGrafo() {
 }
 
 function clicEnNodo(propiedades) {
-  if (modoEliminarArista) return;
-  seleccionado = propiedades.nodes[0];
-  if (seleccionado) {
-    const posicion = grafo.getPositions([seleccionado]);
-    const mensaje = `Nodo seleccionado: ${seleccionado}\nPosición - x: ${posicion[seleccionado].x}, y: ${posicion[seleccionado].y}`;
-    alert(mensaje);
+  const { nodes } = propiedades;
+  if (nodes.length > 0) {
+    if (seleccionado === undefined) {
+      seleccionado = nodes[0];
+    } else {
+      if (seleccionado !== nodes[0]) {
+        aristasDataSet.add({ from: seleccionado, to: nodes[0], arrows: 'to' });
+        seleccionado = undefined;
+      } else {
+        aristasDataSet.add({ from: seleccionado, to: seleccionado, arrows: 'to' });
+        seleccionado = undefined;
+      }
+    }
   }
 }
 
 function dobleClicEnArista(propiedades) {
-  if (!modoEliminarArista) return;
-  const aristaSeleccionada = propiedades.edges[0];
-  if (aristaSeleccionada) {
-    aristasDataSet.remove(aristaSeleccionada);
+  const { edges } = propiedades;
+  if (edges.length > 0) {
+    const valor = prompt('Ingrese el valor para la conexión:', '');
+    if (valor !== null) {
+      aristasDataSet.update({ id: edges[0], label: valor });
+    }
   }
 }
 
-function eliminarAristaSeleccionada() {
-  if (!modoEliminarArista) return;
-  const seleccion = grafo.getSelection();
-  seleccion.edges.forEach(arista => aristasDataSet.remove(arista));
+// Función para manejar el clic en una arista y eliminarla si estamos en modo de eliminación
+function eliminarAristaSeleccionada(propiedades) {
+  if (modoEliminarArista) {
+    const aristaId = propiedades.edges[0];
+    if (aristaId !== undefined) {
+      eliminarArista(aristaId);
+      modoEliminarArista = false; // Desactivar el modo de eliminación después de eliminar la arista
+    }
+  }
 }
 
+// Función para activar el modo de eliminación de arista
+function activarModoEliminarArista() {
+  modoEliminarArista = true;
+  alert('Haz clic en la arista que deseas eliminar.');
+}
+
+// Función para eliminar una arista dado su ID
+function eliminarArista(aristaId) {
+  aristasDataSet.remove({ id: aristaId });
+}
+
+// Agregar un evento de teclado al documento para detectar la eliminación de aristas
+document.addEventListener('keydown', function(event) {
+  // Verificar si la tecla presionada es la tecla "Delete" o "Backspace"
+  if (event.key === 'Delete' || event.key === 'Backspace') {
+    // Verificar si hay una arista seleccionada
+    const seleccion = grafo.getSelection();
+    if (seleccion.edges.length > 0) {
+      // Eliminar la arista seleccionada
+      eliminarArista(seleccion.edges[0]);
+    }
+  }
+});
+
 function agregarNodo() {
-  const nuevoId = nodosDataSet.length + 1;
-  const nuevoNodo = { id: nuevoId, label: `Nodo ${nuevoId}` };
-  nodosDataSet.add(nuevoNodo);
+  modoAgregarNodo = true;
+  grafo.off('click', clicEnNodo);
+  grafo.on('click', function(event) {
+    if (modoAgregarNodo) {
+      const position = event.pointer.canvas;
+      const nuevoId = nodosDataSet.length + 1;
+      nodosDataSet.add({ id: nuevoId, label: `Nodo ${nuevoId}`, x: position.x, y: position.y, physics: false });
+      grafo.off('click');
+      grafo.on('click', clicEnNodo);
+      modoAgregarNodo = false;
+    }
+  });
 }
 
 function eliminarNodo() {
-  if (seleccionado) {
+  if (seleccionado !== undefined) {
     nodosDataSet.remove(seleccionado);
-    seleccionado = null;
-  } else {
-    alert('Seleccione un nodo para eliminar.');
+    seleccionado = undefined;
   }
 }
 
 function cambiarNombre() {
-  if (!seleccionado) {
-    alert('Seleccione un nodo primero.');
-    return;
+  if (seleccionado !== undefined) {
+    const nuevoNombre = prompt('Ingrese el nuevo nombre para el nodo:', nodosDataSet.get(seleccionado).label);
+    if (nuevoNombre) {
+      nodosDataSet.update({ id: seleccionado, label: nuevoNombre });
+    }
   }
-  const nuevoNombre = prompt('Ingrese el nuevo nombre para el nodo:');
-  if (nuevoNombre) {
-    nodosDataSet.update({ id: seleccionado, label: nuevoNombre });
-  }
-}
-
-function guardarGrafo() {
-  const nodos = nodosDataSet.get();
-  const aristas = aristasDataSet.get();
-  const grafo = { nodos, aristas };
-  const blob = new Blob([JSON.stringify(grafo)], { type: 'application/json' });
-  const enlace = document.createElement('a');
-  enlace.href = URL.createObjectURL(blob);
-  enlace.download = 'grafo.json';
-  enlace.click();
-}
-
-function cargarGrafo() {
-  const inputArchivo = document.getElementById('inputArchivo');
-  if (!inputArchivo.files.length) return;
-
-  const archivo = inputArchivo.files[0];
-  const lector = new FileReader();
-
-  lector.onload = function (evento) {
-    const contenido = JSON.parse(evento.target.result);
-    nodosDataSet.clear();
-    aristasDataSet.clear();
-    nodosDataSet.add(contenido.nodos);
-    aristasDataSet.add(contenido.aristas);
-    calcularBaricentro();
-  };
-
-  lector.readAsText(archivo);
 }
 
 function calcularBaricentro() {
   const nodos = nodosDataSet.get();
-  if (nodos.length === 0) {
-    alert('No hay nodos en el grafo.');
+  const posiciones = nodos.map(nodo => grafo.getPositions([nodo.id])[nodo.id]);
+  const n = posiciones.length;
+  if (n === 0) return;
+  const sumaX = posiciones.reduce((acum, pos) => acum + pos.x, 0);
+  const sumaY = posiciones.reduce((acum, pos) => acum + pos.y, 0);
+  const baricentroX = sumaX / n;
+  const baricentroY = sumaY / n;
+  if (nodoCentralId) {
+    nodosDataSet.update({ id: nodoCentralId, x: baricentroX, y: baricentroY });
+  } else {
+    nodoCentralId = nodosDataSet.length + 1;
+    nodosDataSet.add({
+      id: nodoCentralId,
+      label: 'centro',
+      x: baricentroX,
+      y: baricentroY,
+      color: 'green',
+      physics: false
+    });
+  }
+  // Asegurarse de que el evento de clic vuelva a estar configurado después de calcular el baricentro
+  grafo.on('click', clicEnNodo);
+}
+
+function guardarGrafo() {
+  const nombreArchivo = prompt('Ingrese el nombre del archivo:', 'grafo.json');
+  if (nombreArchivo) {
+    const nodos = nodosDataSet.get();
+    const aristas = aristasDataSet.get();
+    const grafo = { nodos, aristas };
+    const dataStr = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(grafo))}`;
+    const elementoDescarga = document.createElement('a');
+    elementoDescarga.setAttribute('href', dataStr);
+    elementoDescarga.setAttribute('download', nombreArchivo);
+    elementoDescarga.click();
+  }
+}
+
+function cargarGrafo() {
+  const archivo = document.getElementById('inputArchivo').files[0];
+  if (!archivo) {
+    alert('Por favor selecciona un archivo JSON');
     return;
   }
-
-  let sumaX = 0, sumaY = 0;
-  nodos.forEach(nodo => {
-    const posicion = grafo.getPositions([nodo.id]);
-    sumaX += posicion[nodo.id].x;
-    sumaY += posicion[nodo.id].y;
-  });
-
-  const baricentroX = sumaX / nodos.length;
-  const baricentroY = sumaY / nodos.length;
-
-  alert(`Baricentro calculado:\nX: ${baricentroX}, Y: ${baricentroY}`);
+  const lector = new FileReader();
+  lector.onload = function(evento) {
+    const contenido = JSON.parse(evento.target.result);
+    nodosDataSet.clear();
+    aristasDataSet.clear();
+    contenido.nodos.forEach(nodo => nodosDataSet.add(nodo));
+    contenido.aristas.forEach(arista => aristasDataSet.add(arista));
+  };
+  lector.readAsText(archivo);
 }
 
 function mostrarPosiciones() {
   const nodos = nodosDataSet.get();
-  let mensaje = 'Posiciones de los nodos:\n';
-  nodos.forEach(nodo => {
-    const posicion = grafo.getPositions([nodo.id]);
-    mensaje += `Nodo ${nodo.label}: x=${posicion[nodo.id].x}, y=${posicion[nodo.id].y}\n`;
-  });
-  alert(mensaje);
+  const posiciones = nodos.map(nodo => {
+    const posicion = grafo.getPositions([nodo.id])[nodo.id];
+    return `Nodo ${nodo.label}: (${posicion.x}, ${posicion.y})`;
+  }).join('\n');
+  document.getElementById('textoPosiciones').innerText = `Posiciones de los nodos:\n${posiciones}`;
+  document.getElementById('contenedorPosiciones').style.display = 'block';
 }
 
-function mostrarFormularioPosiciones() {
-  const formulario = document.getElementById('formPosiciones');
-  const inputsContainer = document.getElementById('inputsPosiciones');
-  inputsContainer.innerHTML = '';
+function mostrarFormularioPosicionIndividual() {
+    const formulario = document.getElementById('formPosicionIndividual');
+    const selectNodo = document.getElementById('nodoSelect');
+    
+    // Limpiar las opciones existentes
+    selectNodo.innerHTML = '';
 
-  nodosDataSet.get().forEach(nodo => {
-    const div = document.createElement('div');
-    div.innerHTML = `
-      <label for="posX${nodo.id}">Nodo ${nodo.label} - x:</label>
-      <input type="number" id="posX${nodo.id}" name="posX${nodo.id}">
-      <label for="posY${nodo.id}">y:</label>
-      <input type="number" id="posY${nodo.id}" name="posY${nodo.id}">
-    `;
-    inputsContainer.appendChild(div);
-  });
+    // Obtener todos los nodos y agregar opciones al select
+    const nodos = nodosDataSet.get();
+    nodos.forEach(nodo => {
+        const option = document.createElement('option');
+        option.value = nodo.id;
+        option.text = nodo.label || `Nodo ${nodo.id}`;
+        selectNodo.appendChild(option);
+    });
 
-  document.getElementById('posiciones').style.display = 'block';
+    formulario.style.display = 'block';
 }
 
-function guardarPosiciones() {
-  nodosDataSet.get().forEach(nodo => {
-    const x = parseFloat(document.getElementById(`posX${nodo.id}`).value);
-    const y = parseFloat(document.getElementById(`posY${nodo.id}`).value);
-    if (!isNaN(x) && !isNaN(y)) {
-      grafo.moveNode(nodo.id, x, y);
+function guardarPosicionIndividual() {
+    const id = parseInt(document.getElementById('nodoSelect').value);
+    const x = parseFloat(document.getElementById('posX').value);
+    const y = parseFloat(document.getElementById('posY').value);
+
+    if (!isNaN(id) && !isNaN(x) && !isNaN(y)) {
+        nodosDataSet.update({ id: id, x: x, y: y });
+        calcularBaricentro();  // actualizar el baricentro si es necesario
     }
-  });
 
-  document.getElementById('posiciones').style.display = 'none';
-  calcularBaricentro();
+    document.getElementById('formPosicionIndividual').style.display = 'none';
 }
 
-inicializarGrafo();
+document.addEventListener('DOMContentLoaded', inicializarGrafo);

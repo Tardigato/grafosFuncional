@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/contactos.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
     <style>
         .side-buttons {
@@ -38,6 +38,29 @@
         }
         .side-buttons .custom-btn:hover {
             background-color: purple;
+        }
+        #contenedorPosiciones {
+            display: none;
+            margin:20px;
+            margin-left:250px;
+            margin-right:250px ;
+            background-color: aliceblue;
+            max-width: 50%;
+            height: fit-content;
+        }
+        #formPosicionIndividual {
+            display: none;
+            margin:20px;
+            margin-left:250px;
+            margin-right:250px ;
+            background-color: aliceblue;
+            height: fit-content;
+        }
+        #lienzo {
+            width: 98%;
+            height: 550px;
+            background-color: white;
+            margin: auto;
         }
     </style>
 </head>
@@ -78,27 +101,30 @@
             <button onclick="guardarGrafo()" class="custom-btn" style="background-color: hsl(205, 46%, 43%);color: white;">Guardar Grafo</button>
             <input type="file" id="inputArchivo" accept=".json" class="custom-btn" style="background-color: #5da13b;margin-top:5%;margin-bottom:5%;padding:5%;font-size:50%">
             <button onclick="cargarGrafo()" class="custom-btn" style="background-color: rgb(30, 39, 140);color: white;padding-left:1%;padding-right:1%;">Cargar Grafo</button>
-            <button onclick="generarMatriz()" class="custom-btn" style="background-color: rgb(97, 33, 161);color: white;padding-left:1%;padding-right:1%;">Matriz de Adyencia</button>
             <button onclick="calcularBaricentro()" class="custom-btn" style="background-color: rgb(50, 205, 50);color: white;">Compet</button>
             <button onclick="mostrarPosiciones()" class="custom-btn" style="background-color: rgb(100, 149, 237);color: white;">Mostrar Posiciones</button>
-            <button onclick="mostrarFormularioPosiciones()" class="custom-btn" style="background-color: rgb(255, 140, 0);color: white;">Ingresar Posiciones</button>
+            <button onclick="mostrarFormularioPosicionIndividual()" class="custom-btn" style="background-color: rgb(255, 69, 0);color: white;">Ingresar Posición</button>
+        </div>
+        <div id="lienzo" style="width: 98%; height: 550px; background-color: white;"></div>
+        <div id="contenedorPosiciones" style="background-color: white;">
+            <h2>Posiciones de los Nodos</h2>
+            <pre id="textoPosiciones"></pre>
         </div>
         <center>
-            <div id="cont">
-                <div id="tablaXiYi" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
-                <div id="tablaHolguras" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
-                <div id="lienzo" style="width: 75%; height: 700px;background-color:rgb(251, 251, 248);margin: left 2%;border-radius:50px;"></div>
-                <div id="matriz" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
-                <div id="listaHolguras" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
-            </div>
-            <div id="posiciones" style="display: none; margin: 20px; background-color: aliceblue; padding: 10px;">
-                <h2>Ingresar Posiciones</h2>
-                <form id="formPosiciones">
-                    <div id="inputsPosiciones"></div>
-                    <button type="button" onclick="guardarPosiciones()">Guardar Posiciones</button>
+            <div id="formPosicionIndividual">
+                <h2>Ingresar Posición del Nodo</h2>
+                <form>
+                    <label for="nodoSelect">Nodo:</label>
+                    <select id="nodoSelect"></select>
+                    <label for="posX">Posición X:</label>
+                    <input type="number" id="posX" name="posX">
+                    <label for="posY">Posición Y:</label>
+                    <input type="number" id="posY" name="posY"> <br>
+                    <button type="button" onclick="guardarPosicionIndividual()">Guardar posición</button>
                 </form>
             </div>
         </center>
+        
         <script src="assets/js/compet.js" defer></script>
     </section>
     <footer id="footer">
@@ -113,6 +139,5 @@
     <script src="assets/js/breakpoints.min.js"></script>
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
-    <script src="assets/js/grafo.js"></script>
 </body>
 </html>
