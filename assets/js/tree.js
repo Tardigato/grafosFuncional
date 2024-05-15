@@ -332,22 +332,37 @@ function construirArbolDesdePrePost(preOrder, postOrder, preInicio, preFin, post
   if (preInicio === preFin) {
       return root;
   }
+  
   const siguienteRoot = preOrder[preInicio + 1];
   const rootIndexPostOrder = postOrder.indexOf(siguienteRoot);
   const izquierdaTamano = rootIndexPostOrder - postInicio + 1;
   const izquierdaRoot = construirArbolDesdePrePost(preOrder, postOrder, preInicio + 1, preInicio + izquierdaTamano, postInicio, rootIndexPostOrder);
   const derechaRoot = construirArbolDesdePrePost(preOrder, postOrder, preInicio + izquierdaTamano + 1, preFin, rootIndexPostOrder + 1, postFin - 1);
+  
   if (izquierdaRoot !== null) {
-      aristasDataSet.add({ from: root, to: izquierdaRoot });
-      nodosDataSet.update({ id: root, izquierda: izquierdaRoot });
+    aristasDataSet.add({ from: root, to: izquierdaRoot });
+    nodosDataSet.update({ id: root, izquierda: izquierdaRoot });
   }
   if (derechaRoot !== null) {
       aristasDataSet.add({ from: root, to: derechaRoot });
       nodosDataSet.update({ id: root, derecha: derechaRoot });
   }
+  
+  // Aquí está la lógica para decidir si el siguiente nodo debe ir a la izquierda o derecha
+  if (parseFloat(siguienteRoot) < parseFloat(root)) {
+      if (izquierdaRoot === null) {
+          aristasDataSet.add({ from: root, to: siguienteRoot });
+          nodosDataSet.update({ id: root, izquierda: siguienteRoot });
+      }
+  } else {
+      if (derechaRoot === null) {
+          aristasDataSet.add({ from: root, to: siguienteRoot });
+          nodosDataSet.update({ id: root, derecha: siguienteRoot });
+      }
+  }
+  
   return root;
 }
-
 
 // Función para calcular la profundidad del árbol
 function calcularProfundidad(nodoId) {
