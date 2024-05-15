@@ -30,6 +30,7 @@ var options = {
 
 
 // Función para manejar el clic en un nodo
+// Función para manejar el clic en un nodo
 function clicEnNodo(propiedades) {
   const { nodes } = propiedades;
   if (nodes.length > 0) {
@@ -37,12 +38,12 @@ function clicEnNodo(propiedades) {
       seleccionado = nodes[0];
     } else {
       if (seleccionado !== nodes[0]) {
-        // Se agrega una nueva arista
-        aristasDataSet.add({ from: seleccionado, to: nodes[0], arrows: 'to' });
+        // Se agrega una nueva arista sin flechas
+        aristasDataSet.add({ from: seleccionado, to: nodes[0], arrows: undefined });
         seleccionado = undefined;
       } else {
-        // Conexión manual del nodo consigo mismo
-        aristasDataSet.add({ from: seleccionado, to: seleccionado, arrows: 'to' });
+        // Conexión manual del nodo consigo mismo sin flechas
+        aristasDataSet.add({ from: seleccionado, to: seleccionado, arrows: undefined });
         seleccionado = undefined;
       }
     }
@@ -56,11 +57,12 @@ function dobleClicEnArista(propiedades) {
     // Se pide al usuario que ingrese un valor para la arista
     const valor = prompt('Ingrese el valor para la conexión:', '');
     if (valor !== null) {
-      // Se actualiza la arista con el valor ingresado
-      aristasDataSet.update({ id: edges[0], label: valor });
+      // Se actualiza la arista con el valor ingresado, sin flechas
+      aristasDataSet.update({ id: edges[0], label: valor, arrows: undefined });
     }
   }
 }
+
 
 // Función para manejar el clic en una arista y eliminarla si estamos en modo de eliminación
 function eliminarAristaSeleccionada(propiedades) {
