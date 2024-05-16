@@ -2,7 +2,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Johnson</title>
+    <title>Dijkstra</title>
     <meta charset="utf-8">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
@@ -18,7 +18,7 @@
           window.location.href = 'index.html';
       }
       function ayudagraf() {
-        window.location.href = 'paginahelp.html';
+        window.location.href = 'kruskalhelp.html';
     };
   </script>
     
@@ -77,16 +77,15 @@
             <li><a href="asignacion.html">Algoritmo de Asignación</a></li>
             <li><a href="nw.html">Algoritmo Northwest</a></li>
             <li><a href="sort.html">Sort</a></li>
-            <li><a href="tree.html">Tree</a></li>
             <li><a href="DIJKSTRA.html">Dijkstra</a></li>
-            <li><a href="compet.html">Compet</a></li>
+            <li><a href="kruskal.html">Kruskal</a></li>
             <li><a href="contactos.html">Contactos</a></li>
         </ul>
     </nav>
 
     <!-- Heading -->
     <div id="heading">
-        <h1 style="display: inline;">Johnson</h1>
+        <h1 style="display: inline;">Kruskal</h1>
         
     </div>
     
@@ -116,14 +115,12 @@
             <button onclick="cargarGrafo()" class="custom-btn" style="background-color: rgb(30, 39, 140);color: white;padding-left:1%;padding-right:1%;">Cargar Grafo</button>
             <!-- Agregar Nodo de Oferta button -->
             <button onclick="generarMatriz()" class="custom-btn" style="background-color: rgb(97, 33, 161);color: white;padding-left:1%;padding-right:1%;">Matriz de Adyencia</button>
-            <!-- Agregar Nodo de Demanda button -->
-            <button onclick="Jhonson()" class="custom-btn" style="background-color: rgb(137, 36, 127);color: white;padding-left:1%;padding-right:1%;">Johnson</button>
-
-            <!-- Minimo button 
-            <button onclick="calcularMinimumCost()" class="custom-btn" style="background-color: rgb(137, 36, 127);color: white;">Minimom</button>-->
+            <button onclick="kruskal()" class="custom-btn" style="background-color: rgb(56, 103, 214);color: white;">Kruskal menor</button>
+            <button onclick="kruskalWithHighestWeight()" class="custom-btn" style="background-color: rgb(56, 103, 214);color: white;">Kruskal mayor</button>
+            
+            <!-- Contenedor para el lienzo y la matriz kruskalMaximo()  kruskalWithHighestWeight() -->
         </div>
-        
-        <!-- Contenedor para el lienzo y la matriz -->
+        <div id="result"></div>
         <center>
           
           <div id="cont">
@@ -133,10 +130,12 @@
             <div id="lienzo" style="width: 75%; height: 700px;background-color:rgb(251, 251, 248);margin: left 2%;border-radius:50px;"></div>
             <div id="matriz" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
             <div id="listaHolguras" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div> 
+            <div style="color: white;" id="sumaAristas"></div>
+
           </div>
         </center>
         
-        <script src="assets/js/dibujar_grafos.js" defer></script>
+        <script src="assets/js/kruskal.js" defer></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
     </section>
 
