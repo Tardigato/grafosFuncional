@@ -2,7 +2,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Grafos</title>
+    <title>Dijkstra</title>
     <meta charset="utf-8">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
@@ -84,7 +84,7 @@
 
     <!-- Heading -->
     <div id="heading">
-        <h1 style="display: inline;">Grafos</h1>
+        <h1 style="display: inline;">Dijkstra</h1>
         
     </div>
     
@@ -114,16 +114,12 @@
             <button onclick="cargarGrafo()" class="custom-btn" style="background-color: rgb(30, 39, 140);color: white;padding-left:1%;padding-right:1%;">Cargar Grafo</button>
             <!-- Agregar Nodo de Oferta button -->
             <button onclick="generarMatriz()" class="custom-btn" style="background-color: rgb(97, 33, 161);color: white;padding-left:1%;padding-right:1%;">Matriz de Adyencia</button>
-            <!-- Agregar Jhonson Button
-            <button onclick="Jhonson()" class="custom-btn" style="background-color: rgb(137, 36, 127);color: white;padding-left:1%;padding-right:1%;">Johnson</button>
-            -->
-
-
-            <!-- Minimo button 
-            <button onclick="calcularMinimumCost()" class="custom-btn" style="background-color: rgb(137, 36, 127);color: white;">Minimom</button>-->
-        </div>
-        
+            <button onclick="runDijkstra()" class="custom-btn" style="background-color: rgb(137, 36, 127);color: white;">Dijkstra Corto</button>
+            <button onclick="runLongestPath()"class="custom-btn" style="background-color: rgb(137, 36, 127);color: white;">Dijkstra Largo</button>
+    
         <!-- Contenedor para el lienzo y la matriz -->
+        </div>
+        <div id="result"></div>
         <center>
           
           <div id="cont">
@@ -136,7 +132,7 @@
           </div>
         </center>
         
-        <script src="assets/js/dibujar_grafos.js" defer></script>
+        <script src="assets/js/dijkstra.js" defer></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
     </section>
 
