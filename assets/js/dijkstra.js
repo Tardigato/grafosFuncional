@@ -549,123 +549,119 @@ nodos.forEach(node => {
 
 
 // Function to run Dijkstra's algorithm and return the longest path edges
-function runLongestPath() {
-    resetNodeLabels();
+function longestPathDijkstra(aristas, nodos, startNodeId) {
+  let distances = {};
+  let unvisited = new Set();
 
-    const startNodeId = nodosDataSet.get()[0].id; // Assuming the first node is the start node
-    const nodos = nodosDataSet.get({ fields: ['id', 'label'] });
-    const aristas = aristasDataSet.get({ fields: ['id', 'from', 'to', 'label'] });
+  // Inicializar distancias con -Infinity y añadir todos los nodos a no visitados
+  nodos.forEach(nodo => {
+      distances[nodo.id] = nodo.id === startNodeId ? 0 : -Infinity;
+      unvisited.add(nodo.id);
+  });
 
-    // Modify Dijkstra's algorithm to find the longest distances
-    const distances = longestPathDijkstra(aristas, nodos, startNodeId);
+  while (unvisited.size > 0) {
+      let farthestNode = null;
 
-    // Store original labels before updating
-    nodos.forEach(node => {
-        nodosDataSet.update({ id: node.id, originalLabel: node.label });
-    });
+      // Encontrar el nodo más lejano (con mayor distancia) que aún no se ha visitado
+      unvisited.forEach(nodeId => {
+          if (farthestNode === null || distances[nodeId] > distances[farthestNode]) {
+              farthestNode = nodeId;
+          }
+      });
 
-    // Update node labels with longest distances
-    nodos.forEach(node => {
-    const nodeId = node.id;
-    const originalLabel = nodosDataSet.get(nodeId).originalLabel || ''; // Access originalLabel from the DataSet
-    console.log("Original Label for Node", nodeId, ":", originalLabel); // Log original label
-    const longestDistance = distances[nodeId];
-    const longestDistanceLabel = longestDistance !== -Infinity ? 'Valor: ' + longestDistance : 'Unreachable';
-    const newNodeLabel = originalLabel + '\n' + longestDistanceLabel;
-    nodosDataSet.update({ id: nodeId, label: newNodeLabel });
-});
+      unvisited.delete(farthestNode);
 
-    // Initialize an empty set to store visited nodes
-    const visitedNodes = new Set();
+      // Si el nodo más lejano tiene distancia -Infinity, los nodos restantes son inalcanzables
+      if (distances[farthestNode] === -Infinity) break;
 
-    // Initialize an empty array to store the longest path edges
-    let longestPathEdges = [];
+      // Actualizar distancias para cada nodo vecino
+      aristas.forEach(arista => {
+          if (arista.from === farthestNode) {
+              let distanceThroughEdge = distances[farthestNode] + parseInt(arista.label);
+              if (distanceThroughEdge > distances[arista.to]) {
+                  distances[arista.to] = distanceThroughEdge;
+              }
+          }
+      });
+  }
 
-    // Set the current node as the destination node
-    let currentNodeId = nodos[nodos.length - 1].id;
-
-    // Trace back from the destination node to the start node along the longest path
-    while (currentNodeId !== startNodeId) {
-        // Mark the current node as visited
-        visitedNodes.add(currentNodeId);
-
-        // Find the incoming edge with the longest distance to the current node
-        let maxDistance = -Infinity;
-        let maxDistanceEdge = null;
-        aristas.forEach(edge => {
-            if (edge.to === currentNodeId && distances[edge.from] + parseInt(edge.label) === distances[currentNodeId]) {
-                if (!visitedNodes.has(edge.from) && distances[edge.from] > maxDistance) {
-                    maxDistance = distances[edge.from];
-                    maxDistanceEdge = edge;
-                }
-            }
-        });
-
-        // Add the incoming edge to the longest path edges array
-        longestPathEdges.unshift(maxDistanceEdge);
-
-        // Update the current node to the source node of the incoming edge
-        currentNodeId = maxDistanceEdge.from;
-    }
-
-    console.log("Longest Path Edges:", longestPathEdges.map(edge => edge.id)); // Log longest path edges
-
-    // Log the values of the edges being highlighted
-    console.log("Values of Edges Being Highlighted:");
-    longestPathEdges.forEach(edge => {
-        console.log(`Edge ${edge.id}: ${edge.label}`);
-    });
-
-    // Update the visualization to highlight the longest path edges in red
-    aristas.forEach(edge => {
-        if (longestPathEdges.some(longestEdge => longestEdge.id === edge.id)) {
-            aristasDataSet.update({ id: edge.id, color: { color: 'red', highlight: 'red' } });
-        } else {
-            aristasDataSet.update({ id: edge.id, color: { color: 'blue', highlight: 'blue' } });
-        }
-    });
+  return distances;
 }
 
-// Function to modify Dijkstra's algorithm to find the longest distances
-function longestPathDijkstra(aristas, nodos, startNodeId) {
-    let distances = {}; // Store the longest distance from the start node to every other node
-    let visited = new Set(); // Keep track of visited nodes
-    let unvisited = new Set(); // Keep track of unvisited nodes
+function runLongestPath() {
+  resetNodeLabels();
 
-    // Initialize distances with -Infinity for all nodes except the start node
-    for (let nodo of nodos) {
-        distances[nodo.id] = nodo.id === startNodeId ? 0 : -Infinity;
-        unvisited.add(nodo.id);
-    }
+  const startNodeId = nodosDataSet.get()[0].id;
+  const nodos = nodosDataSet.get({ fields: ['id', 'label'] });
+  const aristas = aristasDataSet.get({ fields: ['id', 'from', 'to', 'label'] });
 
-    while (unvisited.size > 0) {
-        // Find the node with the largest distance among unvisited nodes
-        let farthestNode = null;
-        for (let nodeId of unvisited) {
-            if (!farthestNode || distances[nodeId] > distances[farthestNode]) {
-                farthestNode = nodeId;
-            }
-        }
+  const distances = longestPathDijkstra(aristas, nodos, startNodeId);
+  const bidireccionales = identificarAristasBidireccionales(aristasDataSet);
 
-        // Remove the farthest node from the set of unvisited nodes
-        unvisited.delete(farthestNode);
+  // Actualización de etiquetas con distancias más largas
+  nodos.forEach(node => {
+      const nodeId = node.id;
+      const originalLabel = nodosDataSet.get(nodeId).originalLabel || 'Node ' + nodeId;
+      const longestDistanceLabel = distances[nodeId] !== -Infinity ? 'Valor: ' + distances[nodeId] : 'Unreachable';
+      const newNodeLabel = originalLabel + '\n' + longestDistanceLabel;
+      nodosDataSet.update({ id: nodeId, label: newNodeLabel });
+  });
 
-        // If the farthestNode is still -Infinity, then remaining nodes are unreachable and we can break
-        if (distances[farthestNode] === -Infinity) break;
+  // Preparar para resaltar el camino más largo
+  let longestPathEdges = [];
+  let currentNodeId = nodosDataSet.get()[nodosDataSet.length - 1].id; // Supongamos que el último nodo es el nodo destino
 
-        // For each neighboring node of the current node
-        for (let arista of aristas) {
-            if (arista.from === farthestNode) {
-                let distanceToNeighbor = distances[farthestNode] + parseInt(arista.label);
-                // If the new distance is larger, update the distance
-                if (distanceToNeighbor > distances[arista.to]) {
-                    distances[arista.to] = distanceToNeighbor;
-                }
-            }
-        }
-    }
+  // Trabajar hacia atrás desde el nodo destino
+  while (currentNodeId !== startNodeId) {
+      let maxDistanceEdge = null;
 
-    return distances;
+      aristas.forEach(edge => {
+          if (edge.to === currentNodeId && !bidireccionales.has(edge.id)) {
+              let distanceThroughEdge = distances[edge.from] + parseInt(edge.label);
+              if (distanceThroughEdge === distances[currentNodeId]) {
+                  maxDistanceEdge = edge;
+              }
+          }
+      });
+
+      if (!maxDistanceEdge) {
+          console.error("No valid incoming edge found for node " + currentNodeId);
+          break;
+      }
+
+      longestPathEdges.unshift(maxDistanceEdge);
+      currentNodeId = maxDistanceEdge.from;
+  }
+
+  // Resaltar solo si el camino completo es válido desde el inicio hasta el destino
+  if (currentNodeId === startNodeId) {
+      aristas.forEach(edge => {
+          if (longestPathEdges.includes(edge)) {
+              aristasDataSet.update({ id: edge.id, color: { color: 'red', highlight: 'red' } });
+          } else {
+              aristasDataSet.update({ id: edge.id, color: { color: 'blue', highlight: 'blue' } });
+          }
+      });
+  } else {
+      console.error("Complete path from start to end node not found.");
+  }
+}
+
+
+
+
+
+
+function identificarAristasBidireccionales(aristas) {
+  const aristasBidireccionales = new Set();
+  aristas.forEach(arista => {
+      if (aristas.get({
+          filter: edge => edge.from === arista.to && edge.to === arista.from
+      }).length > 0) {
+          aristasBidireccionales.add(arista.id);
+      }
+  });
+  return aristasBidireccionales;
 }
 
 
