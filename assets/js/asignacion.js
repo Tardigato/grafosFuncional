@@ -25,32 +25,10 @@ function inicializarGrafo() {
             arrows: {
               to: {enabled: true, scaleFactor: 1}, // Flechas direccionales hacia el nodo destino
             },
-            color: {
-              color:'#047979', // Color de la arista
-              highlight:'#047979', // Color al seleccionar
-            },
-            width: 2 // Anchura de las aristas
         },
 
-        nodes: {
-            shape: 'circle', // Forma de los nodos
-            color: {
-              border: '#047979',
-              background: '#80DCDC',
-              highlight: {      //cuando se lo selecciona
-                border: '#2B7CE9',
-                background: '#D2E5FF'
-              }
-            },
-            size: 25, // Tamaño de los nodos
-            font: {
-              size: 14, // Tamaño de la fuente
-              color: '#047979' // Color de la fuente
-            },
-            borderWidth: 2 // Ancho del borde del nodo
+        nodes: { 
           }
-
-
       };
       
     // Crear una nueva instancia de Network con las opciones configuradas
@@ -246,7 +224,6 @@ function mostrarMatriz(nodos, matriz, sumasFilas, sumasColumnas) {
   contenedorMatriz.innerHTML = html;
 }
 
-
 // Inicializar el grafo cuando se carga la página
 document.addEventListener('DOMContentLoaded', () => {
   inicializarGrafo();
@@ -288,7 +265,6 @@ function cargarGrafo() {
 }
 
 
-
 ///DESDE AQUÍ TODO LO PROPIO DE ASIGNACIÓN, LO DE MÁS ANTES ES DE DIBUJAR GRAFOS
 eleccion = 0;
 
@@ -311,33 +287,22 @@ function asignacion(){
 }
 
 function algoritmo_asinacion() {
-  /*
-  const matrix = [
-    [3, 2, 1, 2],
-    [3, 4, 5, 4],
-    [3, 5, 6, 5],
-    [3, 6, 5, 6]
-  ];
-  */
-
-  let matrix = generarMatrizAsignacionAuxiliar(); // Utilizar la matriz generada dinámicamente
+  let matrix = generarMatrizAsignacionAuxiliar();
 
   console.log("Matriz inicial:");
   imprimirMatriz(matrix);
 
-  if(eleccion==1){
+  if (eleccion == 1) {
     console.log("Se debe volver la matriz a negativa, y luego sumarle el que tenga valor absoluto más alto, y se procede normal");
-
     matrix = convertirMatrizMaximizar(matrix);
     imprimirMatriz(matrix);
-
   }
 
-  let matrixAfterRowSubtraction = restar_minimo_columnas(matrix);
+  let matrixAfterRowSubtraction = restar_minimo_fila(matrix);
   console.log("Matriz restando mínimo de filas:");
   imprimirMatriz(matrixAfterRowSubtraction);
 
-  let matrixAfterColSubtraction = restar_minimo_fila(matrixAfterRowSubtraction);
+  let matrixAfterColSubtraction = restar_minimo_columnas(matrixAfterRowSubtraction);
   console.log("Matriz restando mínimo de columnas:");
   imprimirMatriz(matrixAfterColSubtraction);
 
@@ -345,17 +310,7 @@ function algoritmo_asinacion() {
   let { coveredRows, coveredCols } = cubrirCeros(matrixAfterColSubtraction);
   let numCoveredLines = coveredRows.filter(x => x).length + coveredCols.filter(x => x).length;
 
-  /*
-  console.log("tamaño matriz = ");
-  console.log(matrix.length);
-  console.log("lineas cubiertas = ");
-  console.log(numCoveredLines);
-
-  console.log(`Filas cubiertas: ${coveredRows.map((v, i) => v ? i : null).filter(v => v !== null)}`);
-  console.log(`Columnas cubiertas: ${coveredCols.map((v, i) => v ? i : null).filter(v => v !== null)}`);
-  */
-  
-  while (numCoveredLines < matrix.length) { // Si no cubrimos todas las filas/columnas, necesitamos ajustar
+  while (numCoveredLines < matrix.length) {
     matrixAfterColSubtraction = ajustarMatriz(matrixAfterColSubtraction, coveredRows, coveredCols);
     let coverResult = cubrirCeros(matrixAfterColSubtraction);
     coveredRows = coverResult.coveredRows;
@@ -363,14 +318,15 @@ function algoritmo_asinacion() {
     numCoveredLines = coveredRows.filter(x => x).length + coveredCols.filter(x => x).length;
   }
 
-  // Mostrar la solución
   console.log("Matriz final después de ajustes:");
   imprimirMatriz(matrixAfterColSubtraction);
+
+  // Encontrar la solución óptima
+  let celdasResaltar = seleccionarPosiciones(matrixAfterColSubtraction);
 
   console.log("Solución:");
   imprimirMatriz(matrix);
 
-  // Devolver la matriz cereada
   return matrixAfterColSubtraction;
 }
 
@@ -513,31 +469,27 @@ function generarMatrizAsignacion() {
     matriz.push(fila);
   });
 
-  // Identificar filas y columnas que no sean todas ceros
   let filasValidas = matriz.map(fila => fila.some(valor => valor !== 0));
   let columnasValidas = matriz[0].map((col, i) => matriz.some(fila => fila[i] !== 0));
 
-  // Filtrar las filas y columnas para mantener solo las que no son todas ceros
   matriz = matriz.filter((fila, i) => filasValidas[i]).map(fila => fila.filter((col, i) => columnasValidas[i]));
 
-  // Filtrar nodos basados en filas y columnas validas
-  let nodosFiltradosFilas = nodos.filter((nodo, i) => filasValidas[i]); // Filtrar nodos para filas
-  let nodosFiltradosColumnas = nodos.filter((nodo, i) => columnasValidas[i]); // Filtrar nodos para columnas
+  let nodosFiltradosFilas = nodos.filter((nodo, i) => filasValidas[i]);
+  let nodosFiltradosColumnas = nodos.filter((nodo, i) => columnasValidas[i]);
 
   let matrix_cereada = algoritmo_asinacion();
 
   let celdasResaltar = seleccionarPosiciones(matrix_cereada);
   mostrarMatrizAsignacion(nodosFiltradosFilas, nodosFiltradosColumnas, matriz, celdasResaltar);
 
-  // Calcular la suma de las celdas resaltadas
   let sumaOptimo = 0;
   celdasResaltar.forEach(celda => {
-      sumaOptimo += matriz[celda[0]][celda[1]]; // Sumar el valor de la celda resaltada
+    sumaOptimo += matriz[celda[0]][celda[1]];
   });
 
-  // Mostrar la suma en el HTML
   document.getElementById('optimo-valor').textContent = sumaOptimo;
 }
+
 
 // Ajuste la función mostrarMatrizAsignacion para aceptar nodosFiltradosFilas y nodosFiltradosColumnas
 function mostrarMatrizAsignacion(nodosFilas, nodosColumnas, matriz, celdasResaltar = []) {
@@ -595,7 +547,6 @@ function generarMatrizAsignacionAuxiliar() {
   return matrizAuxiliar; // Devolver la matriz generada
 }
 
-
 function seleccionarPosiciones(matriz_cereada) {
   let filasCubiertas = new Array(matriz_cereada.length).fill(false);
   let columnasCubiertas = new Array(matriz_cereada[0].length).fill(false);
@@ -604,42 +555,41 @@ function seleccionarPosiciones(matriz_cereada) {
   // Seleccionar ceros maximizando la cobertura
   let seleccionados = true;
   while (seleccionados) {
-      seleccionados = false;
-      let contadorCerosPorFila = matriz_cereada.map(fila => fila.filter(v => v === 0).length);
-      let contadorCerosPorColumna = matriz_cereada[0].map((_, j) => matriz_cereada.map(fila => fila[j]).filter(v => v === 0).length);
+    seleccionados = false;
+    let contadorCerosPorFila = matriz_cereada.map(fila => fila.filter(v => v === 0).length);
+    let contadorCerosPorColumna = matriz_cereada[0].map((_, j) => matriz_cereada.map(fila => fila[j]).filter(v => v === 0).length);
 
-      for (let i = 0; i < matriz_cereada.length; i++) {
-          for (let j = 0; j < matriz_cereada[i].length; j++) {
-              if (matriz_cereada[i][j] === 0 && !filasCubiertas[i] && !columnasCubiertas[j]) {
-                  if (contadorCerosPorFila[i] === 1 || contadorCerosPorColumna[j] === 1) {
-                      celdasResaltar.push([i, j]);
-                      filasCubiertas[i] = true;
-                      columnasCubiertas[j] = true;
-                      seleccionados = true;
-                      // Actualizar contadores
-                      contadorCerosPorFila[i] = 0;
-                      matriz_cereada.forEach((_, idx) => contadorCerosPorColumna[j] -= matriz_cereada[idx][j] === 0 ? 1 : 0);
-                      break;
-                  }
-              }
+    for (let i = 0; i < matriz_cereada.length; i++) {
+      for (let j = 0; j < matriz_cereada[i].length; j++) {
+        if (matriz_cereada[i][j] === 0 && !filasCubiertas[i] && !columnasCubiertas[j]) {
+          if (contadorCerosPorFila[i] === 1 || contadorCerosPorColumna[j] === 1) {
+            celdasResaltar.push([i, j]);
+            filasCubiertas[i] = true;
+            columnasCubiertas[j] = true;
+            seleccionados = true;
+            // Actualizar contadores
+            contadorCerosPorFila[i] = 0;
+            matriz_cereada.forEach((_, idx) => contadorCerosPorColumna[j] -= matriz_cereada[idx][j] === 0 ? 1 : 0);
+            break;
           }
+        }
       }
+    }
   }
 
   // Completar la selección de ceros si es posible
   matriz_cereada.forEach((fila, i) => {
-      fila.forEach((valor, j) => {
-          if (valor === 0 && !filasCubiertas[i] && !columnasCubiertas[j]) {
-              celdasResaltar.push([i, j]);
-              filasCubiertas[i] = true;
-              columnasCubiertas[j] = true;
-          }
-      });
+    fila.forEach((valor, j) => {
+      if (valor === 0 && !filasCubiertas[i] && !columnasCubiertas[j]) {
+        celdasResaltar.push([i, j]);
+        filasCubiertas[i] = true;
+        columnasCubiertas[j] = true;
+      }
+    });
   });
 
   return celdasResaltar;
 }
-
 
 //PARA MAXIMIZAR
 
