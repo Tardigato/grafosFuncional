@@ -309,25 +309,43 @@ function algoritmo_asinacion() {
   // Cubrir todos los ceros con el menor número de líneas
   let { coveredRows, coveredCols } = cubrirCeros(matrixAfterColSubtraction);
   let numCoveredLines = coveredRows.filter(x => x).length + coveredCols.filter(x => x).length;
+  let cont = 0;
 
+  let matrixAfterColSubtraction1 = ajustarMatriz(matrixAfterColSubtraction, coveredRows, coveredCols);
+  let coverResult = cubrirCeros(matrixAfterColSubtraction1);
+  coveredRows = coverResult.coveredRows;
+  coveredCols = coverResult.coveredCols;
+  numCoveredLines = coveredRows.filter(x => x).length + coveredCols.filter(x => x).length;
+  cont ++;
+
+  let matrixAfterColSubtraction2 = ajustarMatriz(matrixAfterColSubtraction1, coveredRows, coveredCols);
+  coverResult = cubrirCeros(matrixAfterColSubtraction);
+  coveredRows = coverResult.coveredRows;
+  coveredCols = coverResult.coveredCols;
+  numCoveredLines = coveredRows.filter(x => x).length + coveredCols.filter(x => x).length;
+  cont ++;
+
+  /*
   while (numCoveredLines < matrix.length) {
     matrixAfterColSubtraction = ajustarMatriz(matrixAfterColSubtraction, coveredRows, coveredCols);
     let coverResult = cubrirCeros(matrixAfterColSubtraction);
     coveredRows = coverResult.coveredRows;
     coveredCols = coverResult.coveredCols;
     numCoveredLines = coveredRows.filter(x => x).length + coveredCols.filter(x => x).length;
-  }
+    cont ++;
+  } */
 
   console.log("Matriz final después de ajustes:");
-  imprimirMatriz(matrixAfterColSubtraction);
+  imprimirMatriz(matrixAfterColSubtraction2);
+  console.log("veces que se ajusta la matriz: " + cont);
 
   // Encontrar la solución óptima
-  let celdasResaltar = seleccionarPosiciones(matrixAfterColSubtraction);
+  let celdasResaltar = seleccionarPosiciones(matrixAfterColSubtraction2);
 
   console.log("Solución:");
   imprimirMatriz(matrix);
 
-  return matrixAfterColSubtraction;
+  return matrixAfterColSubtraction2;
 }
 
 function imprimirMatriz(matrix) {
@@ -448,6 +466,8 @@ function ajustarMatriz(matrix, coveredRows, coveredCols) {
       }
     }
   }
+  console.log("columnas: " + coveredCols);
+  console.log("filas: " + coveredRows);
   return newMatrix;
 }
 
@@ -592,7 +612,6 @@ function seleccionarPosiciones(matriz_cereada) {
 }
 
 //PARA MAXIMIZAR
-
 function convertirMatrizMaximizar(matriz) {
   // Convertir la matriz para maximizar la cobertura
   let matrizMaximizada = matriz.map(fila => fila.map(valor => -valor)); // Convertir los valores a negativos
