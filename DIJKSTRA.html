@@ -1,9 +1,4 @@
-
-<!DOCTYPE HTML>
-<html>
-<head>
-    <title>Dijkstra</title>
-    <meta charset="utf-8">
+<meta charset="utf-8">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <meta name="description" content="">
@@ -99,8 +94,9 @@
         </div>
         
     </div>
-    
-    <!-- CONTACTOS -->
+
+
+
     <section class="wrapper">
         <div class="side-buttons" style="color: white;">
             <!-- Cambiar Nombre button -->
@@ -118,13 +114,15 @@
             <!-- Agregar Nodo de Oferta button -->
             <button onclick="generarMatriz()" class="custom-btn" style="background-color: rgb(97, 33, 161);color: white;padding-left:1%;padding-right:1%;">Matriz de Adyencia</button>
             
-           <!-- Agregar el botón para ejecutar Dijkstra -->
-<button onclick="seleccionarNodosInicioFin()" class="custom-btn" style="background-color: rgb(137, 36, 127);color: white;">Seleccionar Nodos Inicio y Fin</button>
+            <div>
+                <label for="nodoInicio">Nodo Inicio:</label>
+                <input type="text" id="nodoInicio" placeholder="ID Nodo Inicio">
+                <label for="nodoDestino">Nodo Destino:</label>
+                <input type="text" id="nodoDestino" placeholder="ID Nodo Destino">
+                <button onclick="calcularRutaMasCorta()">Calcular Ruta Más Corta</button>
+                <button onclick="calcularRutaMasLarga()">Calcular Ruta Más Larga</button>
+              </div>
 
-            
-            <button onclick="runDijkstra()" class="custom-btn" style="background-color: rgb(137, 36, 127);color: white;">Dijkstra Corto</button>
-            <button onclick="runLongestPath()"class="custom-btn" style="background-color: rgb(137, 36, 127);color: white;">Dijkstra Largo</button>
-    
         <!-- Contenedor para el lienzo y la matriz -->
         </div>
         <div id="result"></div>
@@ -144,20 +142,402 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
     </section>
 
-    <!-- Footer -->
-    <footer id="footer">
-        <h3>
-            Grafos: Análisis de Algoritmos MAT-361
-            <br>
-            © 2024
-        </h3>
-    </footer>
 
-    <!-- Scripts -->
-    <script src="assets/js/jquery.min.js"></script>
-    <script src="assets/js/browser.min.js"></script>
-    <script src="assets/js/breakpoints.min.js"></script>
-    <script src="assets/js/util.js"></script>
-    <script src="assets/js/main.js"></script>
+
+  
+      
+  <div id="matriz"></div>
+  <div id="listaHolguras"></div>
+  <script>
+    let grafo;
+    let nodosDataSet;
+    let aristasDataSet;
+    let seleccionado;
+    let modoEliminarArista = false;
+    let modoAgregarNodo = false;
+    let aristasDataSetBackup; // Variable para almacenar una copia de seguridad de las aristas
+
+function inicializarGrafo() {
+  const lienzo = document.getElementById('lienzo');
+  nodosDataSet = new vis.DataSet();
+  aristasDataSet = new vis.DataSet();
+  const data = { nodes: nodosDataSet, edges: aristasDataSet };
+  const opciones = {};
+  grafo = new vis.Network(lienzo, data, opciones);
+
+  grafo.on('click', clicEnNodo);
+  grafo.on('doubleClick', dobleClicEnArista);
+  grafo.on('click', eliminarAristaSeleccionada);
+
+  // Crear una copia de seguridad de las aristas
+  aristasDataSetBackup = new vis.DataSet();
+  aristasDataSet.forEach(arista => {
+    aristasDataSetBackup.add(arista);
+  });
+}
+
+
+
+  // El resto del código de cálculo de la ruta más corta sigue igual...
+
+
+   
+
+    var options = {
+      physics: {
+        enabled: false
+      }
+    };
+
+    function clicEnNodo(propiedades) {
+      const { nodes } = propiedades;
+      if (nodes.length > 0) {
+        if (seleccionado === undefined) {
+          seleccionado = nodes[0];
+        } else {
+          if (seleccionado !== nodes[0]) {
+            aristasDataSet.add({ from: seleccionado, to: nodes[0], arrows: 'to', label: '1' });
+            seleccionado = undefined;
+          } else {
+            aristasDataSet.add({ from: seleccionado, to: seleccionado, arrows: 'to', label: '1' });
+            seleccionado = undefined;
+          }
+        }
+      }
+    }
+
+    function dobleClicEnArista(propiedades) {
+      const { edges } = propiedades;
+      if (edges.length > 0) {
+        const valor = prompt('Ingrese el valor para la conexión:', '1');
+        if (valor !== null) {
+          aristasDataSet.update({ id: edges[0], label: valor });
+        }
+      }
+    }
+
+    function eliminarAristaSeleccionada(propiedades) {
+      if (modoEliminarArista) {
+        const aristaId = propiedades.edges[0];
+        if (aristaId !== undefined) {
+          eliminarArista(aristaId);
+          modoEliminarArista = false;
+        }
+      }
+    }
+
+    function activarModoEliminarArista() {
+      modoEliminarArista = true;
+      alert('Haz clic en la arista que deseas eliminar.');
+    }
+
+    function eliminarArista(aristaId) {
+      aristasDataSet.remove({ id: aristaId });
+    }
+
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        const seleccion = grafo.getSelection();
+        if (seleccion.edges.length > 0) {
+          eliminarArista(seleccion.edges[0]);
+        }
+      }
+    });
+
+    function agregarNodo() {
+      modoAgregarNodo = true;
+      grafo.off('click');
+      grafo.on('click', function(event) {
+        if (modoAgregarNodo) {
+          const position = event.pointer.canvas;
+          const nuevoId = nodosDataSet.length + 1;
+          nodosDataSet.add({ id: nuevoId, label: 'Nodo ' + nuevoId, x: position.x, y: position.y });
+          grafo.off('click');
+          grafo.on('click', clicEnNodo);
+          modoAgregarNodo = false;
+        }
+      });
+    }
+
+    function cambiarNombre() {
+      if (seleccionado !== undefined) {
+        const nuevoNombre = prompt('Ingrese el nuevo nombre para el nodo:', seleccionado.label);
+        if (nuevoNombre !== null) {
+          nodosDataSet.update({ id: seleccionado, label: nuevoNombre });
+        }
+        seleccionado = undefined;
+      } else {
+        alert('Por favor, seleccione un nodo primero.');
+      }
+    }
+
+    function eliminarNodo() {
+      if (seleccionado !== undefined) {
+        nodosDataSet.remove({ id: seleccionado });
+        const aristas = aristasDataSet.get({ filter: function (item) { return item.from === seleccionado || item.to === seleccionado; } });
+        aristas.forEach(function (arista) {
+          aristasDataSet.remove({ id: arista.id });
+        });
+      } else {
+        alert('Por favor, seleccione un nodo primero.');
+      }
+    }
+
+    function generarMatriz() {
+      const nodos = nodosDataSet.get({ fields: ['id', 'label'] });
+      const matriz = [];
+      const sumasFilas = [];
+      const sumasColumnas = new Array(nodos.length).fill(0);
+      
+      nodos.forEach((nodo, rowIndex) => {
+        const fila = [];
+        let sumaFila = 0;
+        nodos.forEach((otroNodo, columnIndex) => {
+          const conexion = aristasDataSet.get({
+            filter: edge => (edge.from === nodo.id && edge.to === otroNodo.id)
+          });
+          if (conexion.length > 0) {
+            const valor = parseInt(conexion[0].label || 1);
+            fila.push(valor);
+            sumaFila += valor;
+            sumasColumnas[columnIndex] += valor;
+          } else {
+            fila.push(0);
+          }
+        });
+        matriz.push(fila);
+        sumasFilas.push(sumaFila);
+      });
+
+      mostrarMatriz(nodos, matriz, sumasFilas, sumasColumnas);
+    }
+
+    function mostrarMatriz(nodos, matriz, sumasFilas, sumasColumnas) {
+      const contenedorMatriz = document.getElementById('matriz');
+      let html = '<h2>Matriz de Adyacencia</h2>';
+      html += '<table style="padding: 10px;border: 2px solid black;">';
+      html += '<tr><th style="padding: 10px;border: 2px solid black;background-color: green;"></th>';
+      nodos.forEach((nodo, index) => {
+        html += `<th style="padding: 10px;border: 2px solid black;background-color: green;">${nodo.label}</th>`;
+      });
+      html += '<th style="padding: 10px;border: 2px solid black;background-color: green;">Suma por Fila</th>';
+      html += '</tr>';
+      matriz.forEach((fila, index) => {
+        html += `<tr><th style="padding: 10px;border: 2px solid black;background-color: red;">${nodos[index].label}</th>`;
+        fila.forEach(valor => {
+          html += `<td style="padding: 10px;border: 2px solid black;">${valor}</td>`;
+        });
+        html += `<td style="padding: 10px;border: 2px solid black;">${sumasFilas[index]}</td>`;
+        html += '</tr>';
+      });
+      html += '<tr><th style="padding: 10px;border: 2px solid black;background-color: red;">Suma por Columna</th>';
+      sumasColumnas.forEach(suma => {
+        html += `<td style="padding: 10px;border: 2px solid black;">${suma}</td>`;
+      });
+      html += '<td></td></tr>';
+      html += '</table>';
+      contenedorMatriz.innerHTML = html;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        inicializarGrafo();
+      });
+      
+      // Función para guardar el grafo con un nombre proporcionado por el usuario
+      function guardarGrafo() {
+        aristasDataSet.forEach(edge => {
+            aristasDataSet.update({ id: edge.id, color: { color: 'blue', highlight: 'blue' } });
+        });
+        const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar el grafo:', 'grafo');
+        if (nombreArchivo !== null) {
+          const grafoJSON = JSON.stringify({ nodos: nodosDataSet.get(), aristas: aristasDataSet.get() });
+          const blob = new Blob([grafoJSON], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = nombreArchivo + '.json';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
+      }
+      
+      // Función para cargar un grafo desde un archivo JSON seleccionado por el usuario
+      function cargarGrafo() {
+        const inputArchivo = document.getElementById('inputArchivo');
+        const file = inputArchivo.files[0];
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const contenido = event.target.result;
+          const datos = JSON.parse(contenido);
+          // Limpiar los conjuntos de datos actuales
+          nodosDataSet.clear();
+          aristasDataSet.clear();
+          // Agregar los nodos y aristas del archivo JSON al grafo
+          nodosDataSet.add(datos.nodos);
+          aristasDataSet.add(datos.aristas);
+        };
+        reader.readAsText(file);
+      }
+      
+
+      function calcularRutaMasCorta() {
+        aristasDataSet.forEach(edge => {
+          aristasDataSet.update({ id: edge.id, color: { color: 'blue', highlight: 'blue' } });
+        });
+      
+        const nodoInicio = parseInt(document.getElementById('nodoInicio').value);
+        const nodoDestino = parseInt(document.getElementById('nodoDestino').value);
+      
+        if (isNaN(nodoInicio) || isNaN(nodoDestino)) {
+          alert('Por favor, ingrese nodos de inicio y destino válidos.');
+          return;
+        }
+      
+        const distancia = {};
+        const previo = {};
+        const nodos = nodosDataSet.get({ fields: ['id'] });
+        const aristas = aristasDataSet.get();
+      
+        nodos.forEach(nodo => {
+          distancia[nodo.id] = Infinity;
+          previo[nodo.id] = null;
+        });
+      
+        distancia[nodoInicio] = 0;
+      
+        const nodosSinVisitar = new Set(nodos.map(n => n.id));
+      
+        while (nodosSinVisitar.size > 0) {
+          let nodoActual = null;
+      
+          nodosSinVisitar.forEach(nodo => {
+            if (nodoActual === null || distancia[nodo] < distancia[nodoActual]) {
+              nodoActual = nodo;
+            }
+          });
+      
+          if (distancia[nodoActual] === Infinity) {
+            break;
+          }
+      
+          nodosSinVisitar.delete(nodoActual);
+      
+          aristas.forEach(arista => {
+            if (arista.from === nodoActual && nodosSinVisitar.has(arista.to)) {
+              const distanciaAlternativa = distancia[nodoActual] + parseInt(arista.label);
+              if (distanciaAlternativa < distancia[arista.to]) {
+                distancia[arista.to] = distanciaAlternativa;
+                previo[arista.to] = nodoActual;
+              }
+            }
+          });
+        }
+      
+        const ruta = [];
+        let nodo = nodoDestino;
+      
+        while (nodo !== null) {
+          ruta.unshift(nodo);
+          nodo = previo[nodo];
+        }
+      
+        if (ruta[0] !== nodoInicio) {
+          alert('No se encontró una ruta desde el nodo de inicio al nodo de destino.');
+        } else {
+          let sumaTotal = 0;
+          
+          // Calcular la suma total de las aristas en la ruta
+          for (let i = 0; i < ruta.length - 1; i++) {
+            const arista = aristas.find(edge => 
+              (edge.from === ruta[i] && edge.to === ruta[i + 1]) || 
+              (edge.to === ruta[i] && edge.from === ruta[i + 1])
+            );
+            if (arista) {
+              sumaTotal += parseInt(arista.label);
+            }
+          }
+      
+          alert('Ruta más corta: ' + ruta.join(' -> ') + '\nSuma total de las aristas: ' + sumaTotal);
+      
+          // Resaltar las aristas del camino más corto
+          for (let i = 0; i < ruta.length - 1; i++) {
+            const aristasEnRuta = aristasDataSet.get({
+              filter: edge =>
+                (edge.from === ruta[i] && edge.to === ruta[i + 1]) ||
+                (edge.to === ruta[i] && edge.from === ruta[i + 1])
+            });
+      
+            aristasEnRuta.forEach(arista => {
+              aristasDataSet.update({ id: arista.id, color: { color: 'red' } });
+            });
+          }
+        }
+      }
+      
+
+    function calcularRutaMasLarga() {
+        // Reiniciar los colores de las aristas
+        aristasDataSet.forEach(edge => {
+          aristasDataSet.update({ id: edge.id, color: { color: 'blue', highlight: 'blue' } });
+        });
+      
+        const nodoInicio = parseInt(document.getElementById('nodoInicio').value);
+        const nodoDestino = parseInt(document.getElementById('nodoDestino').value);
+      
+        if (isNaN(nodoInicio) || isNaN(nodoDestino)) {
+          alert('Por favor, ingrese nodos de inicio y destino válidos.');
+          return;
+        }
+      
+        const aristas = aristasDataSet.get();
+        
+        let mejorRuta = [];
+        let mejorDistancia = -Infinity;
+      
+        function dfs(nodo, destino, rutaActual, distanciaActual) {
+          if (nodo === destino) {
+            if (distanciaActual > mejorDistancia) {
+              mejorDistancia = distanciaActual;
+              mejorRuta = [...rutaActual];
+            }
+            return;
+          }
+      
+          aristas.forEach(arista => {
+            if (arista.from === nodo && !rutaActual.includes(arista.to)) {
+              rutaActual.push(arista.to);
+              dfs(arista.to, destino, rutaActual, distanciaActual + parseInt(arista.label));
+              rutaActual.pop();
+            }
+          });
+        }
+      
+        dfs(nodoInicio, nodoDestino, [nodoInicio], 0);
+      
+        if (mejorRuta.length === 0) {
+          alert('No se encontró una ruta desde el nodo de inicio al nodo de destino.');
+        } else {
+          alert('Ruta más larga: ' + mejorRuta.join(' -> ') + ' con una distancia de ' + mejorDistancia);
+          
+          // Resaltar las aristas del camino más largo
+          for (let i = 0; i < mejorRuta.length - 1; i++) {
+            const aristasEnRuta = aristasDataSet.get({
+              filter: edge =>
+                (edge.from === mejorRuta[i] && edge.to === mejorRuta[i + 1]) ||
+                (edge.to === mejorRuta[i] && edge.from === mejorRuta[i + 1])
+            });
+      
+            aristasEnRuta.forEach(arista => {
+              aristasDataSet.update({ id: arista.id, color: { color: 'red' } });
+            });
+          }
+        }
+      }
+      
+      
+      
+  </script>
 </body>
 </html>
