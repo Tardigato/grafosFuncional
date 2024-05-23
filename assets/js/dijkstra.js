@@ -676,11 +676,6 @@ function runLongestPath() {
   }
 }
 
-
-
-
-
-
 function identificarAristasBidireccionales(aristas) {
   const aristasBidireccionales = new Set();
   aristas.forEach(arista => {

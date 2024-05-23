@@ -1,0 +1,275 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Dijkstra</title>
+    <meta charset="utf-8">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/contactos.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
+    
+    <script>
+        function regresarAIndex() {
+            window.location.href = 'index.html';
+        }
+        function ayudagraf() {
+            window.location.href = 'kruskalhelp.html';
+        };
+    </script>
+    
+    <style>
+        .side-buttons {
+            position: absolute;
+            top: 12%;
+            left: 0;
+            transform: translateY(0%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: -4%;
+            margin-right: 10px;
+            background-color: #b3cae0;
+            padding-top: 1%;
+            border-radius: 10px;
+        }
+        .side-buttons .custom-btn {
+            width: 80%;
+            margin-bottom: 10px;
+            font-size: 70%;
+            border: 2px solid black;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Times New Roman', Times, serif;
+            color: white;
+            margin-left: 10px;
+        }
+        .side-buttons .custom-btn:hover {
+            background-color: purple;
+        }
+    </style>
+</head>
+<body style="background-color: #34495e;">
+    <header id="header">
+        <a class="logo" href="index.html">GraphifyMe</a>
+        <nav>
+            <a href="#menu">Menu</a>
+        </nav>
+    </header>
+    <nav id="menu">
+        <ul class="links">
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="dibujar_grafos.html">Dibujar grafos</a></li>
+            <li><a href="jhonson.html">Algoritmo Jonhson</a></li>
+            <li><a href="asignacion.html">Algoritmo de Asignación</a></li>
+            <li><a href="nw.html">Algoritmo Northwest</a></li>
+            <li><a href="sort.html">Sort</a></li>
+            <li><a href="tree.html">Tree</a></li>
+            <li><a href="DIJKSTRA.html">Dijkstra</a></li>
+            <li><a href="kruskal.html">Kruskal</a></li>
+            <li><a href="compet.html">Compet</a></li>
+            <li><a href="contactos.html">Contactos</a></li>
+        </ul>
+    </nav>
+
+    <div id="heading">
+        <h1 style="display: inline;">Kruskal</h1>
+    </div>
+    
+    <div style="display: inline-flex; align-items: left;width:100%;background-color: rgb(43, 51, 98);color: white;padding-right:5%">
+        <button id="ayudaBtn" onclick="ayudagraf()" class="btn btn-primary custom-btn" style="border-radius: 45%; font-size: 50px;background-color: rgb(110, 241, 241);color: white;padding-bottom:1%;margin:1%"><b>?</b></button>
+        <div style="color: aliceblue; font-family: 'Times New Roman', serif; padding-left: 20px; font-size: 40px;margin-right:5%;margin:1%">
+            <p style="font-size: 30px; font-family: 'Times New Roman', Times, serif;">Si tienes dudas puedes recurrir a nuestra sección de ayuda</p>
+        </div>
+    </div>
+    
+    <section class="wrapper">
+        <div class="side-buttons" style="color: white;">
+            <button onclick="agregarNodo()" class="custom-btn" style="background-color: rgb(129, 34, 34);color: white;">Agregar Nodo</button>
+            <button onclick="eliminarNodo()" class="custom-btn"style="background-color: rgb(199, 85, 23);color: white;">Eliminar Nodo</button>
+            <button onclick="cambiarNombre()" class="custom-btn"style="background-color: #c7a117;color: white;">Cambiar Nombre</button>
+            <input type="file" id="inputArchivo" accept=".json" class="custom-btn" style="background-color: #5da13b;margin-top:5%;margin-bottom:5%;padding:5%;font-size:50%">
+            <button onclick="guardarGrafo()" class="custom-btn" style="background-color: hsl(205, 46%, 43%);color: white;">Guardar Grafo</button>
+            <button onclick="cargarGrafo()" class="custom-btn" style="background-color: rgb(30, 39, 140);color: white;padding-left:1%;padding-right:1%;">Cargar Grafo</button>
+            <button onclick="generarYMostrarMatriz()" class="custom-btn" style="background-color: rgb(97, 33, 161);color: white;padding-left:1%;padding-right:1%;">Matriz de Adyencia</button>
+            <button onclick="kruskal()" class="custom-btn" style="background-color: rgb(56, 103, 214);color: white;">Kruskal menor</button>
+            <button onclick="kruskalWithHighestWeight()" class="custom-btn" style="background-color: rgb(56, 103, 214);color: white;">Kruskal mayor</button>
+        </div>
+        <div id="result"></div>
+        <center>
+            <div id="cont">
+                <div id="tablaXiYi" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+                <div id="tablaHolguras" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+                <div id="lienzo" style="width: 75%; height: 700px;background-color:rgb(251, 251, 248);margin: left 2%;border-radius:50px;"></div>
+                <div id="matriz" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+                <div id="listaHolguras" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div> 
+                <div style="color: white;" id="sumaAristas"></div>
+            </div>
+        </center>
+        
+        <script src="assets/js/kruskal.js" defer></script>
+        <script src="assets/js/vis_network.js" defer></script>
+    </section>
+
+    <footer id="footer">
+        <h3>
+            Grafos: Análisis de Algoritmos MAT-361
+            <br>
+            © 2024
+        </h3>
+    </footer>
+
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/browser.min.js"></script>
+    <script src="assets/js/breakpoints.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/main.js"></script>
+
+    <script>
+        // Código JavaScript integrado para manejar el grafo usando vis.js
+
+        let grafo;
+        let nodosDataSet;
+        let aristasDataSet;
+        let seleccionado;
+        let modoEliminarArista = false;
+        let modoAgregarNodo = false;
+
+        function inicializarGrafo() {
+            const lienzo = document.getElementById('lienzo');
+            nodosDataSet = new vis.DataSet();
+            aristasDataSet = new vis.DataSet();
+            const data = { nodes: nodosDataSet, edges: aristasDataSet };
+            const opciones = {
+                physics: {
+                    enabled: true,
+                },
+                edges: {
+                    smooth: false,
+                }
+            };
+            grafo = new vis.Network(lienzo, data, opciones);
+
+            grafo.on('click', clicEnNodo);
+            grafo.on('doubleClick', dobleClicEnArista);
+            grafo.on('click', eliminarAristaSeleccionada);
+        }
+
+        function clicEnNodo(propiedades) {
+            const { nodes } = propiedades;
+            if (modoAgregarNodo) {
+                const nuevoNodoId = prompt('Ingrese el ID del nuevo nodo:');
+                const nuevaEtiqueta = prompt('Ingrese la etiqueta del nuevo nodo:');
+                nodosDataSet.add({ id: nuevoNodoId, label: nuevaEtiqueta });
+                modoAgregarNodo = false;
+            } else if (nodes.length > 0) {
+                seleccionado = nodes[0];
+            } else {
+                seleccionado = null;
+            }
+        }
+
+        function dobleClicEnArista(propiedades) {
+            const { edges } = propiedades;
+            if (edges.length > 0) {
+                const aristaSeleccionada = edges[0];
+                const nuevoPeso = prompt('Ingrese el nuevo peso de la arista:');
+                aristasDataSet.update({ id: aristaSeleccionada, label: nuevoPeso, weight: parseFloat(nuevoPeso) });
+            }
+        }
+
+        function agregarNodo() {
+            modoAgregarNodo = true;
+        }
+
+        function eliminarNodo() {
+            if (seleccionado) {
+                nodosDataSet.remove(seleccionado);
+                seleccionado = null;
+            } else {
+                alert('Seleccione un nodo primero.');
+            }
+        }
+
+        function cambiarNombre() {
+            if (seleccionado) {
+                const nuevoNombre = prompt('Ingrese el nuevo nombre:');
+                nodosDataSet.update({ id: seleccionado, label: nuevoNombre });
+            } else {
+                alert('Seleccione un nodo primero.');
+            }
+        }
+
+        function guardarGrafo() {
+            const nombreGrafo = prompt('Ingrese el nombre para guardar el grafo:');
+            if (nombreGrafo) {
+                const grafoJSON = JSON.stringify({
+                    nodos: nodosDataSet.get(),
+                    aristas: aristasDataSet.get(),
+                });
+                localStorage.setItem(nombreGrafo, grafoJSON);
+                alert(`Grafo guardado como "${nombreGrafo}"`);
+            }
+        }
+
+        function cargarGrafo() {
+            const nombreGrafo = prompt('Ingrese el nombre del grafo para cargar:');
+            const grafoJSON = localStorage.getItem(nombreGrafo);
+            if (grafoJSON) {
+                const grafo = JSON.parse(grafoJSON);
+                nodosDataSet.clear();
+                aristasDataSet.clear();
+                nodosDataSet.add(grafo.nodos);
+                aristasDataSet.add(grafo.aristas);
+                alert(`Grafo "${nombreGrafo}" cargado`);
+            } else {
+                alert(`No se encontró un grafo guardado con el nombre "${nombreGrafo}"`);
+            }
+        }
+
+        function generarMatriz() {
+            const nodos = nodosDataSet.get();
+            const aristas = aristasDataSet.get();
+            const matriz = Array(nodos.length).fill().map(() => Array(nodos.length).fill(0));
+            aristas.forEach(arista => {
+                const fromIndex = nodos.findIndex(nodo => nodo.id === arista.from);
+                const toIndex = nodos.findIndex(nodo => nodo.id === arista.to);
+                matriz[fromIndex][toIndex] = arista.weight;
+                matriz[toIndex][fromIndex] = arista.weight;
+            });
+            return matriz;
+        }
+
+        function mostrarMatriz(nodos, matriz, sumasFilas, sumasColumnas) {
+            let html = '<table>';
+            html += '<tr><th></th>';
+            nodos.forEach(nodo => html += `<th>${nodo.label}</th>`);
+            html += '<th>Suma Filas</th></tr>';
+            matriz.forEach((fila, i) => {
+                html += `<tr><th>${nodos[i].label}</th>`;
+                fila.forEach(valor => html += `<td>${valor}</td>`);
+                html += `<td>${sumasFilas[i]}</td></tr>`;
+            });
+            html += '<tr><th>Suma Columnas</th>';
+            sumasColumnas.forEach(suma => html += `<td>${suma}</td>`);
+            html += '</tr></table>';
+            document.getElementById('matriz').innerHTML = html;
+        }
+
+        function generarYMostrarMatriz() {
+            const nodos = nodosDataSet.get({ fields: ['id', 'label'] });
+            const matriz = generarMatriz();
+            const sumasFilas = matriz.map(fila => fila.reduce((a, b) => a + b, 0));
+            const sumasColumnas = matriz[0].map((_, colIndex) => matriz.reduce((a, b) => a + b[colIndex], 0));
+            mostrarMatriz(nodos, matriz, sumasFilas, sumasColumnas);
+        }
+
+        window.onload = inicializarGrafo;
+    </script>
+</body>
+</html>
