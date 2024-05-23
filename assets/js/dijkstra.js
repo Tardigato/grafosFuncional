@@ -7,6 +7,13 @@ let modoEliminarArista = false;
 let modoAgregarNodo = false;
 
 
+
+
+
+
+
+
+
 // Función para inicializar el grafo
 function inicializarGrafo() {
   const lienzo = document.getElementById('lienzo');
@@ -152,8 +159,39 @@ function eliminarNodo() {
 
 
 
+// ... Tu código JavaScript existente ...
 
-// Call this function when you want to find the shortest path
+// Función para permitir al usuario seleccionar los nodos de inicio y destino
+function seleccionarNodosInicioFin() {
+  const nombreNodoInicio = prompt('Ingrese el nombre del nodo de inicio:');
+  const nombreNodoFin = prompt('Ingrese el nombre del nodo de destino:');
+
+  // Buscar los IDs de los nodos correspondientes a los nombres ingresados
+  let startNodeId = null;
+  let endNodeId = null;
+  nodosDataSet.forEach(node => {
+    if (node.label === nombreNodoInicio) {
+      startNodeId = node.id;
+    }
+    if (node.label === nombreNodoFin) {
+      endNodeId = node.id;
+    }
+  });
+
+  // Verificar si se encontraron los nodos
+  if (startNodeId !== null && endNodeId !== null) {
+    // Ejecutar el algoritmo de Dijkstra con los nodos seleccionados
+    const shortestPath = dijkstra(aristasDataSet.get(), nodosDataSet.get(), startNodeId);
+    // Aquí puedes hacer lo que quieras con el resultado, como resaltar el camino más corto en el grafo.
+  } else {
+    alert('Los nombres de los nodos ingresados no son válidos.');
+  }
+}
+
+// Asociar la función seleccionarNodosInicioFin al evento de clic del botón
+document.getElementById('botonEjecutarDijkstra').addEventListener('click', seleccionarNodosInicioFin);
+
+// ... Tu código JavaScript existente ...
 
 
 
@@ -455,19 +493,12 @@ function resetNodeLabels() {
 
 
 
-
-
-
-
-
-
-
 // Function to run Dijkstra's algorithm and return the shortest path edges
 // Function to run Dijkstra's algorithm and return the shortest path edges
 function runDijkstra() {
     resetNodeLabels();
 
-    const startNodeId = nodosDataSet.get()[0].id; // Assuming the first node is the start node
+    const startNodeId = startNodeIdin; // Assuming the first node is the start node
     const nodos = nodosDataSet.get({ fields: ['id', 'label'] });
     const aristas = aristasDataSet.get({ fields: ['id', 'from', 'to', 'label'] });
     const distances = dijkstra(aristas, nodos, startNodeId);
@@ -545,8 +576,6 @@ nodos.forEach(node => {
         }
     });
 }
-
-
 
 // Function to run Dijkstra's algorithm and return the longest path edges
 function longestPathDijkstra(aristas, nodos, startNodeId) {
