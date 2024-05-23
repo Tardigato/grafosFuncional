@@ -53,38 +53,7 @@
                 data: matrix
             };
         }
-        
-        // Function to save graph
-        function guardarGrafo() {
-            const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar el grafo:', 'grafo');
-            if (nombreArchivo !== null) {
-                const grafoJSON = JSON.stringify(getMatrixData());
-                const blob = new Blob([grafoJSON], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = nombreArchivo + '.json';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            }
-        }
 
-        function cargarGrafo() {
-            const inputArchivo = document.getElementById('inputArchivo');
-            const file = inputArchivo.files[0];
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const contenido = event.target.result;
-                const datos = JSON.parse(contenido);
-                nodosDataSet.clear();
-                aristasDataSet.clear();
-                nodosDataSet.add(datos.nodos);
-                aristasDataSet.add(datos.aristas);
-            };
-            reader.readAsText(file);
-        }
     </script>
     
     <style>

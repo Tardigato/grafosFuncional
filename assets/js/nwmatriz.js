@@ -62,9 +62,6 @@ function extractMatrixDataFromForm() {
 }
 
 
-
-
-// Function to save the graph
 // Function to save the graph
 function guardarGrafo(matrix) {
     // Prompt user for file name
