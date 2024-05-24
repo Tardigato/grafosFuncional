@@ -117,7 +117,7 @@ function agregarOrigen() {
       const ofertaNodo = prompt('Ingrese la oferta:');
       const position = event.pointer.canvas;
       const nuevoId = nodosDataSet.length + 1;
-      nodosDataSet.add({ id: nuevoId, label: `O${contadorOrigen}: ${ofertaNodo}`, x: position.x, y: position.y, oferta: ofertaNodo });
+      nodosDataSet.add({ id: nuevoId, label: `O${contadorOrigen}: ${ofertaNodo}`, nombre: `O${contadorOrigen}`, x: position.x, y: position.y, oferta: ofertaNodo }); //label se muestra en el lienzo y nombre es para generar la tabla de northwest
       grafo.off('click');
       grafo.on('click', clicEnNodo);
       modoAgregarNodo = false;
@@ -135,7 +135,7 @@ function agregarDestino() {
       const demandaNodo = prompt('Ingrese la demanda:');
       const position = event.pointer.canvas;
       const nuevoId = nodosDataSet.length + 1;
-      nodosDataSet.add({ id: nuevoId, label: `D${contadorDestino}: ${demandaNodo}`, x: position.x, y: position.y, demanda: demandaNodo });
+      nodosDataSet.add({ id: nuevoId, label: `D${contadorDestino}: ${demandaNodo}`, nombre: `D${contadorDestino}`, x: position.x, y: position.y, demanda: demandaNodo });
       grafo.off('click');
       grafo.on('click', clicEnNodo);
       modoAgregarNodo = false;
@@ -234,3 +234,67 @@ function cargarGrafo() {
   };
   reader.readAsText(file);
 }
+
+///DESDE AQUÍ TODO LO PROPIO DE NORTHWEST
+eleccion = 0;
+
+function mostrarSeleccion() { //solo para ver si está o no seleccionado
+  if(eleccion == 1)
+    console.log("MÁXIMO");
+  else
+    console.log("MÍNIMO");
+}
+
+function cambiarSeleccion(valor) {
+  eleccion = valor;
+  mostrarSeleccion(); // Llama a esta función para mostrar la selección actual
+}
+
+function noroeste(){
+  generarTablaNorthwest();
+}
+
+function generarTablaNorthwest() {
+  const nodos = nodosDataSet.get();
+  const origenes = nodos.filter(nodo => nodo.label.startsWith('O'));
+  const destinos = nodos.filter(nodo => nodo.label.startsWith('D'));
+  
+  // Crear la tabla
+  let tablaHTML = '<table border="1" style="width: 100%; border-collapse: collapse; text-align: center;">';
+  
+  // Crear la fila de encabezado
+  tablaHTML += '<tr><th></th>';
+  destinos.forEach(destino => {
+      tablaHTML += `<th>${destino.nombre}</th>`;
+  });
+  tablaHTML += '<th>Oferta</th></tr>';
+  
+  // Crear las filas de origen
+  origenes.forEach(origen => {
+      tablaHTML += `<tr><th>${origen.nombre}</th>`;
+      destinos.forEach(destino => {
+          const arista = aristasDataSet.get({
+            filter: edge => edge.from === origen.id && edge.to === destino.id
+          });
+          let valor = '0';
+          if (arista.length > 0) {
+              valor = arista[0].label || '0';
+          }
+          tablaHTML += `<td contenteditable="true">${valor}</td>`;
+      });
+      tablaHTML += `<td>${origen.oferta}</td></tr>`;
+  });
+
+  // Crear la fila de demanda
+  tablaHTML += '<tr><th>Demanda</th>';
+  destinos.forEach(destino => {
+      tablaHTML += `<td>${destino.demanda}</td>`;
+  });
+  tablaHTML += '<td></td></tr>';
+  
+  tablaHTML += '</table>';
+
+  // Mostrar la tabla en el contenedor
+  document.getElementById('northwest_usuario').innerHTML = tablaHTML;
+}
+

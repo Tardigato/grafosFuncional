@@ -103,8 +103,6 @@
             <button onclick="guardarGrafo()" class="custom-btn" style="background-color: hsl(205, 46%, 43%);color: white;">Guardar Grafo</button>
             <!-- Algoritmo Northwest button -->
             <button onclick="cargarGrafo()" class="custom-btn" style="background-color: rgb(30, 39, 140);color: white;padding-left:1%;padding-right:1%;">Cargar Grafo</button>
-            <!-- Generar Matriz -->
-            <button onclick="generarMatriz()" class="custom-btn" style="background-color: rgb(97, 33, 161);color: white;padding-left:1%;padding-right:1%;">Matriz de Adyencia</button>
             
             <section>
                 <input type="radio" id="minimo" name="radio" checked onclick="cambiarSeleccion(0)"><label for="minimo">MÍNIMO</label>    
@@ -123,7 +121,8 @@
             <div id="cont">
             <div id="lienzo" style="width: 65%; height: 600px;background-color:rgb(248, 248, 251);margin: left 2%;border-radius:40px;"></div>
             <div id="matriz" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
-            <div id="matriz_asignacion" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+            <div id="northwest_usuario" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+            <div id="northwest_solucion" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
             <div id="optimo" style="background-color: rgb(120, 193, 241); margin: 20px; margin-left: 250px; margin-right: 250px;">
                 <span style="font-size: 35px; color: black;">Óptimo = </span><span id="optimo-valor" style="font-size: 35px; color: black;"> .... </span>
             </div>
