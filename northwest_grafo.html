@@ -108,12 +108,14 @@
                 <input type="radio" id="minimo" name="radio" checked onclick="cambiarSeleccion(0)"><label for="minimo">MÍNIMO</label>    
                 <input type="radio" id="maximo" name="radio" onclick="cambiarSeleccion(1)"><label for="maximo">MÁXIMO</label>
             </section>
-            -->
+            
             <button onclick="noroeste()" class="custom-btn" style="background-color: rgb(111, 18, 52);color: white;padding-left:1%;padding-right:1%;">Northwest</button>
             <button onclick="voguel_max()" class="custom-btn" style="background-color: rgb(111, 18, 52);color: white;padding-left:1%;padding-right:1%;">Voguel Max</button>
             <button onclick="voguel_min()" class="custom-btn" style="background-color: rgb(111, 18, 52);color: white;padding-left:1%;padding-right:1%;">Voguel MIn</button>
+            -->
 
-
+            <button onclick="noroeste_max()" class="custom-btn" style="background-color: rgb(18, 111, 80);color: white;padding-left:1%;padding-right:1%;">Northwest Max</button>
+            <button onclick="noroeste_min()" class="custom-btn" style="background-color: rgb(18, 111, 80);color: white;padding-left:1%;padding-right:1%;">Northwest Min</button>
         </div>
         
         <!-- Contenedor para el lienzo y la matriz -->
@@ -122,14 +124,20 @@
             <div id="cont">
             <div id="lienzo" style="width: 65%; height: 600px;background-color:rgb(248, 248, 251);margin: left 2%;border-radius:30px;"></div>
             <div id="matriz" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+            
             <div id="matriz_costos" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+
+            <div id='findOptimal'></div>
+            
+            <div id="northwest1" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+            <div id="northwest_max" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+            <div id="northwest_min" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+            
+            <!--
             <div id="northwest" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
             <div id="voguel_max" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
             <div id="voguel_min" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
-            
-            <div id="optimo" style="background-color: rgb(182, 226, 255); margin: 20px; margin-left: 250px; margin-right: 250px;">
-                <span style="font-size: 25px; color: black;">Óptimo = </span><span id="optimo-valor" style="font-size: 25px; color: black;"> .... </span>
-            </div>
+            -->
             
           </div>
         </center>
@@ -156,7 +164,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.min.js"></script>
-    
-    
 </body>
 </html>
