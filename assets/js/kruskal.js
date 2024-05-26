@@ -15,7 +15,7 @@ function inicializarGrafo() {
   const data = { nodes: nodosDataSet, edges: aristasDataSet };
   const opciones = {
   physics: {
-    enabled: true,
+    enabled: false,
   },
   edges:{
     smooth: false,

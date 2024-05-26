@@ -11,7 +11,14 @@ function inicializarGrafo() {
     nodosDataSet = new vis.DataSet();
     aristasDataSet = new vis.DataSet();
     const data = { nodes: nodosDataSet, edges: aristasDataSet };
-    const opciones = { };
+    const opciones = { 
+        physics: {
+            enabled: false // Desactivando con false
+          },
+          edges:{
+            smooth: false,
+          }
+    };
     grafo = new vis.Network(lienzo, data, opciones);
 
     grafo.on('click', clicNodo);
