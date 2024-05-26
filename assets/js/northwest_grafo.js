@@ -434,8 +434,8 @@ function generarVoguelMin() {
   // Aplicar el método de Voguel para minimización
   while (ofertas.some(oferta => oferta > 0) && demandas.some(demanda => demanda > 0)) {
     // Calcular penalizaciones
-    let penalizacionesFilas = ofertas.map((_, i) => calcularPenalizacion(costos[i]));
-    let penalizacionesColumnas = demandas.map((_, j) => calcularPenalizacion(costos.map(fila => fila[j])));
+    let penalizacionesFilas = ofertas.map((_, i) => calcularPenalizacionMin(costos[i]));
+    let penalizacionesColumnas = demandas.map((_, j) => calcularPenalizacionMin(costos.map(fila => fila[j])));
 
     // Encontrar la mayor penalización
     let maxPenalizacion = Math.max(...penalizacionesFilas, ...penalizacionesColumnas);
@@ -452,27 +452,22 @@ function generarVoguelMin() {
     // Asignar demanda y oferta
     if (esFila) {
       let j = costos[maxIndice].indexOf(Math.min(...costos[maxIndice]));
-      if (ofertas[maxIndice] <= demandas[j]) {
-        solucion[maxIndice][j] = ofertas[maxIndice];
-        demandas[j] -= ofertas[maxIndice];
-        ofertas[maxIndice] = 0;
-      } else {
-        solucion[maxIndice][j] = demandas[j];
-        ofertas[maxIndice] -= demandas[j];
-        demandas[j] = 0;
-      }
+      let cantidad = Math.min(ofertas[maxIndice], demandas[j]);
+      solucion[maxIndice][j] = cantidad;
+      demandas[j] -= cantidad;
+      ofertas[maxIndice] -= cantidad;
     } else {
       let i = costos.map(fila => fila[maxIndice]).indexOf(Math.min(...costos.map(fila => fila[maxIndice])));
-      if (ofertas[i] <= demandas[maxIndice]) {
-        solucion[i][maxIndice] = ofertas[i];
-        demandas[maxIndice] -= ofertas[i];
-        ofertas[i] = 0;
-      } else {
-        solucion[i][maxIndice] = demandas[maxIndice];
-        ofertas[i] -= demandas[maxIndice];
-        demandas[maxIndice] = 0;
-      }
+      let cantidad = Math.min(ofertas[i], demandas[maxIndice]);
+      solucion[i][maxIndice] = cantidad;
+      demandas[maxIndice] -= cantidad;
+      ofertas[i] -= cantidad;
     }
+
+    // Filtrar y remover filas/columnas totalmente asignadas para evitar redundancia
+    costos = costos.filter((fila, i) => ofertas[i] > 0).map((fila, i) => fila.filter((_, j) => demandas[j] > 0));
+    ofertas = ofertas.filter(oferta => oferta > 0);
+    demandas = demandas.filter(demanda => demanda > 0);
   }
 
   // Crear la tabla para mostrar la solución
@@ -507,7 +502,7 @@ function generarVoguelMin() {
   document.getElementById('voguel_min').innerHTML = tablaHTML;
 }
 
-function calcularPenalizacion(costos) {
+function calcularPenalizacionMin(costos) {
   let min1 = Infinity, min2 = Infinity;
   for (let costo of costos) {
     if (costo < min1) {
@@ -550,18 +545,20 @@ function generarVoguelMax() {
 
   console.log("Mensaje fuera del 1er bucle para comprobar donde falla (bucle de origenes)");
 
-
   destinos.forEach(destino => {
     demandas.push(parseInt(destino.demanda));
   });
   console.log("Mensaje fuera del 2er bucle para comprobar donde falla (bucle de destinos)");
 
-
   // Matriz de solución inicializada en ceros
   let solucion = Array(origenes.length).fill().map(() => Array(destinos.length).fill(0));
 
+  let comprobar = 0;
   // Aplicar el método de Voguel para maximización
   while (ofertas.some(oferta => oferta > 0) && demandas.some(demanda => demanda > 0)) {
+    comprobar++;
+    console.log("Mensaje dentro del 3er bucle " + comprobar);
+
     // Calcular penalizaciones
     let penalizacionesFilas = ofertas.map((_, i) => calcularPenalizacionMax(costos[i]));
     let penalizacionesColumnas = demandas.map((_, j) => calcularPenalizacionMax(costos.map(fila => fila[j])));
@@ -581,27 +578,22 @@ function generarVoguelMax() {
     // Asignar demanda y oferta
     if (esFila) {
       let j = costos[maxIndice].indexOf(Math.max(...costos[maxIndice]));
-      if (ofertas[maxIndice] <= demandas[j]) {
-        solucion[maxIndice][j] = ofertas[maxIndice];
-        demandas[j] -= ofertas[maxIndice];
-        ofertas[maxIndice] = 0;
-      } else {
-        solucion[maxIndice][j] = demandas[j];
-        ofertas[maxIndice] -= demandas[j];
-        demandas[j] = 0;
-      }
+      let cantidad = Math.min(ofertas[maxIndice], demandas[j]);
+      solucion[maxIndice][j] = cantidad;
+      demandas[j] -= cantidad;
+      ofertas[maxIndice] -= cantidad;
     } else {
       let i = costos.map(fila => fila[maxIndice]).indexOf(Math.max(...costos.map(fila => fila[maxIndice])));
-      if (ofertas[i] <= demandas[maxIndice]) {
-        solucion[i][maxIndice] = ofertas[i];
-        demandas[maxIndice] -= ofertas[i];
-        ofertas[i] = 0;
-      } else {
-        solucion[i][maxIndice] = demandas[maxIndice];
-        ofertas[i] -= demandas[maxIndice];
-        demandas[maxIndice] = 0;
-      }
+      let cantidad = Math.min(ofertas[i], demandas[maxIndice]);
+      solucion[i][maxIndice] = cantidad;
+      demandas[maxIndice] -= cantidad;
+      ofertas[i] -= cantidad;
     }
+
+    // Filtrar y remover filas/columnas totalmente asignadas para evitar redundancia
+    costos = costos.filter((fila, i) => ofertas[i] > 0).map((fila, i) => fila.filter((_, j) => demandas[j] > 0));
+    ofertas = ofertas.filter(oferta => oferta > 0);
+    demandas = demandas.filter(demanda => demanda > 0);
   }
 
   // Crear la tabla para mostrar la solución
