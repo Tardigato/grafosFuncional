@@ -396,16 +396,255 @@ function voguel_min(){
   generarVoguelMin();
 }
 
-function generarVoguelMax(){
 
+function generarVoguelMin() {
+  console.log("Voguel Minimo seleccionado");
+  const nodos = nodosDataSet.get();
+  const origenes = nodos.filter(nodo => nodo.label.startsWith('O'));
+  const destinos = nodos.filter(nodo => nodo.label.startsWith('D'));
+
+  // Crear una matriz de costos y obtener las ofertas y demandas
+  let costos = [];
+  let ofertas = [];
+  let demandas = [];
+
+  origenes.forEach(origen => {
+    let filaCostos = [];
+    destinos.forEach(destino => {
+      const arista = aristasDataSet.get({
+        filter: edge => edge.from === origen.id && edge.to === destino.id
+      });
+      let valor = 0;
+      if (arista.length > 0) {
+        valor = parseInt(arista[0].label || '0');
+      }
+      filaCostos.push(valor);
+    });
+    costos.push(filaCostos);
+    ofertas.push(parseInt(origen.oferta));
+  });
+
+  destinos.forEach(destino => {
+    demandas.push(parseInt(destino.demanda));
+  });
+
+  // Matriz de solución inicializada en ceros
+  let solucion = Array(origenes.length).fill().map(() => Array(destinos.length).fill(0));
+
+  // Aplicar el método de Voguel para minimización
+  while (ofertas.some(oferta => oferta > 0) && demandas.some(demanda => demanda > 0)) {
+    // Calcular penalizaciones
+    let penalizacionesFilas = ofertas.map((_, i) => calcularPenalizacion(costos[i]));
+    let penalizacionesColumnas = demandas.map((_, j) => calcularPenalizacion(costos.map(fila => fila[j])));
+
+    // Encontrar la mayor penalización
+    let maxPenalizacion = Math.max(...penalizacionesFilas, ...penalizacionesColumnas);
+    let maxIndice;
+    let esFila = false;
+
+    if (penalizacionesFilas.includes(maxPenalizacion)) {
+      esFila = true;
+      maxIndice = penalizacionesFilas.indexOf(maxPenalizacion);
+    } else {
+      maxIndice = penalizacionesColumnas.indexOf(maxPenalizacion);
+    }
+
+    // Asignar demanda y oferta
+    if (esFila) {
+      let j = costos[maxIndice].indexOf(Math.min(...costos[maxIndice]));
+      if (ofertas[maxIndice] <= demandas[j]) {
+        solucion[maxIndice][j] = ofertas[maxIndice];
+        demandas[j] -= ofertas[maxIndice];
+        ofertas[maxIndice] = 0;
+      } else {
+        solucion[maxIndice][j] = demandas[j];
+        ofertas[maxIndice] -= demandas[j];
+        demandas[j] = 0;
+      }
+    } else {
+      let i = costos.map(fila => fila[maxIndice]).indexOf(Math.min(...costos.map(fila => fila[maxIndice])));
+      if (ofertas[i] <= demandas[maxIndice]) {
+        solucion[i][maxIndice] = ofertas[i];
+        demandas[maxIndice] -= ofertas[i];
+        ofertas[i] = 0;
+      } else {
+        solucion[i][maxIndice] = demandas[maxIndice];
+        ofertas[i] -= demandas[maxIndice];
+        demandas[maxIndice] = 0;
+      }
+    }
+  }
+
+  // Crear la tabla para mostrar la solución
+  let tablaHTML = '<table border="1" style="width: 100%; border-collapse: collapse; text-align: center;">';
+
+  // Crear la fila de encabezado
+  tablaHTML += '<tr><th></th>';
+  destinos.forEach(destino => {
+    tablaHTML += `<th>${destino.nombre}</th>`;
+  });
+  tablaHTML += '<th>Oferta</th></tr>';
+
+  // Crear las filas de solución
+  origenes.forEach((origen, i) => {
+    tablaHTML += `<tr><th>${origen.nombre}</th>`;
+    destinos.forEach((destino, j) => {
+      tablaHTML += `<td>${solucion[i][j]}</td>`;
+    });
+    tablaHTML += `<td>${origen.oferta}</td></tr>`;
+  });
+
+  // Crear la fila de demanda
+  tablaHTML += '<tr><th>Demanda</th>';
+  destinos.forEach(destino => {
+    tablaHTML += `<td>${destino.demanda}</td>`;
+  });
+  tablaHTML += '<td></td></tr>';
+
+  tablaHTML += '</table>';
+
+  // Mostrar la tabla en el contenedor
+  document.getElementById('voguel_min').innerHTML = tablaHTML;
+}
+
+function calcularPenalizacion(costos) {
+  let min1 = Infinity, min2 = Infinity;
+  for (let costo of costos) {
+    if (costo < min1) {
+      min2 = min1;
+      min1 = costo;
+    } else if (costo < min2) {
+      min2 = costo;
+    }
+  }
+  return min2 - min1;
+}
+
+function generarVoguelMax() {
+  console.log("Voguel Maximo seleccionado");
+  const nodos = nodosDataSet.get();
+  const origenes = nodos.filter(nodo => nodo.label.startsWith('O'));
+  const destinos = nodos.filter(nodo => nodo.label.startsWith('D'));
+
+  // Crear una matriz de costos y obtener las ofertas y demandas
+  let costos = [];
+  let ofertas = [];
+  let demandas = [];
+  console.log("Mensaje2 para comprobar donde falla");
+
+  origenes.forEach(origen => {
+    let filaCostos = [];
+    destinos.forEach(destino => {
+      const arista = aristasDataSet.get({
+        filter: edge => edge.from === origen.id && edge.to === destino.id
+      });
+      let valor = 0;
+      if (arista.length > 0) {
+        valor = parseInt(arista[0].label || '0');
+      }
+      filaCostos.push(valor);
+    });
+    costos.push(filaCostos);
+    ofertas.push(parseInt(origen.oferta));
+  });
+
+  console.log("Mensaje fuera del 1er bucle para comprobar donde falla (bucle de origenes)");
+
+
+  destinos.forEach(destino => {
+    demandas.push(parseInt(destino.demanda));
+  });
+  console.log("Mensaje fuera del 2er bucle para comprobar donde falla (bucle de destinos)");
+
+
+  // Matriz de solución inicializada en ceros
+  let solucion = Array(origenes.length).fill().map(() => Array(destinos.length).fill(0));
+
+  // Aplicar el método de Voguel para maximización
+  while (ofertas.some(oferta => oferta > 0) && demandas.some(demanda => demanda > 0)) {
+    // Calcular penalizaciones
+    let penalizacionesFilas = ofertas.map((_, i) => calcularPenalizacionMax(costos[i]));
+    let penalizacionesColumnas = demandas.map((_, j) => calcularPenalizacionMax(costos.map(fila => fila[j])));
+
+    // Encontrar la mayor penalización
+    let maxPenalizacion = Math.max(...penalizacionesFilas, ...penalizacionesColumnas);
+    let maxIndice;
+    let esFila = false;
+
+    if (penalizacionesFilas.includes(maxPenalizacion)) {
+      esFila = true;
+      maxIndice = penalizacionesFilas.indexOf(maxPenalizacion);
+    } else {
+      maxIndice = penalizacionesColumnas.indexOf(maxPenalizacion);
+    }
+
+    // Asignar demanda y oferta
+    if (esFila) {
+      let j = costos[maxIndice].indexOf(Math.max(...costos[maxIndice]));
+      if (ofertas[maxIndice] <= demandas[j]) {
+        solucion[maxIndice][j] = ofertas[maxIndice];
+        demandas[j] -= ofertas[maxIndice];
+        ofertas[maxIndice] = 0;
+      } else {
+        solucion[maxIndice][j] = demandas[j];
+        ofertas[maxIndice] -= demandas[j];
+        demandas[j] = 0;
+      }
+    } else {
+      let i = costos.map(fila => fila[maxIndice]).indexOf(Math.max(...costos.map(fila => fila[maxIndice])));
+      if (ofertas[i] <= demandas[maxIndice]) {
+        solucion[i][maxIndice] = ofertas[i];
+        demandas[maxIndice] -= ofertas[i];
+        ofertas[i] = 0;
+      } else {
+        solucion[i][maxIndice] = demandas[maxIndice];
+        ofertas[i] -= demandas[maxIndice];
+        demandas[maxIndice] = 0;
+      }
+    }
+  }
+
+  // Crear la tabla para mostrar la solución
+  let tablaHTML = '<table border="1" style="width: 100%; border-collapse: collapse; text-align: center;">';
+
+  // Crear la fila de encabezado
+  tablaHTML += '<tr><th></th>';
+  destinos.forEach(destino => {
+    tablaHTML += `<th>${destino.nombre}</th>`;
+  });
+  tablaHTML += '<th>Oferta</th></tr>';
+
+  // Crear las filas de solución
+  origenes.forEach((origen, i) => {
+    tablaHTML += `<tr><th>${origen.nombre}</th>`;
+    destinos.forEach((destino, j) => {
+      tablaHTML += `<td>${solucion[i][j]}</td>`;
+    });
+    tablaHTML += `<td>${origen.oferta}</td></tr>`;
+  });
+
+  // Crear la fila de demanda
+  tablaHTML += '<tr><th>Demanda</th>';
+  destinos.forEach(destino => {
+    tablaHTML += `<td>${destino.demanda}</td>`;
+  });
+  tablaHTML += '<td></td></tr>';
+
+  tablaHTML += '</table>';
 
   // Mostrar la tabla en el contenedor
   document.getElementById('voguel_max').innerHTML = tablaHTML;
 }
 
-function generarVoguelMin(){
-
-
-  // Mostrar la tabla en el contenedor
-  document.getElementById('voguel_min').innerHTML = tablaHTML;
+function calcularPenalizacionMax(costos) {
+  let max1 = -Infinity, max2 = -Infinity;
+  for (let costo of costos) {
+    if (costo > max1) {
+      max2 = max1;
+      max1 = costo;
+    } else if (costo > max2) {
+      max2 = costo;
+    }
+  }
+  return max1 - max2;
 }
