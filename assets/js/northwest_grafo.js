@@ -227,7 +227,7 @@ function cargarGrafo() {
 }
 
 /// DESDE AQUÍ TODO LO PROPIO DE NORTHWEST
-//matriz_costos_auxiliar = [];
+matriz_costos_auxiliar = [];
 function noroeste_max() {
   generarTablaCostos();
   doAlgorithm();
@@ -468,8 +468,10 @@ function getValuesFromMatrix(){
 
   //after the function makeForm has acted
   //works and gets supply and demand amounts as separate arrays
-  rows = Math.abs(parseInt(document.sizeForm.rowValue.value))||5;
-  cols = Math.abs(parseInt(document.sizeForm.colValue.value))||7;
+  
+  //HAY QUE CAMBIAR ESTO PARA QUE LEA LOS NODOS
+  rows = 3;
+  cols = 3;
   m = new matrix(rows, cols);
   for(var i=0;i<m.r;i++){
     for(var j=0;j<m.c;j++){
