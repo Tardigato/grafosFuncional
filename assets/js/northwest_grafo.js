@@ -250,6 +250,8 @@ function cambiarSeleccion(valor) {
   mostrarSeleccion(); // Llama a esta función para mostrar la selección actual
 }
 
+
+
 // Función para clonar una matriz
 function clonarMatriz(matriz) {
   return matriz.map(fila => fila.slice());
@@ -386,6 +388,9 @@ function generarNorthwestSolucion() {
   document.getElementById('northwest').innerHTML = tablaHTML;
 }
 
+
+
+//VOGEL, por si acaso, no funcione :(
 function voguel_max(){
   generarTablaCostos();
   generarVoguelMax();
