@@ -2,22 +2,27 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Asignación</title>
+    <title>Dijkstra</title>
     <meta charset="utf-8">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <meta name="description" content="">
     <meta name="keywords" content="">
     <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/contactos.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.min.js"></script>
+
     <script>
-        function regresarAIndex() {
-            window.location.href = 'index.html';
-        }
-        function ayudagraf() {
-          window.open('paginahelp.html', 'Ayuda', 'width=800,height=600');
-          //window.location.href = 'paginahelp.html';
-      };
-    </script>
+      function regresarAIndex() {
+          window.location.href = 'index.html';
+      }
+      function ayudagraf() {
+        window.open('kruskalhelp.html', 'Ayuda', 'width=800,height=600');
+        //window.location.href = 'kruskalhelp.html';
+    };
+  </script>
+    
     <style>
         /* Custom styles for positioning buttons under the header */
         .side-buttons {
@@ -73,9 +78,9 @@
             <li><a href="asignacion.html">Algoritmo de Asignación</a></li>
             <li><a href="nw.html">Algoritmo Northwest</a></li>
             <li><a href="sort.html">Sort</a></li>
+            <li><a href="tree.html">Tree</a></li>
             <li><a href="DIJKSTRA.html">Dijkstra</a></li>
             <li><a href="kruskal.html">Kruskal</a></li>
-            <li><a href="tree.html">Tree></a> </li>
             <li><a href="compet.html">Compet</a></li>
             <li><a href="titi.html">Titi's Houses</a></li>
             <li><a href="contactos.html">Contactos</a></li>
@@ -84,19 +89,20 @@
 
     <!-- Heading -->
     <div id="heading">
-        <h1 style="display: inline;">Asignación</h1>
+        <h1 style="display: inline;">Titi's Houses</h1>
         
     </div>
     
     <div style="display: inline-flex; align-items: left;width:100%;background-color: rgb(43, 51, 98);color: white;padding-right:5%">
-
+            
         <button id="ayudaBtn" onclick="ayudagraf()" class="btn btn-primary custom-btn" style="border-radius: 45%; font-size: 50px;background-color: rgb(110, 241, 241);color: white;padding-bottom:1%;margin:1%"><b>?</b></button>
         <div style="color: aliceblue; font-family: 'Times New Roman', serif; padding-left: 20px; font-size: 40px;margin-right:5%;margin:1%">
             <p style="font-size: 30px; font-family: 'Times New Roman', Times, serif;">Si tienes dudas puedes recurrir a nuestra sección de ayuda</p>
         </div>
         
     </div>
-
+    
+    <!-- CONTACTOS -->
     <section class="wrapper">
         <div class="side-buttons" style="color: white;">
             <!-- Cambiar Nombre button -->
@@ -111,34 +117,30 @@
             <button onclick="guardarGrafo()" class="custom-btn" style="background-color: hsl(205, 46%, 43%);color: white;">Guardar Grafo</button>
             <!-- Algoritmo Northwest button -->
             <button onclick="cargarGrafo()" class="custom-btn" style="background-color: rgb(30, 39, 140);color: white;padding-left:1%;padding-right:1%;">Cargar Grafo</button>
-            <!-- Generar Matriz -->
+            <!-- Agregar Nodo de Oferta button -->
             <button onclick="generarMatriz()" class="custom-btn" style="background-color: rgb(97, 33, 161);color: white;padding-left:1%;padding-right:1%;">Matriz de Adyencia</button>
+            <button onclick="kruskal()" class="custom-btn" style="background-color: rgb(56, 103, 214);color: white;">Kruskal menor</button>
+            <button onclick="kruskalWithHighestWeight()" class="custom-btn" style="background-color: rgb(56, 103, 214);color: white;">Kruskal mayor</button>
             
-            <section>
-                <input type="radio" id="minimo" name="radio" checked onclick="cambiarSeleccion(0)"><label for="minimo">MÍNIMO</label>    
-                <input type="radio" id="maximo" name="radio" onclick="cambiarSeleccion(1)"><label for="maximo">MÁXIMO</label>
-            </section>
-            <!-- ASIGNACION -->
-            <button onclick="asignacion()" class="custom-btn" style="background-color: rgb(111, 18, 52);color: white;padding-left:1%;padding-right:1%;">Asignación</button>
-            
-            
-
+            <!-- Contenedor para el lienzo y la matriz kruskalMaximo()  kruskalWithHighestWeight() -->
         </div>
-        
-        <!-- Contenedor para el lienzo y la matriz -->
+        <div id="result"></div>
         <center>
+          
           <div id="cont">
             <div id="cont">
-            <div id="lienzo" style="width: 65%; height: 600px;background-color:rgb(248, 248, 251);margin: left 2%;border-radius:50px;"></div>
+            <div id="tablaXiYi" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+            <div id="tablaHolguras" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+            <div id="lienzo" style="width: 75%; height: 700px;background-color:rgb(251, 251, 248);margin: left 2%;border-radius:50px;"></div>
             <div id="matriz" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
-            <div id="matriz_asignacion" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
-            <div id="optimo" style="background-color: rgb(120, 193, 241); margin: 20px; margin-left: 250px; margin-right: 250px;">
-                <span style="font-size: 35px; color: black;">Óptimo = </span><span id="optimo-valor" style="font-size: 35px; color: black;"> .... </span>
-            </div>
-            
+            <div id="listaHolguras" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div> 
+            <div style="color: white;" id="sumaAristas"></div>
+
           </div>
         </center>
         
+        <script src="assets/js/kruskal.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
     </section>
 
     <!-- Footer -->
@@ -151,17 +153,10 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="assets/js/asignacion.js"></script>
-    
     <script src="assets/js/jquery.min.js"></script>
     <script src="assets/js/browser.min.js"></script>
     <script src="assets/js/breakpoints.min.js"></script>
     <script src="assets/js/util.js"></script>
     <script src="assets/js/main.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.min.js"></script>
-    
-    
 </body>
 </html>
