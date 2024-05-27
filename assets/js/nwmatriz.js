@@ -1,9 +1,6 @@
-// Define the Matrix object
-let savedMatrix;
-
-
 // Modify the Matrix constructor to initialize rows and cols
-function Matrix(rows, cols) {
+function Matrix(rows, cols) { //Esto se ejecuta al presionar "CREAR MATRIZ"
+    console.log("Se ejecuta Matrix(rows, cols)");
     this.r = rows;
     this.c = cols;
     // Initialize other properties as needed
@@ -42,6 +39,7 @@ function Matrix(rows, cols) {
 
 // Modify the extractMatrixDataFromForm function to pass rows and cols to the Matrix constructor
 function extractMatrixDataFromForm() {
+    console.log("Se ejecuta extractMatrixDataFromForm()");
     // Extract data from the form inputs
     var rows = parseInt(document.getElementById("rows").value);
     var cols = parseInt(document.getElementById("cols").value);
@@ -56,493 +54,21 @@ function extractMatrixDataFromForm() {
             matrix.cost[i][j] = cellValue; // Use matrix.cost instead of direct assignment
         }
     }
-
     // Return the populated matrix
     return matrix;
-}
-
-
-
-
-// Function to save the graph
-// Function to save the graph
-function guardarGrafo(matrix) {
-    // Prompt user for file name
-    const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar el grafo:', 'grafo');
-
-    // Check if user canceled prompt
-    if (nombreArchivo !== null) {
-        // Log the matrix data before conversion to JSON
-        console.log('Matrix data before conversion to JSON:', matrix);
-
-        // Extract relevant matrix data
-        const matrixData = {
-            rows: matrix.r,
-            cols: matrix.c,
-            cost: matrix.cost,
-            units: matrix.units,
-            imp: matrix.imp,
-            stones: matrix.stones,
-            s: matrix.s,
-            d: matrix.d,
-            shadowD: matrix.shadowD,
-            shadowS: matrix.shadowS
-        };
-
-        // Log the extracted matrix data
-        console.log('Extracted matrix data:', matrixData);
-
-        // Convert matrix data to JSON
-        const grafoJSON = JSON.stringify({ matrix: matrixData });
-
-        // Log the JSON data before creating Blob
-        console.log('JSON data:', grafoJSON);
-
-        // Create Blob from JSON data
-        const blob = new Blob([grafoJSON], { type: 'application/json' });
-
-        // Create object URL from Blob
-        const url = URL.createObjectURL(blob);
-
-        // Create a link element to trigger download
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = nombreArchivo + '.json';
-
-        // Append link element to document body
-        document.body.appendChild(a);
-
-        // Trigger download by clicking the link
-        a.click();
-
-        // Remove link element from document body
-        document.body.removeChild(a);
-
-        // Revoke object URL to release resources
-        URL.revokeObjectURL(url);
-    }
-}
-
-
-// Call getMatrixDataFromForm within guardarGrafo
-// Modify the makeForm function call to call guardargrafo with savedMatrix
-function guardarGrafoConMatrix() {
-    if (savedMatrix) {
-        guardarGrafo(savedMatrix);
-    } else {
-        alert('No hay datos de la matriz para guardar. Por favor, ingrese los datos primero.');
-    }
-}
-
-function cargarGrafo() {
-    const inputArchivo = document.getElementById('inputArchivo');
-    const file = inputArchivo.files[0];
-    const reader = new FileReader();
-    reader.onload = function (event) {
-        try {
-            const contenido = event.target.result;
-            const datos = JSON.parse(contenido);
-
-            // Log the parsed data to the console to ensure it's correct
-            console.log("cargarGrafo function is being called");
-            console.log("Data parsed from file:", datos);
-
-            // Pass the 'datos.matrix' object to makeForm
-            makeForm2(datos.matrix);
-        } catch (error) {
-            console.error('Error al cargar el archivo:', error);
-            alert('Error al cargar el archivo: ' + error.message);
-        }
-    };
-    reader.readAsText(file);
 }
 
 // Define cols in a scope accessible to both the event listeners and the functions
 let cols = 0; // Default value, can be overridden later
 
-// Add event listener to doAlgorithm button
-document.getElementById('doAlgorithm2').addEventListener('click', function() {
-    console.log("Minimizar button clicked.");
-    console.log("Data sent to doAlgorithm2:", savedMatrix);
-    // Call the doAlgorithm2 function with savedMatrix as a parameter
-    doAlgorithm2(savedMatrix);
-});
-
-
-document.getElementById('moAlgorithm2').addEventListener('click', function() {
-    console.log("Maximizar button clicked.");
-    console.log("Data sent to moAlgorithm2:", matrix);
-    // Call the moAlgorithm2 function
-    moAlgorithm2(matrix);
-});
-
 function setColsValue(value) {
     cols = value;
 }
 
-function makeForm2(matrix) {
-    // Log that the function is being called
-    console.log("makeForm function is being called");
-    console.log("makeForm2 function is being called");
-    console.log("Data received in makeForm2:", matrix);
-    
-    if (!matrix || !matrix.cost || !matrix.s || !matrix.d) {
-        console.error("Invalid matrix data:", matrix);
-        return;
-    }
-
-    // Clear divs from any previous call
-    document.getElementById('findOptimal').innerHTML = '';
-    
-    // Extracting rows and cols from the matrix object
-    var rows = matrix.rows;
-    setColsValue(matrix.cols); // Set the value of cols using the function
-
-    // Log the received matrix data to the console
-    console.log("Data received in makeForm:", matrix);
-    
-  
-    var savedMatrix = new Matrix(rows, cols); // Use cols instead of matrix.cols
-savedMatrix.cols = cols; // Set the cols property in savedMatrix
-
-    
-    // Populate the Matrix object with data from the matrix parameter
-    savedMatrix.cost = matrix.cost;
-    savedMatrix.s = matrix.s;
-    savedMatrix.d = matrix.d;
-    console.log("Data to send:", savedMatrix);
-
-    // Log the form HTML that will be added to formSpace
-    var formString = '<p>Ingrese los costos, las demandas y las ofertas en la matriz. (Nota tiene que estar balanciado para poder continuar.)</p>';
-    formString += '<form name="networkForm" onsubmit="return false">';
-    formString += '<table class="other">';
-    formString += '<tr><td></td>'; // Blank first cell
-    for(var j = 0; j < cols; j++){ // Use cols instead of matrix.cols
-        formString += '<td>' + String.fromCharCode(j + 16 + 64) + '</td>';
-    }
-    formString += '<td>Oferta</td>';
-    formString += '</tr>';
-    for(var i = 0; i < rows; i++){
-        formString += '<tr>';
-        formString += '<td>' + String.fromCharCode(i + 1 + 64) + '</td>';
-        for(var j = 0; j < cols; j++){ // Use cols instead of matrix.cols
-            formString += '<td><input type="text" style="width:30px;" id="cell_' + i + '_' + j + '" value="' + savedMatrix.cost[i][j] + '"></td>';
-        }
-        // Add input field for oferta in each row
-        formString += '<td><input type="text" style="width:30px;" id="oferta_' + i + '" value="' + savedMatrix.s[i] + '"></td>';
-        formString += '</tr>';
-    }
-    formString += '<tr><td>Demanda</td>';
-    for(var j = 0; j < cols; j++){ // Use cols instead of matrix.cols
-        formString += '<td><input type="text" style="width:30px;" id="demand_' + j + '" value="' + savedMatrix.d[j] + '"></td>';
-    }
-    formString += '</tr></table></form>';
-    formString += '<button type="button" id="doAlgorithm2" onclick="doAlgorithm2(savedMatrix)">Minimizar</button>';
-    formString += '<button type="button" id="moAlgorithm2" onclick="moAlgorithm2(matrix)">Maximizar</button>';
-    formString += '</div>';
-
-    // Log the form HTML that will be added to formSpace
-    console.log("Form HTML to be added to formSpace:", formString);
-
-    // Add the generated form HTML to formSpace
-    document.getElementById('formSpace').innerHTML = formString;
-
-    // Add event listener to the guardarGrafoBtn
-    document.getElementById('guardarGrafoBtn').addEventListener('click', function() {
-        // Retrieve and save the cost values
-        for (var i = 0; i < rows; i++) {
-            for (var j = 0; j < cols; j++) { // Use cols instead of matrix.cols
-                var cellValue = parseInt(document.getElementById("cell_" + i + "_" + j).value);
-                savedMatrix.cost[i][j] = cellValue;
-            }
-            // Retrieve and save the oferta values
-            var ofertaValue = parseInt(document.getElementById("oferta_" + i).value);
-            savedMatrix.s[i] = ofertaValue;
-        }
-        
-        // Retrieve and save the demand values
-        for(var j = 0; j < cols; j++){ // Use cols instead of matrix.cols
-            var demandValue = parseInt(document.getElementById("demand_" + j).value);
-            savedMatrix.d[j] = demandValue;
-        }
-        
-        // Call the guardarGrafo function
-        guardarGrafo(savedMatrix);
-    });
-}
-
-function getValuesFromMatrix2(matrix) {
-    try {
-        // Ensure proper scoping of variables
-        let rows = matrix.rows;
-        let cols = matrix.cols;
-        let m = new Matrix(rows, cols); // Assuming Matrix is a constructor function
-
-        // Loop through each cell in the matrix
-        for (let i = 0; i < m.r; i++) {
-            for (let j = 0; j < m.c; j++) {
-                // Parse cell value and handle empty values
-                let cellValue = parseFloat(matrix.cost[i][j]) || 0;
-                m.cost[i][j] = Math.abs(cellValue);
-            }
-            // Parse supply values and handle empty values
-            let supplyValue = parseFloat(matrix.s[i]) || 0;
-            m.s[i] = Math.abs(supplyValue);
-        }
-
-        // Handle demand values
-        for (let j = 0; j < m.c; j++) {
-            // Parse demand value and handle empty values
-            let demandValue = parseFloat(matrix.d[j]) || 0;
-            m.d[j] = Math.abs(demandValue);
-        }
-
-        // Validate entries and balance supply and demand
-        let checkTot = 0;
-        for (let i = 0; i < m.r; i++) {
-            checkTot += m.s[i];
-        }
-        for (let j = 0; j < m.c; j++) {
-            checkTot -= m.d[j];
-        }
-        if (checkTot !== 0) {
-            // Provide a clearer error message
-            document.getElementById('findOptimal').innerHTML = 'La oferta y la demanda deben estar balanceadas; por favor, ingrese de nuevo.';
-            return [false, m];
-        } else {
-            return [true, m];
-        }
-    } catch (error) {
-        console.error("Error in getValuesFromMatrix2:", error);
-    }
-}
-
-function doAlgorithm2(matrix) {
-    try {
-        // Ensure matrix is defined and has the required properties
-        if (!matrix || !matrix.cols) {
-            console.error("Invalid matrix data:", matrix);
-            return;
-        }
-        
-        // Extracting 'cols' from the matrix object
-        var cols = matrix.cols;
-        console.log("Cols:", cols); // Log cols value
-        // Clear output div when button is re-pressed
-        document.getElementById('findOptimal').innerHTML = '';
-        var matrixData = getValuesFromMatrix2(matrix);
-        console.log("Matrix Data:", matrixData); // Log matrix data
-        if (matrixData[0]) {
-            var m = matrixData[1]; // Changed from 'm' to 'var m'
-        } else {
-            return; // In case matrix was not balanced
-        }
-        console.log("Initial Matrix:", m); // Log initial matrix
-        m = northWest2(m);
-        console.log("Matrix after Northwest Step:", m); // Log matrix after northwest step
-        var optimal = false;
-        var steppingStones = [];
-        var cycleNumber = 1;
-        var cycleString = '';
-        var steppingStonesOKFlag = true;
-        while (cycleNumber < 30 && !optimal && steppingStonesOKFlag) {
-            // Clear shadow costs and improvement indices
-            clearShadows(m);
-            clearImps(m);
-            if (cycleNumber === 1) {
-                document.getElementById('findOptimal').innerHTML = ''; // Clearing previous iterations
-            }
-            cycleString = '';
-            cycleString += '<div id="cycle' + cycleNumber + '">';
-
-            cycleString += showMatrixUnits(m);
-            console.log("Matrix after Show Matrix Units:", m); // Log matrix after show matrix units
-            m.enteringCell = ['X', 'X'];
-            shadowCosts(m);
-            console.log("Matrix after Shadow Costs:", m); // Log matrix after shadow costs
-            improvementIndices(m);
-            console.log("Matrix after Improvement Indices:", m); // Log matrix after improvement indices
-            if (m.enteringCell[0] != 'X') {
-                cycleString += '<p>Esta solución no es óptima</p></div>';
-            } else {
-                cycleString += '<p>Tomó ' + cycleNumber + ' iteraciones para llegar al mínimo óptimo.</p></div>';
-            }
-
-            if (m.enteringCell[0] == 'X') {
-                optimal = true;
-            } else {
-                steppingStones = findClosedPath(m);
-                var counter = 0;
-                while (!steppingStones[0] && counter < 200) {
-                    steppingStones = findClosedPath(m);
-                    counter++;
-                }
-                if (counter == 200 || !steppingStones[0]) {
-                    steppingStonesOKFlag = false;
-                    cycleString += '<p>No se encontró ninguna solución óptima en ' + cycleNumber + ' iteraciones.</p></div>';
-                } else {
-                    improvedAllocation(m, steppingStones[1]);
-                    cycleNumber++;
-                }
-            }
-        }
-        document.getElementById('findOptimal').innerHTML += cycleString;
-        if (cycleNumber == 30) {
-            document.getElementById('findOptimal').innerHTML += '<p>No se encontró ninguna solución óptima dentro de ' + cycleNumber + ' iteraciones.</p>';
-        }
-    } catch (error) {
-        console.error("Error in doAlgorithm2:", error);
-    }
-}
-
-function moAlgorithm2(matrix) {
-    try {
-        // Clear output div when button is re-pressed
-        document.getElementById('findOptimal').innerHTML = '';
-        var matrixData = getValuesFromMatrix2(matrix);
-        if (matrixData[0]) {
-            var m = matrixData[1]; // Changed from 'm' to 'var m'
-        } else {
-            return; // In case matrix was not balanced
-        }
-        m = northWestm2(m);
-        var optimal = false;
-        var steppingStones = [];
-        var cycleNumber = 1;
-        var cycleString = '';
-        var steppingStonesOKFlag = true;
-        while (cycleNumber < 30 && !optimal && steppingStonesOKFlag) {
-            // Clear shadow costs and improvement indices
-            clearShadows(m);
-            clearImps(m);
-            if (cycleNumber === 1) {
-                document.getElementById('findOptimal').innerHTML = ''; // Clearing previous iterations
-            }
-            cycleString = '';
-            cycleString += '<div id="cycle' + cycleNumber + '">';
-
-            cycleString += showMatrixUnits(m);
-            m.enteringCell = ['X', 'X'];
-            shadowCosts(m);
-            improvementIndicesm(m);
-            if (m.enteringCell[0] != 'X') {
-                cycleString += '<p>Esta solución no es óptima</p></div>';
-            } else {
-                cycleString += '<p>Tomó ' + cycleNumber + ' iteraciones para llegar al óptimo máximo.</p></div>';
-            }
-
-            if (m.enteringCell[0] == 'X') {
-                optimal = true;
-            } else {
-                steppingStones = findClosedPath(m);
-                var counter = 0;
-                while (!steppingStones[0] && counter < 200) {
-                    steppingStones = findClosedPath(m);
-                    counter++;
-                }
-                if (counter == 200 || !steppingStones[0]) {
-                    steppingStonesOKFlag = false;
-                    cycleString += '<p>No se encontró una ruta óptima en ' + cycleNumber + ' iteraciones.</p></div>';
-                } else {
-                    improvedAllocationm(m, steppingStones[1]);
-                    cycleNumber++;
-                }
-            }
-        }
-        document.getElementById('findOptimal').innerHTML += cycleString;
-        if (cycleNumber == 30) {
-            document.getElementById('findOptimal').innerHTML += '<p>No se encontró una ruta óptima dentro de ' + cycleNumber + ' iteraciones.</p>';
-        }
-    } catch (error) {
-        console.error("Error in moAlgorithm2:", error);
-    }
-}
-
-
-
-
-
-function northWest2(m){
-    var nextij = [0,0];
-    var supply = m.s.slice(0);
-    var demand = m.d.slice(0);
-    var n = northWestStep2(m, 0, 0);
-    for(var i = 1; i < m.r+m.c-1; i++){
-        n = northWestStep2(n[0], n[1][0], n[1][1]);
-    }
-    m.s = supply;
-    m.d = demand;
-    return m;
-}
-
-function northWestm2(m){
-    var nextij = [0, 0];
-    var supply = m.s.slice(0);
-    var demand = m.d.slice(0);
-    var n = northWestStepm2(m, 0, 0);
-    for (var i = 1; i < m.r + m.c - 1; i++) {
-        n = northWestStepm2(n[0], n[1][0], n[1][1]);
-    }
-    m.s = supply;
-    m.d = demand;
-    return m;
-}
-
-function northWestStep2(m, i, j) {
-    // Northwest corner method to find initial solution
-    var nextij = [];
-    // Check if the matrix has valid dimensions
-    if (i < m.r && j < m.c) {
-        m.units[i][j] = Math.min(m.s[i], m.d[j]); // Minimize the allocation based on supply and demand
-        if (m.s[i] < m.d[j]) {
-            // Next square is down
-            m.d[j] -= m.units[i][j]; // Reduce the demand accordingly
-            m.s[i] = 0;
-            nextij = [i + 1, j];
-        } else {
-            // Next square is across
-            m.s[i] -= m.units[i][j]; // Reduce the supply accordingly
-            m.d[j] = 0;
-            nextij = [i, j + 1];
-        }
-    }
-    return [m, nextij];
-}
-
-function northWestStepm2(m, i, j) {
-    // Northwest corner method to find initial solution
-    var nextij = [];
-    // Check if the matrix has valid dimensions
-    if (i < m.r && j < m.c) {
-        m.units[i][j] = Math.min(m.s[i], m.d[j]); // Minimize the allocation based on supply and demand
-        if (m.s[i] < m.d[j]) {
-            // Next square is down
-            m.d[j] -= m.units[i][j]; // Reduce the demand accordingly
-            m.s[i] = 0;
-            nextij = [i + 1, j];
-        } else {
-            // Next square is across
-            m.s[i] -= m.units[i][j]; // Reduce the supply accordingly
-            m.d[j] = 0;
-            nextij = [i, j + 1];
-        }
-    }
-    return [m, nextij];
-}
-
-
-
-
-
-
-
 //---------------------------------------------------
 
-
-
-
-
-function matrix(rows, cols){
+function matrix(rows, cols){ //Esto se ejecuta cuando se presiona "MAXIMIZAR" o "MINIMIZAR"
+    console.log("Se ejecuta matrix(rows, cols)");
 	this.r = rows;
 	this.c = cols;
 	this.cost = [];//transportation costs
@@ -576,8 +102,8 @@ function matrix(rows, cols){
 	}
 }
 
-
 function makeForm(){
+    console.log("Se ejecuta makeForm()");
     // Clear divs from any previous call
     document.getElementById('findOptimal').innerHTML = '';
     var rows = Math.abs(parseInt(document.sizeForm.rowValue.value)) || 5;
@@ -615,38 +141,12 @@ function makeForm(){
     formString += '</div>';
 
     document.getElementById('formSpace').innerHTML = formString;
-
-    document.getElementById('guardarGrafoBtn').addEventListener('click', function() {
-        // Retrieve and save the cost values
-        for (var i = 0; i < rows; i++) {
-            for (var j = 0; j < cols; j++) {
-                var cellValue = parseInt(document.getElementById("cell_" + i + "_" + j).value);
-                savedMatrix.cost[i][j] = cellValue;
-            }
-            // Retrieve and save the oferta values
-            var ofertaValue = parseInt(document.getElementById("oferta_" + i).value);
-            savedMatrix.s[i] = ofertaValue;
-        }
-        
-        // Retrieve and save the demand values
-        for(var j = 0; j < cols; j++){
-            var demandValue = parseInt(document.getElementById("demand_" + j).value);
-            savedMatrix.d[j] = demandValue;
-        }
-        
-        // Call the guardarGrafo function
-        guardarGrafo(savedMatrix);
-    });
 }
 
 function getValuesFromMatrix(){
+    console.log("Se ejecuta getValuesFromMatrix()");
 	//gets the values from the matrix defined by the user
 	
-
-
-
-
-
 	//after the function makeForm has acted
 	//works and gets supply and demand amounts as separate arrays
 	rows = Math.abs(parseInt(document.sizeForm.rowValue.value))||5;
@@ -692,20 +192,10 @@ function getValuesFromMatrix(){
 	else {
 		return [true, m];
 	}
-
-	
-
-
-
-
-
-
-
-
-
 }
 
 function showMatrixCosts(m){
+    console.log("Se ejecuta showMatrixCosts(m))");
 	//shows the matrix of transportation costs and supply and demand
 	var mString = '<table>';
 	for(var i = 0; i < m.r; i++){
@@ -726,6 +216,7 @@ function showMatrixCosts(m){
 }
 
 function showMatrixUnits(m){
+    console.log("Se ejecuta showMatrixUnits(m)");
 	//shows the matrix of units transported and supply and demand
 	var tot = 0;
 	var mString = '<table><tr><td></td>';//blank first cell
@@ -758,6 +249,7 @@ function showMatrixUnits(m){
 }
 
 function showMatrixShadows(m){
+    console.log("Se ejecuta showMatrixShadows(m");
 	//shows the matrix of shadow costs alongside cost matrix
 	var mString = '<p>Costo sombra</p>';	
 	mString += '<table class="pequeno"><tr><td></td>';//blank first cell
@@ -788,6 +280,7 @@ function showMatrixShadows(m){
 }
 
 function showMatrixImps(m){
+    console.log("Se ejecuta showMatrixImps(m)");
 	//shows the matrix of improvement indices for unallocated cells
 	//must call improvementIndices first for entering cell to be correctly identified
 	mString = '<p>...</p>';	
@@ -801,8 +294,6 @@ function showMatrixImps(m){
 		for(var j = 0; j < m.c; j++){
 			if (m.units[i][j] == 'X') {
 				mString += '<td style="background-color: purple; color: white;">'+m.imp[i][j]+'</td>';
-                
-
 			}
 			else {
 				mString += '<td>-</td>';
@@ -821,6 +312,7 @@ function showMatrixImps(m){
 }
 
 function northWestStep(m, i, j){
+    console.log("Se ejecuta northWestStep(m, i, j)");
 	//north west corner method to find initial solution
 	var nextij = [];
 	m.units[i][j] = Math.min(m.s[i],m.d[j]);
@@ -840,9 +332,10 @@ function northWestStep(m, i, j){
 }
 
 function northWest(m){
+    console.log("Se ejecuta northWest(m)");
 	var nextij = [0,0];
-        var supply = m.s.slice(0);
-        var demand = m.d.slice(0);
+    var supply = m.s.slice(0);
+    var demand = m.d.slice(0);
 	var n = northWestStep(m, 0, 0);
 	for(var i = 1; i < m.r+m.c-1; i++){
 		n = northWestStep(n[0], n[1][0], n[1][1]);
@@ -853,6 +346,7 @@ function northWest(m){
 }
 
 function shadowCosts(m){
+    console.log("Se ejecuta shadowCosts(m)");
 	var counter = 0;//counts the number of shadow costs allocated = rows + columns
 	var started = false;
 	//while loop passes across the matrix repeatedly until all shadow costs are allocated
@@ -885,6 +379,7 @@ function shadowCosts(m){
 }
 
 function improvementIndices(m){
+    console.log("Se ejecuta improvementIndices(m)");
 	//calculate improvement indices and entering cell coordinates
 	var minImp = 0;
 	for (var i = 0; i < m.r; i++) {
@@ -902,6 +397,7 @@ function improvementIndices(m){
 }
 
 function clearStones(m){
+    console.log("Se ejecuta clearStones(m)");
 	for (var i = 0; i < m.r; i++) {
 		for (var j = 0; j < m.c; j++) {
 			m.stones[i][j] = 'X';			
@@ -910,6 +406,7 @@ function clearStones(m){
 }
 
 function clearImps(m) {
+    console.log("Se ejecuta clearImps(m)");
 	for (var i = 0; i < m.r; i++) {
 		for (var j = 0; j < m.c; j++) {
 			m.imp[i][j] = 'X';
@@ -918,6 +415,7 @@ function clearImps(m) {
 }
 
 function clearShadows(m) {
+    console.log("Se ejecuta clearShadows(m)");
 	for (var i = 0; i < m.r; i++) {
 		m.shadowS[i] = 'X';
 	}
@@ -927,6 +425,7 @@ function clearShadows(m) {
 }
 
 function findCellsInRowAndColumn(m, c){
+    console.log("Se ejecuta findCellsInRowAndColumn(m, c)");
 	//helper function for closedPath
 	//starting at cell c finds a cell in the same row with an allocation
 	//and a cell in the new cells column with an allocation
@@ -980,6 +479,7 @@ function findCellsInRowAndColumn(m, c){
 }
 
 function findClosedPath(m){
+    console.log("Se ejecuta findClosedPath(m)");
 	//finds a closed path starting and ending at the entering cell
 	//using only cells with an allocation
 	//returns an array of true or false with the closed path as the second element or empty
@@ -1019,6 +519,7 @@ function findClosedPath(m){
 }
 
 function improvedAllocation(m, cellsList){
+    console.log("Se ejecuta improvedAllocation(m, cellsList)");
 	var maxAlloc = m.units[cellsList[1][0]][cellsList[1][1]];//causing an error sometimes
 	var exitCellNumber = 1;
 	for (var i = 1; i < cellsList.length; i += 2) {
@@ -1035,9 +536,11 @@ function improvedAllocation(m, cellsList){
 }
 
 function doAlgorithm() {
+    console.log("Se ejecuta doAlgorithm()");
     // Clear output div when button is re-pressed
     document.getElementById('findOptimal').innerHTML = '';
     var matrix = getValuesFromMatrix();
+	console.log(matrix);
     if (matrix[0]) {
         m = matrix[1];
     } else {
@@ -1102,6 +605,7 @@ function doAlgorithm() {
 
 
 function improvedAllocationm(m, cellsList) {
+    console.log("Se ejecuta improvedAllocationm(m, cellsList)");
     var minAlloc = m.units[cellsList[1][0]][cellsList[1][1]]; // Initialize with the allocation of the first cell in the list
     var exitCellNumber = 1; // Initialize the exit cell index
     // Find the minimum allocation and its corresponding cell index
@@ -1121,12 +625,12 @@ function improvedAllocationm(m, cellsList) {
     m.units[cellsList[exitCellNumber][0]][cellsList[exitCellNumber][1]] = 'X';
 }
 
-
-
 function moAlgorithm() {
+    console.log("Se ejecuta moAlgorithm()");
     // Clear output div when button is re-pressed
     document.getElementById('findOptimal').innerHTML = '';
     var matrix = getValuesFromMatrix();
+	console.log(matrix);
     if (matrix[0]) {
         m = matrix[1];
     } else {
@@ -1189,6 +693,7 @@ function moAlgorithm() {
 
 
 function improvedAllocationm(m, cellsList) {
+    console.log("Se ejecuta improvedAllocationm(m, cellsList)");
     var minAlloc = m.units[cellsList[1][0]][cellsList[1][1]]; // Initialize with the allocation of the first cell in the list
     var exitCellNumber = 1; // Initialize the exit cell index
     // Find the minimum allocation and its corresponding cell index
@@ -1210,6 +715,7 @@ function improvedAllocationm(m, cellsList) {
 
 
 function northWestm(m){
+    console.log("Se ejecuta northWestm(m)");
     var nextij = [0, 0];
     var supply = m.s.slice(0);
     var demand = m.d.slice(0);
@@ -1223,6 +729,7 @@ function northWestm(m){
 }
 
 function northWestStepm(m, i, j) {
+    console.log("Se ejecuta northWestStepm(m, i, j)");
     // Northwest corner method to find initial solution
     var nextij = [];
     m.units[i][j] = Math.min(m.s[i], m.d[j]); // Minimize the allocation based on supply and demand
@@ -1241,6 +748,7 @@ function northWestStepm(m, i, j) {
 }
 
 function improvementIndicesm(m) {
+    console.log("Se ejecuta improvementIndicesm(m)");
     // Calculate improvement indices and entering cell coordinates
     var maxImp = 0; // Initialize to find the maximum
     for (var i = 0; i < m.r; i++) {
@@ -1255,4 +763,70 @@ function improvementIndicesm(m) {
             }
         }
     }
+}
+
+// Función para guardar la matriz en localStorage
+function guardarMatriz() {
+    console.log("Se ejecuta guardarMatriz(m)");
+    const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar:', 'nw_matriz');
+
+    if (nombreArchivo !== null) {
+		cantFilas = Math.abs(parseInt(document.sizeForm.rowValue.value));
+		cantColumnas = Math.abs(parseInt(document.sizeForm.colValue.value));
+
+		var counter=((cantFilas + 1)*(cantColumnas + 1)) - 1;
+		tabla_guardar = [];
+		var c;
+		for(c = 0; c<counter; c++){
+			console.log(Math.abs(parseFloat(document.networkForm.elements[c].value)));
+			tabla_guardar.push(Math.abs(parseFloat(document.networkForm.elements[c].value)));
+
+		}
+        const datos = {
+            cFilas: cantFilas,
+            cColumnas: cantColumnas,
+            tabla: tabla_guardar,
+        };
+        const grafoJSON = JSON.stringify(datos);
+        const blob = new Blob([grafoJSON], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nombreArchivo + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+}
+
+// Función para cargar la matriz desde localStorage
+function cargarMatriz() {
+    const inputArchivo = document.getElementById('inputArchivo');
+    const file = inputArchivo.files[0];
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const contenido = event.target.result;
+        const datos = JSON.parse(contenido);
+        // Limpiar rowValue y colValue si tuvieran algo
+        document.sizeForm.rowValue.value = '';
+        document.sizeForm.colValue.value = '';
+        // Asignar valores cargados a rowValue y colValue
+        document.sizeForm.rowValue.value = datos.cFilas;
+        document.sizeForm.colValue.value = datos.cColumnas;
+		tabla_guardada = datos.tabla;
+		//crea la tabla (vacía)
+		makeForm();
+
+		// Para llenar la tabla :3
+		cantFilas = Math.abs(parseInt(document.sizeForm.rowValue.value));
+		cantColumnas = Math.abs(parseInt(document.sizeForm.colValue.value));
+		var counter=((cantFilas + 1)*(cantColumnas + 1)) - 1;
+		var c;
+		for(c = 0; c<counter; c++){
+			document.networkForm.elements[c].value = tabla_guardada[c];
+		}
+        console.log("Archivo cargado correctamente:", datos);
+    };
+    reader.readAsText(file);
 }
