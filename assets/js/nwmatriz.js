@@ -773,17 +773,19 @@ function guardarMatriz() {
     if (nombreArchivo !== null) {
 		cantFilas = Math.abs(parseInt(document.sizeForm.rowValue.value));
 		cantColumnas = Math.abs(parseInt(document.sizeForm.colValue.value));
-		m = new matrix(cantFilas, cantColumnas);
-		for(var i=0;i<m.r;i++){
-			for(var j=0;j<m.c;j++){
-				m[i][j]=Math.abs(parseFloat(document.networkForm.formSpace));
-			}
-		}
 
+		var counter=((cantFilas + 1)*(cantColumnas + 1)) - 1;
+		tabla_guardar = [];
+		var c;
+		for(c = 0; c<counter; c++){
+			console.log(Math.abs(parseFloat(document.networkForm.elements[c].value)));
+			tabla_guardar.push(Math.abs(parseFloat(document.networkForm.elements[c].value)));
+
+		}
         const datos = {
             cFilas: cantFilas,
             cColumnas: cantColumnas,
-            matrizCostos: m,
+            tabla: tabla_guardar,
         };
         const grafoJSON = JSON.stringify(datos);
         const blob = new Blob([grafoJSON], { type: 'application/json' });
@@ -812,28 +814,19 @@ function cargarMatriz() {
         // Asignar valores cargados a rowValue y colValue
         document.sizeForm.rowValue.value = datos.cFilas;
         document.sizeForm.colValue.value = datos.cColumnas;
+		tabla_guardada = datos.tabla;
+		//crea la tabla (vacía)
 		makeForm();
+
+		// Para llenar la tabla :3
+		cantFilas = Math.abs(parseInt(document.sizeForm.rowValue.value));
+		cantColumnas = Math.abs(parseInt(document.sizeForm.colValue.value));
+		var counter=((cantFilas + 1)*(cantColumnas + 1)) - 1;
+		var c;
+		for(c = 0; c<counter; c++){
+			document.networkForm.elements[c].value = tabla_guardada[c];
+		}
         console.log("Archivo cargado correctamente:", datos);
     };
     reader.readAsText(file);
-}
-
-function mostrar_costos_consola() {
-    const cantFilas = Math.abs(parseInt(document.sizeForm.rowValue.value));
-    const cantColumnas = Math.abs(parseInt(document.sizeForm.colValue.value));
-    const matrizCostos = new Array(cantFilas);
-
-    for (let i = 0; i < cantFilas; i++) {
-        matrizCostos[i] = new Array(cantColumnas);
-        for (let j = 0; j < cantColumnas; j++) {
-            const inputName = `formSpace${i}_${j}`;
-            matrizCostos[i][j] = Math.abs(parseFloat(document.networkForm[inputName].value));
-        }
-    }
-
-    // Imprimir la matriz de costos por consola
-    console.log("Matriz de Costos:");
-    for (let i = 0; i < cantFilas; i++) {
-        console.log(matrizCostos[i].join('\t'));
-    }
 }
