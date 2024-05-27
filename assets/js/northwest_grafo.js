@@ -468,8 +468,6 @@ function getValuesFromMatrix(){
 
   //after the function makeForm has acted
   //works and gets supply and demand amounts as separate arrays
-  
-  //HAY QUE CAMBIAR ESTO PARA QUE LEA LOS NODOS
   rows = 3;
   cols = 3;
   m = new matrix(rows, cols);

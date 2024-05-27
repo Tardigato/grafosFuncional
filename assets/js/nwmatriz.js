@@ -1,5 +1,6 @@
 // Modify the Matrix constructor to initialize rows and cols
-function Matrix(rows, cols) {
+function Matrix(rows, cols) { //Esto se ejecuta al presionar "CREAR MATRIZ"
+    console.log("Se ejecuta Matrix(rows, cols)");
     this.r = rows;
     this.c = cols;
     // Initialize other properties as needed
@@ -38,6 +39,7 @@ function Matrix(rows, cols) {
 
 // Modify the extractMatrixDataFromForm function to pass rows and cols to the Matrix constructor
 function extractMatrixDataFromForm() {
+    console.log("Se ejecuta extractMatrixDataFromForm()");
     // Extract data from the form inputs
     var rows = parseInt(document.getElementById("rows").value);
     var cols = parseInt(document.getElementById("cols").value);
@@ -52,11 +54,9 @@ function extractMatrixDataFromForm() {
             matrix.cost[i][j] = cellValue; // Use matrix.cost instead of direct assignment
         }
     }
-
     // Return the populated matrix
     return matrix;
 }
-
 
 // Define cols in a scope accessible to both the event listeners and the functions
 let cols = 0; // Default value, can be overridden later
@@ -67,7 +67,8 @@ function setColsValue(value) {
 
 //---------------------------------------------------
 
-function matrix(rows, cols){
+function matrix(rows, cols){ //Esto se ejecuta cuando se presiona "MAXIMIZAR" o "MINIMIZAR"
+    console.log("Se ejecuta matrix(rows, cols)");
 	this.r = rows;
 	this.c = cols;
 	this.cost = [];//transportation costs
@@ -101,8 +102,8 @@ function matrix(rows, cols){
 	}
 }
 
-
 function makeForm(){
+    console.log("Se ejecuta makeForm()");
     // Clear divs from any previous call
     document.getElementById('findOptimal').innerHTML = '';
     var rows = Math.abs(parseInt(document.sizeForm.rowValue.value)) || 5;
@@ -140,31 +141,10 @@ function makeForm(){
     formString += '</div>';
 
     document.getElementById('formSpace').innerHTML = formString;
-
-    document.getElementById('guardarGrafoBtn').addEventListener('click', function() {
-        // Retrieve and save the cost values
-        for (var i = 0; i < rows; i++) {
-            for (var j = 0; j < cols; j++) {
-                var cellValue = parseInt(document.getElementById("cell_" + i + "_" + j).value);
-                savedMatrix.cost[i][j] = cellValue;
-            }
-            // Retrieve and save the oferta values
-            var ofertaValue = parseInt(document.getElementById("oferta_" + i).value);
-            savedMatrix.s[i] = ofertaValue;
-        }
-        
-        // Retrieve and save the demand values
-        for(var j = 0; j < cols; j++){
-            var demandValue = parseInt(document.getElementById("demand_" + j).value);
-            savedMatrix.d[j] = demandValue;
-        }
-        
-        // Call the guardarGrafo function
-        guardarGrafo(savedMatrix);
-    });
 }
 
 function getValuesFromMatrix(){
+    console.log("Se ejecuta getValuesFromMatrix()");
 	//gets the values from the matrix defined by the user
 	
 	//after the function makeForm has acted
@@ -215,6 +195,7 @@ function getValuesFromMatrix(){
 }
 
 function showMatrixCosts(m){
+    console.log("Se ejecuta showMatrixCosts(m))");
 	//shows the matrix of transportation costs and supply and demand
 	var mString = '<table>';
 	for(var i = 0; i < m.r; i++){
@@ -235,6 +216,7 @@ function showMatrixCosts(m){
 }
 
 function showMatrixUnits(m){
+    console.log("Se ejecuta showMatrixUnits(m)");
 	//shows the matrix of units transported and supply and demand
 	var tot = 0;
 	var mString = '<table><tr><td></td>';//blank first cell
@@ -267,6 +249,7 @@ function showMatrixUnits(m){
 }
 
 function showMatrixShadows(m){
+    console.log("Se ejecuta showMatrixShadows(m");
 	//shows the matrix of shadow costs alongside cost matrix
 	var mString = '<p>Costo sombra</p>';	
 	mString += '<table class="pequeno"><tr><td></td>';//blank first cell
@@ -297,6 +280,7 @@ function showMatrixShadows(m){
 }
 
 function showMatrixImps(m){
+    console.log("Se ejecuta showMatrixImps(m)");
 	//shows the matrix of improvement indices for unallocated cells
 	//must call improvementIndices first for entering cell to be correctly identified
 	mString = '<p>...</p>';	
@@ -310,8 +294,6 @@ function showMatrixImps(m){
 		for(var j = 0; j < m.c; j++){
 			if (m.units[i][j] == 'X') {
 				mString += '<td style="background-color: purple; color: white;">'+m.imp[i][j]+'</td>';
-                
-
 			}
 			else {
 				mString += '<td>-</td>';
@@ -330,6 +312,7 @@ function showMatrixImps(m){
 }
 
 function northWestStep(m, i, j){
+    console.log("Se ejecuta northWestStep(m, i, j)");
 	//north west corner method to find initial solution
 	var nextij = [];
 	m.units[i][j] = Math.min(m.s[i],m.d[j]);
@@ -349,9 +332,10 @@ function northWestStep(m, i, j){
 }
 
 function northWest(m){
+    console.log("Se ejecuta northWest(m)");
 	var nextij = [0,0];
-        var supply = m.s.slice(0);
-        var demand = m.d.slice(0);
+    var supply = m.s.slice(0);
+    var demand = m.d.slice(0);
 	var n = northWestStep(m, 0, 0);
 	for(var i = 1; i < m.r+m.c-1; i++){
 		n = northWestStep(n[0], n[1][0], n[1][1]);
@@ -362,6 +346,7 @@ function northWest(m){
 }
 
 function shadowCosts(m){
+    console.log("Se ejecuta shadowCosts(m)");
 	var counter = 0;//counts the number of shadow costs allocated = rows + columns
 	var started = false;
 	//while loop passes across the matrix repeatedly until all shadow costs are allocated
@@ -394,6 +379,7 @@ function shadowCosts(m){
 }
 
 function improvementIndices(m){
+    console.log("Se ejecuta improvementIndices(m)");
 	//calculate improvement indices and entering cell coordinates
 	var minImp = 0;
 	for (var i = 0; i < m.r; i++) {
@@ -411,6 +397,7 @@ function improvementIndices(m){
 }
 
 function clearStones(m){
+    console.log("Se ejecuta clearStones(m)");
 	for (var i = 0; i < m.r; i++) {
 		for (var j = 0; j < m.c; j++) {
 			m.stones[i][j] = 'X';			
@@ -419,6 +406,7 @@ function clearStones(m){
 }
 
 function clearImps(m) {
+    console.log("Se ejecuta clearImps(m)");
 	for (var i = 0; i < m.r; i++) {
 		for (var j = 0; j < m.c; j++) {
 			m.imp[i][j] = 'X';
@@ -427,6 +415,7 @@ function clearImps(m) {
 }
 
 function clearShadows(m) {
+    console.log("Se ejecuta clearShadows(m)");
 	for (var i = 0; i < m.r; i++) {
 		m.shadowS[i] = 'X';
 	}
@@ -436,6 +425,7 @@ function clearShadows(m) {
 }
 
 function findCellsInRowAndColumn(m, c){
+    console.log("Se ejecuta findCellsInRowAndColumn(m, c)");
 	//helper function for closedPath
 	//starting at cell c finds a cell in the same row with an allocation
 	//and a cell in the new cells column with an allocation
@@ -489,6 +479,7 @@ function findCellsInRowAndColumn(m, c){
 }
 
 function findClosedPath(m){
+    console.log("Se ejecuta findClosedPath(m)");
 	//finds a closed path starting and ending at the entering cell
 	//using only cells with an allocation
 	//returns an array of true or false with the closed path as the second element or empty
@@ -528,6 +519,7 @@ function findClosedPath(m){
 }
 
 function improvedAllocation(m, cellsList){
+    console.log("Se ejecuta improvedAllocation(m, cellsList)");
 	var maxAlloc = m.units[cellsList[1][0]][cellsList[1][1]];//causing an error sometimes
 	var exitCellNumber = 1;
 	for (var i = 1; i < cellsList.length; i += 2) {
@@ -544,9 +536,11 @@ function improvedAllocation(m, cellsList){
 }
 
 function doAlgorithm() {
+    console.log("Se ejecuta doAlgorithm()");
     // Clear output div when button is re-pressed
     document.getElementById('findOptimal').innerHTML = '';
     var matrix = getValuesFromMatrix();
+	console.log(matrix);
     if (matrix[0]) {
         m = matrix[1];
     } else {
@@ -611,6 +605,7 @@ function doAlgorithm() {
 
 
 function improvedAllocationm(m, cellsList) {
+    console.log("Se ejecuta improvedAllocationm(m, cellsList)");
     var minAlloc = m.units[cellsList[1][0]][cellsList[1][1]]; // Initialize with the allocation of the first cell in the list
     var exitCellNumber = 1; // Initialize the exit cell index
     // Find the minimum allocation and its corresponding cell index
@@ -630,12 +625,12 @@ function improvedAllocationm(m, cellsList) {
     m.units[cellsList[exitCellNumber][0]][cellsList[exitCellNumber][1]] = 'X';
 }
 
-
-
 function moAlgorithm() {
+    console.log("Se ejecuta moAlgorithm()");
     // Clear output div when button is re-pressed
     document.getElementById('findOptimal').innerHTML = '';
     var matrix = getValuesFromMatrix();
+	console.log(matrix);
     if (matrix[0]) {
         m = matrix[1];
     } else {
@@ -698,6 +693,7 @@ function moAlgorithm() {
 
 
 function improvedAllocationm(m, cellsList) {
+    console.log("Se ejecuta improvedAllocationm(m, cellsList)");
     var minAlloc = m.units[cellsList[1][0]][cellsList[1][1]]; // Initialize with the allocation of the first cell in the list
     var exitCellNumber = 1; // Initialize the exit cell index
     // Find the minimum allocation and its corresponding cell index
@@ -719,6 +715,7 @@ function improvedAllocationm(m, cellsList) {
 
 
 function northWestm(m){
+    console.log("Se ejecuta northWestm(m)");
     var nextij = [0, 0];
     var supply = m.s.slice(0);
     var demand = m.d.slice(0);
@@ -732,6 +729,7 @@ function northWestm(m){
 }
 
 function northWestStepm(m, i, j) {
+    console.log("Se ejecuta northWestStepm(m, i, j)");
     // Northwest corner method to find initial solution
     var nextij = [];
     m.units[i][j] = Math.min(m.s[i], m.d[j]); // Minimize the allocation based on supply and demand
@@ -750,6 +748,7 @@ function northWestStepm(m, i, j) {
 }
 
 function improvementIndicesm(m) {
+    console.log("Se ejecuta improvementIndicesm(m)");
     // Calculate improvement indices and entering cell coordinates
     var maxImp = 0; // Initialize to find the maximum
     for (var i = 0; i < m.r; i++) {
@@ -763,5 +762,78 @@ function improvementIndicesm(m) {
                 }
             }
         }
+    }
+}
+
+// Función para guardar la matriz en localStorage
+function guardarMatriz() {
+    console.log("Se ejecuta guardarMatriz(m)");
+    const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar:', 'nw_matriz');
+
+    if (nombreArchivo !== null) {
+		cantFilas = Math.abs(parseInt(document.sizeForm.rowValue.value));
+		cantColumnas = Math.abs(parseInt(document.sizeForm.colValue.value));
+		m = new matrix(cantFilas, cantColumnas);
+		for(var i=0;i<m.r;i++){
+			for(var j=0;j<m.c;j++){
+				m[i][j]=Math.abs(parseFloat(document.networkForm.formSpace));
+			}
+		}
+
+        const datos = {
+            cFilas: cantFilas,
+            cColumnas: cantColumnas,
+            matrizCostos: m,
+        };
+        const grafoJSON = JSON.stringify(datos);
+        const blob = new Blob([grafoJSON], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nombreArchivo + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+}
+
+// Función para cargar la matriz desde localStorage
+function cargarMatriz() {
+    const inputArchivo = document.getElementById('inputArchivo');
+    const file = inputArchivo.files[0];
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const contenido = event.target.result;
+        const datos = JSON.parse(contenido);
+        // Limpiar rowValue y colValue si tuvieran algo
+        document.sizeForm.rowValue.value = '';
+        document.sizeForm.colValue.value = '';
+        // Asignar valores cargados a rowValue y colValue
+        document.sizeForm.rowValue.value = datos.cFilas;
+        document.sizeForm.colValue.value = datos.cColumnas;
+		makeForm();
+        console.log("Archivo cargado correctamente:", datos);
+    };
+    reader.readAsText(file);
+}
+
+function mostrar_costos_consola() {
+    const cantFilas = Math.abs(parseInt(document.sizeForm.rowValue.value));
+    const cantColumnas = Math.abs(parseInt(document.sizeForm.colValue.value));
+    const matrizCostos = new Array(cantFilas);
+
+    for (let i = 0; i < cantFilas; i++) {
+        matrizCostos[i] = new Array(cantColumnas);
+        for (let j = 0; j < cantColumnas; j++) {
+            const inputName = `formSpace${i}_${j}`;
+            matrizCostos[i][j] = Math.abs(parseFloat(document.networkForm[inputName].value));
+        }
+    }
+
+    // Imprimir la matriz de costos por consola
+    console.log("Matriz de Costos:");
+    for (let i = 0; i < cantFilas; i++) {
+        console.log(matrizCostos[i].join('\t'));
     }
 }
