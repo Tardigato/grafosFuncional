@@ -1,0 +1,168 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Northwest</title>
+    <meta charset="utf-8">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <link rel="stylesheet" href="assets/css/main.css">
+    
+    <style>
+        /* Custom styles for positioning buttons under the header */
+        .side-buttons {
+            position: absolute; /* Change from fixed to absolute */
+            top: 12%; /* Adjust as needed */
+            left: 0;
+            transform: translateY(0%);
+            z-index: 1000; /* Ensure buttons stay above other content */
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* Increase or decrease gap between buttons */
+            
+            margin-top: -4%;
+            margin-right: 10px;
+            background-color: #b3cae0;
+            padding-top: 1%;
+            border-radius: 10px;
+        }
+        
+        .side-buttons .custom-btn {
+            width: 80%; /* Set a fixed width for buttons */
+            margin-bottom: 10px; /* Adjust margin between buttons */
+            font-size: 70%; /* Adjust font size */
+            border: 2px solid black;
+            
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'Times New Roman', Times, serif;
+            color: white;
+            margin-left: 10px;
+            
+        }
+
+        .side-buttons .custom-btn:hover {
+            background-color: purple; /* Change button color on hover */
+        }
+    </style>
+</head>
+<body style="background-color: #34495e;">
+    <!-- Header -->
+    <header id="header">
+        <a class="logo" href="index.html">GraphifyMe</a>
+        <nav>
+            <a href="#menu">Menu</a>
+        </nav>
+    </header>
+    <!-- Nav -->
+    <nav id="menu">
+        <ul class="links">
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="dibujar_grafos.html">Dibujar grafos</a></li>
+            <li><a href="jhonson.html">Algoritmo Jonhson</a></li>
+            <li><a href="asignacion.html">Algoritmo de Asignación</a></li>
+            <li><a href="nw.html">Algoritmo Northwest</a></li>
+            <li><a href="sort.html">Sort</a></li>
+            <li><a href="DIJKSTRA.html">Dijkstra</a></li>
+            <li><a href="kruskal.html">Kruskal</a></li>
+            <li><a href="tree.html">Tree></a> </li>
+            <li><a href="compet.html">Compet</a></li>
+            <li><a href="contactos.html">Contactos</a></li>
+        </ul>
+    </nav>
+
+    <!-- Heading -->
+    <div id="heading">
+        <h1 style="display: inline;">Northewst</h1>
+        
+    </div>
+    
+    <div style="display: inline-flex; align-items: left;width:100%;background-color: rgb(43, 51, 98);color: white;padding-right:5%">
+
+        <button id="ayudaBtn" onclick="ayudagraf()" class="btn btn-primary custom-btn" style="border-radius: 45%; font-size: 50px;background-color: rgb(110, 241, 241);color: white;padding-bottom:1%;margin:1%"><b>?</b></button>
+        <div style="color: aliceblue; font-family: 'Times New Roman', serif; padding-left: 20px; font-size: 40px;margin-right:5%;margin:1%">
+            <p style="font-size: 30px; font-family: 'Times New Roman', Times, serif;">Si tienes dudas puedes recurrir a nuestra sección de ayuda</p>
+        </div>
+        
+    </div>
+
+    <section class="wrapper">
+        <div class="side-buttons" style="color: white;">
+            <!-- Cambiar Nombre button -->
+            <button onclick="agregarOrigen()" class="custom-btn" style="background-color: rgb(129, 34, 34);color: white;">Agregar Origen</button>
+            <button onclick="agregarDestino()" class="custom-btn" style="background-color: rgb(129, 34, 34);color: white;">Agregar Destino</button>
+            <!-- Eliminar Nodo button -->
+            <button onclick="eliminarNodo()" class="custom-btn"style="background-color: rgb(199, 85, 23);color: white;">Eliminar Nodo</button>
+            <!-- Guardar Grafo button -->
+            <button onclick="cambiarNombre()" class="custom-btn"style="background-color: #c7a117;color: white;">Cambiar Nombre</button>
+            <!-- Input para cargar el grafo -->
+            <input type="file" id="inputArchivo" accept=".json" class="custom-btn" style="background-color: #5da13b;margin-top:5%;margin-bottom:5%;padding:5%;font-size:50%">
+            <!-- Cargar Grafo button -->
+            <button onclick="guardarGrafo()" class="custom-btn" style="background-color: hsl(205, 46%, 43%);color: white;">Guardar Grafo</button>
+            <!-- Algoritmo Northwest button -->
+            <button onclick="cargarGrafo()" class="custom-btn" style="background-color: rgb(30, 39, 140);color: white;padding-left:1%;padding-right:1%;">Cargar Grafo</button>
+            <!--
+            <section>
+                <input type="radio" id="minimo" name="radio" checked onclick="cambiarSeleccion(0)"><label for="minimo">MÍNIMO</label>    
+                <input type="radio" id="maximo" name="radio" onclick="cambiarSeleccion(1)"><label for="maximo">MÁXIMO</label>
+            </section>
+            
+            <button onclick="noroeste()" class="custom-btn" style="background-color: rgb(111, 18, 52);color: white;padding-left:1%;padding-right:1%;">Northwest</button>
+            <button onclick="voguel_max()" class="custom-btn" style="background-color: rgb(111, 18, 52);color: white;padding-left:1%;padding-right:1%;">Voguel Max</button>
+            <button onclick="voguel_min()" class="custom-btn" style="background-color: rgb(111, 18, 52);color: white;padding-left:1%;padding-right:1%;">Voguel MIn</button>
+            -->
+
+            <button onclick="noroeste_max()" class="custom-btn" style="background-color: rgb(18, 111, 80);color: white;padding-left:1%;padding-right:1%;">Northwest Max</button>
+            <button onclick="noroeste_min()" class="custom-btn" style="background-color: rgb(18, 111, 80);color: white;padding-left:1%;padding-right:1%;">Northwest Min</button>
+        </div>
+        
+        <!-- Contenedor para el lienzo y la matriz -->
+        <center>
+          <div id="cont">
+            <div id="cont">
+            <div id="lienzo" style="width: 65%; height: 600px;background-color:rgb(248, 248, 251);margin: left 2%;border-radius:30px;"></div>
+            <div id="matriz" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+            
+            <div id="matriz_costos" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+
+            <div id='findOptimal'></div>
+            
+            <div id="northwest1" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+            <div id="northwest_max" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+            <div id="northwest_min" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+            
+            <!--
+            <div id="northwest" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+            <div id="voguel_max" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+            <div id="voguel_min" style="background-color: aliceblue;margin:20px;margin-left:250px;margin-right:250px;"></div>
+            -->
+            
+          </div>
+        </center>
+        
+    </section>
+
+    <!-- Footer -->
+    <footer id="footer">
+        <h3>
+            Grafos: Análisis de Algoritmos MAT-361
+            <br>
+            © 2024
+        </h3>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="assets/js/northwest_grafo.js"></script>
+    
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/browser.min.js"></script>
+    <script src="assets/js/breakpoints.min.js"></script>
+    <script src="assets/js/util.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.min.js"></script>
+</body>
+</html>

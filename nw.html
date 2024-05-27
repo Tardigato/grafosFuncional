@@ -32,60 +32,6 @@
           // Your JavaScript code here
         });
         
-        // Function to retrieve matrix data
-        function getMatrixData() {
-            const rows = parseInt(document.sizeForm.rowValue.value) || 5;
-            const cols = parseInt(document.sizeForm.colValue.value) || 7;
-            const matrix = [];
-
-            for (let i = 0; i < rows; i++) {
-                const row = [];
-                for (let j = 0; j < cols; j++) {
-                    const inputId = `cell_${i}_${j}`;
-                    const inputValue = parseFloat(document.getElementById(inputId).value) || 0;
-                    row.push(inputValue);
-                }
-                matrix.push(row);
-            }
-
-            return {
-                rows: rows,
-                cols: cols,
-                data: matrix
-            };
-        }
-        
-        // Function to save graph
-        function guardarGrafo() {
-            const nombreArchivo = prompt('Por favor, ingresa un nombre para guardar el grafo:', 'grafo');
-            if (nombreArchivo !== null) {
-                const grafoJSON = JSON.stringify(getMatrixData());
-                const blob = new Blob([grafoJSON], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = nombreArchivo + '.json';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            }
-        }
-
-        function cargarGrafo() {
-            const inputArchivo = document.getElementById('inputArchivo');
-            const file = inputArchivo.files[0];
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const contenido = event.target.result;
-                const datos = JSON.parse(contenido);
-                nodosDataSet.clear();
-                aristasDataSet.clear();
-                nodosDataSet.add(datos.nodos);
-                aristasDataSet.add(datos.aristas);
-            };
-            reader.readAsText(file);
-        }
     </script>
     
     <style>
@@ -231,16 +177,16 @@ td select:focus {
         </div>
     </div>
     
-    <!-- CONTACTOS -->
+    <!-- BOTONES -->
     <section class="wrapper">
         <div class="side-buttons" style="color: white;margin-top:1%;">
             <!-- Guardar Grafo button -->
-            <button type="button" id="guardarGrafoBtn">Guardar Grafo</button>
+            <button onclick="guardarMatriz()" class="custom-btn" style="background-color: rgb(59, 61, 161);color: white;">Guardar</button>
 
             <!-- Input para cargar el grafo -->
-            <input type="file" id="inputArchivo" accept=".json" class="custom-btn" style="background-color: #5da13b;margin-top:5%;margin-bottom:5%;padding:5%;font-size:50%">
+            <input type="file" id="inputArchivo" accept=".json" class="custom-btn" style="background-color: rgb(93, 161, 59);margin-top:5%;margin-bottom:5%;padding:5%;font-size:50%">
             <!-- Cargar Grafo button -->
-            <button onclick="cargarGrafo()" class="custom-btn" style="background-color: hsl(205, 46%, 43%);color: white;">Cargar</button>
+            <button onclick="cargarMatriz()" class="custom-btn" style="background-color: rgb(93, 161, 59);color: white;">Cargar</button>
             <form name='sizeForm' onsubmit='return false' style="margin-left: 10%;font-size:100%;font-family: 'Times New Roman', Times, serif;">
                 Ingrese la cantidad de filas: <input type='text' name='rowValue' placeholder="5" style='width:70px;background:rgb(255, 255, 255);' onkeydown='if(event.keyCode==13){document.getElementById("makeFormButton").click();}'/>
                 <br>
