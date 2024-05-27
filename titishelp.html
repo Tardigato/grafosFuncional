@@ -1,0 +1,136 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>help</title>
+	<meta charset="utf-8">
+	<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<meta name="description" content="">
+	<meta name="keywords" content="">
+	<link rel="stylesheet" href="assets/css/main.css">
+    <style>
+        .columnas {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .imagen {
+            width: 50%; /* Ajusta el tamaño según tus necesidades */
+            max-width: 200px; /* Limita el tamaño máximo */
+        }
+    </style>
+</head>
+<body class="is-preload">
+
+	<!-- Header -->
+	<header id="header">
+		<a class="logo" href="index.html">GraphifyMe</a>
+		<nav>
+			<a href="#menu">Menu</a>
+		</nav>
+	</header>
+	<!-- Nav -->
+	<nav id="menu">
+		<ul class="links">
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="dibujar_grafos.html">Dibujar grafos</a></li>
+            <li><a href="jhonson.html">Algoritmo Jonhson</a></li>
+            <li><a href="asignacion.html">Algoritmo de Asignación</a></li>
+            <li><a href="nw.html">Algoritmo Northwest</a></li>
+            <li><a href="sort.html">Sort</a></li>
+            <li><a href="DIJKSTRA.html">Dijkstra</a></li>
+			<li><a href="kruskal.html">Kruskal</a></li>
+			<li><a href="compet.html">Compet</a></li>
+			<li><a href="titi.html">Titi's Houses</a></li>
+            <li><a href="contactos.html">Contactos</a></li>
+        </ul>
+	</nav>
+	<!-- Heading -->
+	<div id="heading">
+		<h1>Help</h1>
+	</div>
+
+	<!-- Main -->
+	<section id="main" class="wrapper">
+		<div class="inner">
+			<div class="content">
+				<header>
+					<h2>Si tienes dudas de como funciona la página aquí te lo explicamos.</h2>
+				</header>
+				<h3 class="text">
+                    En esta página se verá el funcionamiento del algoritmo de <strong><em>Kruskal</em></strong>, aplicado a la empresa <strong><em>Titi's Houses</em></strong> dedicada a la comercialización
+                    de modelos de casas en miniatura. El algortimo de Kruskal puede serle útil para: <br>
+                    
+                    <ul>
+                        <li><strong>Optimizar sus estrategias de marketing para llegar a sus clientes objetivo de la manera más efectiva.</strong> <br>
+                            Cada cliente es representado como un nodo en un grafo y cada arista representa la 
+                            conexión entre los clientes; así se puede buscar minimizar la distancia geográfica entre los clientes para llegar a todos y a nuevos clientes objetivos o maximizar la frecuencia de compra
+                            de los clientes.</li>
+                        <li><strong>Optimizar sus estrategias de marketing utilizando múltiples redes sociales para llegar a su público objetivo de la manera más efectiva.</strong> <br>
+                            Cada red social es representada como un nodo en un grafo, y las arista representan la conexión entre dos redes sociales, los pesos de las aristas pueden representar:
+                            La facilidad de transferecia de audiencia de una red social a otra y así maximizar el alcance de Titi's Houses o para reducir los costos de totales de las campañas de marketing entre redes sociales
+                        </li>
+                    </ul>
+                </h3>
+                <h3 class="text">
+                    Lo primero que visualizarás en esta página será que a tu derecha cuentas con una serie de botones y en el medio de tu pantalla un lienzo, que es donde ocurrirá la magia.<br>
+                    Primero cuntas con un menú desplegable donde podrás elegir la <strong>Imagen</strong> que quieres utilizar para tus nodos, pueden ser representados por tus clientes, o por una computadora que simboliza las redes sociales.<br>
+                
+                    <div class="columnas">
+                        <img src="images/persona_png.png" alt="Persona" class="imagen">
+                        <img src="images/computer_png.png" alt="Red social" class="imagen">
+                    </div>
+                    Cuando presiones el boton de <strong>Crear Nodo</strong> y posteriormente presiones el lienzo se creará un nodo en donde hagas <i>click</i> con el mouse 
+                    (dentro del lienzo). Debes repetir este proceso hasta que crees los nodos con los que estés cómodo.<br>
+                </h3>
+                <h3 class="text">
+                    Si quieres cambiar el nombre a un nodo, selecciona el nodo que quieres renombrar y selecciona el boton <strong>Renombrar Nodo</strong>. Si no seleccionaste ningún nodo para 
+                    renombrar te aparecerá un pequeño mensaje que te recoradará hacer la selección del nodo.
+                </h3>
+                <h3 class="text">
+                    Para eliminar un nodo, es el mismo proceso que el de renombrar nodo, solo que tendrás que selecconar el botón <strong>Eliminar Nodo</strong>
+                </h3>
+                <h3 class="text">
+                    Si quieres conectar 2 nodos, lo único que debes hacer es hacer <i>click</i> en aquellos nodos que quieras conectar, la arista se creará automáticamente.
+                    <br>
+                    Para ponerle un peso a la arista que se ha generado debes hacer doble click sobre la arista, te aparecerá un mensaje en el cuál debes ingresar
+                    el peso que quieres que tenga la arista seleccionada.<br>
+                    Si por el contrario creaste una arista con la que no te sientes conforme, seleciona la arista y <strong>oprime el botón de blackspace o esc en tu teclado.</strong>
+                </h3>
+                <h3 class="text">
+                    Si quieres descubir el valor mínimo con el que resuleves tu problema, presiona el botón de <strong>Kruskal menor</strong>, este se encargará de resaltar las aristas que tienen
+                    el menor peso y el camino que debes seguir para pasar por todos tus nodos utilizando recursos mínimos y sin cerrar los polígonos.<br>
+                    El valor obtenido lo podrás visualizar en la parte inferior dentro de un rectángulo de color celeste.
+                </h3>
+                <h3 class="text">
+                    Si quieres descubir el valor máximo con el que resuleves tu problema, presiona el botón de <strong>Kruskal mayor</strong>, este al contrario del anterios se encargará de resaltar las aristas que tienen
+                    el mayor peso, pero funciona de igual manera que el primero solo que maximizando los resultados.<br>
+                    El valor obtenido lo podrás visualizar en la parte inferior dentro de un rectángulo de color celeste..
+                </h3>
+                <h3 class="text">
+                    Si quieres guardar el grafo que creaste sólo debes presionar <strong>Guardar Grafo</strong>, podrás ponerle el nombre que quieras a tu archivo, éste se guardará en tu dispositivo.
+                </h3>
+                <h3 class="text">
+                    Finalmente, para volver a cargar un grafo que tienes guardado debes presionar en <strong>Seleccionar Archivo</strong>, seleccionas tu archivo y presionas el botón
+                    <strong>Cargar Grafo</strong>, tu grafo se mostrará en el lienzo y podrás continuar con tu trabajo.
+                </h3>
+			</div>
+		</div>
+	</section>
+	    <!-- Footer -->
+		<footer id="footer">
+			<h3>
+				Grafos: Análisis de Algoritmos MAT-361
+				<br>
+				© 2024
+			</h3>
+		</footer>
+
+	<!-- Scripts -->
+	<script src="assets/js/jquery.min.js"></script>
+	<script src="assets/js/browser.min.js"></script>
+	<script src="assets/js/breakpoints.min.js"></script>
+	<script src="assets/js/util.js"></script>
+	<script src="assets/js/main.js"></script>
+</body>
+</html>

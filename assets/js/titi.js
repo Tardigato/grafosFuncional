@@ -35,7 +35,6 @@ function inicializarGrafo() {
   
 
 // Función para manejar el clic en un nodo
-// Función para manejar el clic en un nodo
 function clicEnNodo(propiedades) {
   const { nodes } = propiedades;
   if (nodes.length > 0) {
@@ -98,7 +97,7 @@ document.addEventListener('keydown', function(event) {
     // Verificar si hay una arista seleccionada
     const seleccion = grafo.getSelection();
     if (seleccion.edges.length > 0) {
-      // Eliminar la arista seleccionada
+      // Eliminar la arisata seleccionada
       eliminarArista(seleccion.edges[0]);
     }
   }
@@ -118,13 +117,15 @@ function agregarNodo() {
       if (modoAgregarNodo) {
         const position = event.pointer.canvas; // Obtiene las coordenadas del clic
         const nuevoId = nodosDataSet.length + 1; // Genera un nuevo ID único para el nodo
+        const imageSelector = document.getElementById('imageSelector');
+        const selectedImage = imageSelector.value;
         nodosDataSet.add({
           id: nuevoId,
           label: 'Nodo ' + nuevoId,
           x: position.x,
           y: position.y,
           shape: 'image', // Especifica que este nodo usará una imagen
-          image: 'images/persona_png.png' // URL de la imagen del nodo
+          image: selectedImage // URL de la imagen del nodo
         });
         // Removemos el evento después de agregar el nodo para evitar agregar nodos adicionales con clics posteriores
         grafo.off('click');
@@ -163,14 +164,6 @@ function eliminarNodo() {
     alert('Por favor, seleccione un nodo primero.');
   }
 }
-
-
-
-
-
-// Call this function when you want to find the shortest path
-
-
 
 // Function to generate the adjacency matrix
 function generarMatriz() {
@@ -290,51 +283,51 @@ function cargarGrafo() {
     reader.readAsText(file);
   }
 
-  // Kruskal's algorithm function.
-  function kruskal() {
-    const edges = [];
-    // Generate the list of edges
-    aristasDataSet.forEach(arista => {
-        const { from, to } = arista;
-        const weight = parseInt(arista.label || 1);
-        edges.push([from, to, weight]);
-    });
-    
-    // Sort the edges by weight (in ascending order).
-    edges.sort((a, b) => a[2] - b[2]);
 
-    const unionFind = new UnionFind(nodosDataSet.length);
-    const mst = []; // This will hold the edges of our minimum spanning tree.
-    let sumaAristasResaltadas = 0; // Variable para almacenar la suma de los pesos de las aristas resaltadas
+// Kruskal's algorithm function.
+function kruskal() {
+  const edges = [];
+  // Generate the list of edges
+  aristasDataSet.forEach(arista => {
+      const { from, to } = arista;
+      const weight = parseInt(arista.label || 1);
+      edges.push([from, to, weight]);
+  });
+  
+  // Sort the edges by weight (in ascending order).
+  edges.sort((a, b) => a[2] - b[2]);
 
-    // For every edge, in increasing order of their weight.
-    for (const [u, v, weight] of edges) {
-        // If the two vertices of the edge are in different subsets, add the edge to the MST.
-        if (unionFind.find(u) !== unionFind.find(v)) {
-            mst.push([u, v, weight]);
-            unionFind.union(u, v); // Merge the two subsets.
-            sumaAristasResaltadas += weight; // Agregar el peso de la arista al total
-        }
-    }
+  const unionFind = new UnionFind(nodosDataSet.length);
+  const mst = []; // This will hold the edges of our minimum spanning tree.
+  let sumaAristasResaltadas = 0; // Variable para almacenar la suma de los pesos de las aristas resaltadas
 
-    // Highlight the edges in the MST
-    aristasDataSet.forEach(arista => {
-        const { from, to } = arista;
-        if (mst.some(edge => (edge[0] === from && edge[1] === to) || (edge[0] === to && edge[1] === from))) {
-            aristasDataSet.update({ id: arista.id, color: { color: 'red', highlight: 'red' } });
-        } else {
-            aristasDataSet.update({ id: arista.id, color: { color: 'blue', highlight: 'blue' } });
-        }
-    });
+  // For every edge, in increasing order of their weight.
+  for (const [u, v, weight] of edges) {
+      // If the two vertices of the edge are in different subsets, add the edge to the MST.
+      if (unionFind.find(u) !== unionFind.find(v)) {
+          mst.push([u, v, weight]);
+          unionFind.union(u, v); // Merge the two subsets.
+          sumaAristasResaltadas += weight; // Agregar el peso de la arista al total
+      }
+  }
 
-    // Actualizar el contenido del elemento HTML con la suma de los pesos de las aristas resaltadas
-    document.getElementById('sumaAristas').innerText = 'Suma de los pesos de las aristas resaltadas: ' + sumaAristasResaltadas;
+  // Highlight the edges in the MST
+  aristasDataSet.forEach(arista => {
+      const { from, to } = arista;
+      if (mst.some(edge => (edge[0] === from && edge[1] === to) || (edge[0] === to && edge[1] === from))) {
+          aristasDataSet.update({ id: arista.id, color: { color: 'red', highlight: 'red' } });
+      } else {
+          aristasDataSet.update({ id: arista.id, color: { color: 'blue', highlight: 'blue' } });
+      }
+  });
+
+  // Actualizar el contenido del elemento HTML con la suma de los pesos de las aristas resaltadas
+  document.getElementById("sumaAristas").innerHTML = `Suma de las Aristas: ${sumaAristasResaltadas}`;
 }
-
 
 // Función para ejecutar Kruskal y resaltar las aristas resultantes
 function ejecutarKruskal() {
-    kruskal();
+  kruskal();
 }
 
 class UnionFind {
@@ -414,7 +407,7 @@ function kruskalWithHighestWeight() {
   });
 
   // Actualizar el contenido del elemento HTML con la suma de los pesos de las aristas resaltadas
-  document.getElementById('sumaAristas').innerText = 'Suma de los pesos de las aristas resaltadas: ' + sumaAristasResaltadas;
+  document.getElementById("sumaAristas").innerHTML = `Suma de las Aristas: ${sumaAristasResaltadas}`;
 }
 
 // Function to execute Kruskal with highest weight and highlight the resulting edges
