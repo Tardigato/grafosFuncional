@@ -479,64 +479,65 @@ function inicializarGrafo() {
       }
       
 
-    function calcularRutaMasLarga() {
-        // Reiniciar los colores de las aristas
+      function calcularRutaMasLarga() {
+        // Reset edge colors
         aristasDataSet.forEach(edge => {
-          aristasDataSet.update({ id: edge.id, color: { color: 'blue', highlight: 'blue' } });
+            aristasDataSet.update({ id: edge.id, color: { color: 'blue', highlight: 'blue' } });
         });
-      
+    
         const nodoInicio = parseInt(document.getElementById('nodoInicio').value);
         const nodoDestino = parseInt(document.getElementById('nodoDestino').value);
-      
+    
         if (isNaN(nodoInicio) || isNaN(nodoDestino)) {
-          alert('Por favor, ingrese nodos de inicio y destino válidos.');
-          return;
+            alert('Por favor, ingrese nodos de inicio y destino válidos.');
+            return;
         }
-      
+    
         const aristas = aristasDataSet.get();
-        
         let mejorRuta = [];
         let mejorDistancia = -Infinity;
-      
+    
+        // Depth-First Search function
         function dfs(nodo, destino, rutaActual, distanciaActual) {
-          if (nodo === destino) {
-            if (distanciaActual > mejorDistancia) {
-              mejorDistancia = distanciaActual;
-              mejorRuta = [...rutaActual];
+            if (nodo === destino) {
+                if (distanciaActual > mejorDistancia) {
+                    mejorDistancia = distanciaActual;
+                    mejorRuta = [...rutaActual];
+                }
+                return;
             }
-            return;
-          }
-      
-          aristas.forEach(arista => {
-            if (arista.from === nodo && !rutaActual.includes(arista.to)) {
-              rutaActual.push(arista.to);
-              dfs(arista.to, destino, rutaActual, distanciaActual + parseInt(arista.label));
-              rutaActual.pop();
-            }
-          });
+    
+            aristas.forEach(arista => {
+                if (arista.from === nodo && !rutaActual.includes(arista.to)) {
+                    rutaActual.push(arista.to);
+                    dfs(arista.to, destino, rutaActual, distanciaActual + parseInt(arista.label));
+                    rutaActual.pop();
+                }
+            });
         }
-      
+    
         dfs(nodoInicio, nodoDestino, [nodoInicio], 0);
-      
+    
         if (mejorRuta.length === 0) {
-          alert('No se encontró una ruta desde el nodo de inicio al nodo de destino.');
+            alert('No se encontró una ruta desde el nodo de inicio al nodo de destino.');
         } else {
-          alert('Ruta más larga: ' + mejorRuta.join(' -> ') + ' con una distancia de ' + mejorDistancia);
-          
-          // Resaltar las aristas del camino más largo
-          for (let i = 0; i < mejorRuta.length - 1; i++) {
-            const aristasEnRuta = aristasDataSet.get({
-              filter: edge =>
-                (edge.from === mejorRuta[i] && edge.to === mejorRuta[i + 1]) ||
-                (edge.to === mejorRuta[i] && edge.from === mejorRuta[i + 1])
-            });
-      
-            aristasEnRuta.forEach(arista => {
-              aristasDataSet.update({ id: arista.id, color: { color: 'red' } });
-            });
-          }
+            alert('Ruta más larga: ' + mejorRuta.join(' -> ') + ' con una distancia de ' + mejorDistancia);
+            
+            // Highlight the edges of the longest path
+            for (let i = 0; i < mejorRuta.length - 1; i++) {
+                const aristasEnRuta = aristasDataSet.get({
+                    filter: edge =>
+                        (edge.from === mejorRuta[i] && edge.to === mejorRuta[i + 1]) ||
+                        (edge.to === mejorRuta[i] && edge.from === mejorRuta[i + 1])
+                });
+    
+                aristasEnRuta.forEach(arista => {
+                    aristasDataSet.update({ id: arista.id, color: { color: 'red' } });
+                });
+            }
         }
-      }
+    }
+    
       
       
       
